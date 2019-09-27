@@ -1,23 +1,26 @@
-CREATE TABLE Courses (
+CREATE TABLE Course (
 	cid		integer PRIMARY KEY,
 	cname	varchar(80)
 );
 
-CREATE TABLE Students (
+
+CREATE TABLE Student (
 	sid		integer PRIMARY KEY,
 	name	varchar(80),
 	year	integer
 );
 
+
 CREATE TABLE Professor (
-	cid		integer PRIMARY KEY REFERENCES Courses,
+	cid		integer PRIMARY KEY REFERENCES Course,
 	pid		integer,
 	name	varchar(80),
 	UNIQUE (pid)
 );
 
+
 CREATE TABLE StudentCourse (
-	sid		integer REFERENCES Students,
+	sid		integer REFERENCES Student,
 	cid		integer REFERENCES Course,
 	year	integer,
 	sem		integer,
@@ -25,7 +28,25 @@ CREATE TABLE StudentCourse (
 	PRIMARY KEY (sid, cid, year, sem)
 );
 
+
 CREATE TABLE CurrentCourse AS
 	SELECT sid, cid 
 	FROM StudentCourse NATURAL JOIN Professor
 	WHERE year = 2019 AND sem = 1;
+ALTER TABLE CurrentCourse
+	ADD PRIMARY KEY (sid, cid);
+
+
+CREATE TABLE PossibleTA AS
+	SELECT sid, cid
+	FROM StudentCourse
+	WHERE (year < 2019 OR sem < 1) AND grade LIKE ‘A%’;
+ALTER TABLE PossibleTA
+	ADD PRIMARY KEY (sid, cid);
+
+
+CREATE TABLE TeachingAssistant (
+	sid		integer PRIMARY KEY,
+	cid		integer,
+	FOREIGN KEY (sid, cid) REFERENCES PossibleTA
+);
