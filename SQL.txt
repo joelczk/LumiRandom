@@ -1,29 +1,29 @@
 CREATE TABLE Course (
-	cid		integer PRIMARY KEY,
+	cid	integer PRIMARY KEY,
 	cname	varchar(80)
 );
 
 
 CREATE TABLE Student (
-	sid		integer PRIMARY KEY,
+	sid	integer PRIMARY KEY,
 	name	varchar(80),
 	year	integer
 );
 
 
 CREATE TABLE Professor (
-	cid		integer PRIMARY KEY REFERENCES Course,
-	pid		integer,
+	cid	integer PRIMARY KEY REFERENCES Course,
+	pid	integer,
 	name	varchar(80),
 	UNIQUE (pid)
 );
 
 
 CREATE TABLE StudentCourse (
-	sid		integer REFERENCES Student,
-	cid		integer REFERENCES Course,
+	sid	integer REFERENCES Student,
+	cid	integer REFERENCES Course,
 	year	integer,
-	sem		integer,
+	sem	integer,
 	grade	varchar(5),
 	PRIMARY KEY (sid, cid, year, sem)
 );
@@ -46,7 +46,7 @@ ALTER TABLE PossibleTA
 
 
 CREATE TABLE TeachingAssistant (
-	sid		integer PRIMARY KEY,
-	cid		integer,
+	sid	integer PRIMARY KEY,
+	cid	integer,
 	FOREIGN KEY (sid, cid) REFERENCES PossibleTA
 );
