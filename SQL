@@ -1,1 +1,31 @@
+CREATE TABLE Courses (
+	cid		integer PRIMARY KEY,
+	cname	varchar(80)
+);
 
+CREATE TABLE Students (
+	sid		integer PRIMARY KEY,
+	name	varchar(80),
+	year	integer
+);
+
+CREATE TABLE Professor (
+	cid		integer PRIMARY KEY REFERENCES Courses,
+	pid		integer,
+	name	varchar(80),
+	UNIQUE (pid)
+);
+
+CREATE TABLE StudentCourse (
+	sid		integer REFERENCES Students,
+	cid		integer REFERENCES Course,
+	year	integer,
+	sem		integer,
+	grade	varchar(5),
+	PRIMARY KEY (sid, cid, year, sem)
+);
+
+CREATE TABLE CurrentCourse AS
+	SELECT sid, cid 
+	FROM StudentCourse NATURAL JOIN Professor
+	WHERE year = 2019 AND sem = 1;
