@@ -7,7 +7,8 @@ CREATE TABLE Course (
 CREATE TABLE Student (
 	sid	integer PRIMARY KEY,
 	name	varchar(80),
-	year	integer
+	year	integer,
+	password integer
 );
 
 
@@ -48,5 +49,6 @@ ALTER TABLE PossibleTA
 CREATE TABLE TeachingAssistant (
 	sid	integer PRIMARY KEY,
 	cid	integer,
+	password integer
 	FOREIGN KEY (sid, cid) REFERENCES PossibleTA
 );
