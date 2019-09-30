@@ -1,20 +1,27 @@
+CREATE TABLE users(
+	sid varchar(80),
+	role varchar(80),
+	password (80)
+);
+
+
 CREATE TABLE Course (
-	cid	integer PRIMARY KEY,
+	cid	varchar(80) PRIMARY KEY,
 	cname	varchar(80)
 );
 
 
 CREATE TABLE Student (
-	sid	integer PRIMARY KEY,
+	sid	varchar(80) PRIMARY KEY REFERENCES user(id),
 	name	varchar(80),
 	year	integer,
-	password integer
+	password varchar(80)
 );
 
 
 CREATE TABLE Professor (
-	cid	integer PRIMARY KEY REFERENCES Course,
-	pid	integer,
+	cid	varchar(80) PRIMARY KEY REFERENCES Course,
+	pid	varchar(80),
 	name	varchar(80),
 	UNIQUE (pid)
 );
@@ -47,8 +54,8 @@ ALTER TABLE PossibleTA
 
 
 CREATE TABLE TeachingAssistant (
-	sid	integer PRIMARY KEY,
-	cid	integer,
+	sid	varchar(80) PRIMARY KEY REFERENCES users(id),
+	cid	varchar(80),
 	password integer
 	FOREIGN KEY (sid, cid) REFERENCES PossibleTA
 );
