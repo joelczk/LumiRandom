@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 
 <head>
-    <title>Register</title>
+    <title>Login</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/design.css')}}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
 </head>
 <style>
     body,html {
@@ -22,9 +23,9 @@
 </style>
 <body id="myPage">
     <div id="w3-top">
-        <div class="w3-bar w3-black w3-left-align">
+        <div class = "w3-bar w3-black w3-left-align">
             <a class="w3-bar-item w3-button w3-hide-medium w3-hide-large w3-right w3-hover-white w3-theme-d2" href="javascript:void(0);" onclick="openNav()"><i class="fa fa-bars"></i></a>
-            <a href="index.html" class="w3-bar-item w3-button w3-teal"><i class="fa fa-home w3-margin-right"></i>CS2102 Project</a>
+            <a href="#" class="w3-bar-item w3-button w3-teal"><i class="fa fa-home w3-margin-right"></i>CS2102 Project</a>
             <a href="" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Adminstrators</a>
             <a href="" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Student</a>
             <a href="" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Forums</a>
@@ -35,16 +36,53 @@
                     <a href="#" class="w3-bar-item w3-button">TA groups</a>
                 </div>
             </div>
-            <a href="login.html" class="w3-bar-item w3-button w3-hide-small w3-right w3-hover-teal" title="login"><i class="fa fa-sign-in"></i></a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('logout') }}" class="w3-bar-item w3-button w3-hide-small w3-right w3-hover-teal" title="logout"><i class="fa fa-sign-out"></i>Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="w3-bar-item w3-button w3-hide-small w3-right w3-hover-teal" title="login"><i class="fa fa-sign-in"></i> Login</a>
+            {% endif %}
         </div>
     </div>
     <div class = "bg">
-        <div class = "w3-center">
-            <p style = "margin-top: 3%; font: Georgia; font-size:300%"><b>Register</b></p>
-        </div>  
-        <div style = "margin-left:30%; margin-right:10%;margin-top: 2%; width:40%; height: 60%; background-color: white; border-radius: 25px"></div>
+        <div class = "w3-container w3-center w3-display-middle w3-white w3-border w3-hover-border-red" style = "text-align: center; width: 30%; height: 70%; margin-top: 3%;border-radius: 25px ; position: fixed">
+            <p style = "margin-top: 3%; font-size:200%"><b>Register</b></p>
+            <form action = "." method = "POST">
+                <div class = "w3-dispay-middle" style = "margin-top: 5%">
+                    <label for = "username">Student ID</label>
+                    <input class = "form-control" id = "username" name = "username" placeholder = "Enter your username">
+                </div>
+                <div class = "w3-dispay-middle">
+                    <p>
+                        <label for = "password">Password</label>
+                        <input type = "password" class = "form-control" id = "password" name = "password" placeholder = "Enter your password">
+                    </p>
+                </div>
+                <div class = "w3-dispay-middle">
+                    <p>
+                        <label for = "confirm_password">Confirm Password</label>
+                        <input type = "confirm_password" class = "form-control" id = "password" name = "password" placeholder = "Please re-enter password">
+                    </p>
+                </div>
+                {% if error %}
+                <div class = "alert alert-danger" role = "alert">Incorrect Username or Password</div>
+                <div class = "w3-display-middle" style = "margin-top:20%">
+                    <button type = "submit" class = "btn btn-success">Login</button>
+                </div>
+                <div class = "w3-dispay-middle" style = "margin-top:20%">
+                    <p>New User? Click <a href = "{{ url_for('register') }}">here</a> to create a new account</p>
+                </div>
+                {% else %}
+                <div class = "w3-display-middle" style = "margin-top:20%">
+                    <button type = "submit" class = "btn btn-success">Login</button>
+                </div>
+                <div class = "w3-dispay-middle" style = "margin-top:20%">
+                    <p>New User? Click <a href = "{{ url_for('register') }}">here</a> to create a new account</p>
+                </div>
+                {% endif %}
+            </form>
+        </div>
     </div>
-</body>
+
 <script>
     //side navigation
     function w3_open() {
