@@ -58,6 +58,10 @@ def load_role(role):
 @app.route("/")
 def home():
     return render_template('index.html')
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    return render_template("register.html")
   
 @app.route("/login/", methods=["GET", "POST"])
 def login():
