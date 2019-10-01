@@ -44,12 +44,20 @@
         </div>
     </div>
     <div class = "bg">
-        <div class = "w3-container w3-center w3-display-middle w3-white w3-border w3-hover-border-red" style = "text-align: center; width: 30%; height: 70%; margin-top: 3%;border-radius: 25px ; position: fixed">
-            <p style = "margin-top: 3%; font-size:200%"><b>Register</b></p>
+        <div class = "w3-container w3-center w3-display-middle w3-white w3-border w3-hover-border-red" style = "text-align: center; width: 30%; height: 90%; margin-top: 1%;border-radius: 25px ; position: fixed">
+            <p style = "margin-top: 3%; font-size:200%"><b>Login</b></p>
             <form action = "." method = "POST">
-                <div class = "w3-dispay-middle" style = "margin-top: 5%">
-                    <label for = "username">Student ID</label>
+                <div class = "w3-dispay-middle">
+                    <label for = "name">Name</label>
+                    <input class = "form-control" id = "name" name = "name" placeholder = "Enter your name">
+                </div>
+                <div class = "w3-dispay-middle" style = "margin-top: 2%">
+                    <label for = "username">Student/Tutor ID</label>
                     <input class = "form-control" id = "username" name = "username" placeholder = "Enter your username">
+                </div>
+                <div class = "w3-dispay-middle" style = "margin-top: 2%">
+                    <label for = "username">Role(Student/Tutor)</label>
+                    <input class = "form-control" id = "role" name = "role" placeholder = "Enter your role">
                 </div>
                 <div class = "w3-dispay-middle">
                     <p>
@@ -57,26 +65,27 @@
                         <input type = "password" class = "form-control" id = "password" name = "password" placeholder = "Enter your password">
                     </p>
                 </div>
-                <div class = "w3-dispay-middle">
-                    <p>
-                        <label for = "confirm_password">Confirm Password</label>
-                        <input type = "confirm_password" class = "form-control" id = "password" name = "password" placeholder = "Please re-enter password">
-                    </p>
+                <div class = "w3-dispay-middle" style = "margin-top:5%">
+                    <p>Already have an account? Click <a href = "{{ url_for('login') }}">here</a> to login</p>
                 </div>
-                {% if error %}
-                <div class = "alert alert-danger" role = "alert">Incorrect Username or Password</div>
-                <div class = "w3-display-middle" style = "margin-top:20%">
-                    <button type = "submit" class = "btn btn-success">Login</button>
+                {% if error1 %}
+                <div class = "alert alert-danger" role = "alert">Username already in use</div>
+                <div class = "w3-dispay-middle" style = "margin-top: 10%">
+                    <button type = "submit" class = "btn btn-success">Submit</button>
                 </div>
-                <div class = "w3-dispay-middle" style = "margin-top:20%">
-                    <p>Already have an account? Click <a href = "{{ url_for('login') }}">here</a></p>
+                {% elif error2 %}
+                <div class = "alert alert-danger" role = "alert">Name already in use</div>
+                <div class = "w3-dispay-middle" style = "margin-top: 10%">
+                    <button type = "submit" class = "btn btn-success">Submit</button>
+                </div>
+                {% elif error3 %}
+                <div class = "alert alert-danger" role = "alert">Invalid Role(Please use student/tutor only)</div>
+                <div class = "w3-dispay-middle" style = "margin-top: 10%">
+                    <button type = "submit" class = "btn btn-success">Submit</button>
                 </div>
                 {% else %}
-                <div class = "w3-display-middle" style = "margin-top:20%">
-                    <button type = "submit" class = "btn btn-success">Login</button>
-                </div>
-                <div class = "w3-dispay-middle" style = "margin-top:20%">
-                    <p>Already have an account? Click <a href = "{{ url_for('login') }}">here</a></p>
+                <div class = "w3-display-middle" style = "margin-top:40%">
+                    <button type = "submit" class = "btn btn-success">Submit</button>
                 </div>
                 {% endif %}
             </form>
