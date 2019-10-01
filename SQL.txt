@@ -1,7 +1,8 @@
 CREATE TABLE users(
-	sid varchar(80) PRIMARY KEY,
-	role varchar(80),
-	password (80)
+	username varchar(80) PRIMARY KEY,
+	role varchar(80) not null,
+	password varchar(80) not null,
+	name varchar(80) not nul
 );
 
 
