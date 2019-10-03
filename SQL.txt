@@ -1,62 +1,95 @@
-CREATE TABLE users(
-	username varchar(80) PRIMARY KEY,
-	role varchar(80) not null,
-	password varchar(80) not null,
-	name varchar(80) not nul
+CREATE TABLE Students (
+	sid			INTEGER PRIMARY KEY,
+	name		VARCHAR(80) NOT NULL,
+	year		INTEGER CHECK (year >= 1 AND year <= 5),
 );
 
-
-CREATE TABLE Course (
-	cid	varchar(80) PRIMARY KEY,
-	cname	varchar(80)
+CREATE TABLE SAccount (
+	sid			INTEGER PRIMARY KEY,
+	name		VARCHAR(80) NOT NULL,
+	account_id	VARCHAR(10)	NOT NULL UNIQUE,
+	password	VARCHAR(20) NOT NULL,
+	image_file	VARCHAR(100) NOT NULL DEFAULT 'default.jpg'
+	FOREIGN KEY (sid, name) REFERENCES Students
 );
 
-
-CREATE TABLE Student (
-	sid	varchar(80) PRIMARY KEY REFERENCES user(id),
-	name	varchar(80),
-	year	integer,
-	password varchar(80)
+CREATE TABLE Courses (
+	cid			VARCHAR(10) PRIMARY KEY,
+	cname		VARCHAR(50) NOT NULL UNIQUE
 );
 
-
-CREATE TABLE Professor (
-	cid	varchar(80) PRIMARY KEY REFERENCES Course,
-	pid	varchar(80),
-	name	varchar(80),
-	UNIQUE (pid)
+CREATE TABLE TakenCourses (
+	sid			INTEGER REFERENCES Students,
+	cid			VARCHAR(10) REFERENCES Courses,
+	year		INTEGER NOT NULL,
+	sem			INTEGER CHECK (sem = 1 OR sem = 2)
+	grade		VARCHAR(5),
+	PRIMARY KEY (sid, cid)
 );
 
-
-CREATE TABLE StudentCourse (
-	sid	integer REFERENCES Student,
-	cid	integer REFERENCES Course,
-	year	integer,
-	sem	integer,
-	grade	varchar(5),
-	PRIMARY KEY (sid, cid, year, sem)
+CREATE TABLE TakingCourses (
+	sid			INTEGER REFERENCES Students,
+	cid			VARCHAR(10) REFERENCES Courses,
+	PRIMARY KEY (sid, cid)
 );
 
+CREATE TABLE Professors (
+	pid			INTEGER PRIMARY KEY,
+	name		VARCHAR(80) NOT NULL,
+	cid			VARCHAR(10) NOT NULL UNIQUE REFERENCES Courses	
+);
 
-CREATE TABLE CurrentCourse AS
-	SELECT sid, cid 
-	FROM StudentCourse NATURAL JOIN Professor
-	WHERE year = 2019 AND sem = 1;
-ALTER TABLE CurrentCourse
-	ADD PRIMARY KEY (sid, cid);
+CREATE TABLE PAccount (
+	pid			INTEGER PRIMARY KEY,
+	name		VARCHAR(80) NOT NULL,
+	account_id	VARCHAR(10)	NOT NULL UNIQUE,
+	password	VARCHAR(20) NOT NULL,
+	image_file	VARCHAR(100) NOT NULL DEFAULT 'default.jpg'
+	FOREIGN KEY (pid, name) REFERENCES Professors
+);
 
+CREATE TABLE PossibleTA (
+	sid			INTEGER PRIMARY KEY,
+	cid			VARCHAR(10) NOT NULL,
+	grade		VARCHAR(5),
+	FOREIGN KEY (sid, cid) REFERENCES Taken_Courses
+);
 
-CREATE TABLE PossibleTA AS
-	SELECT sid, cid
-	FROM StudentCourse
-	WHERE (year < 2019 OR sem < 1) AND grade LIKE ‘A%’;
-ALTER TABLE PossibleTA
-	ADD PRIMARY KEY (sid, cid);
+CREATE TABLE TeachingAssistants (
+	sid			INTEGER PRIMARY KEY,
+	cid			VARCHAR(10) NOT NULL,
+	FOREIGN KEY (sid, cid) REFERENCES PossibleTA ON DELETE CASCADE
+);
 
+CREATE TABLE Groups (
+	gid			INTEGER PRIMARY KEY,
+	gname		varchar(50) NOT NULL,
+	cid			VARCHAR(10) NOT NULL REFERENCES Professors
+	sid			INTEGER REFERENCES TeachingAssistants
+);
 
-CREATE TABLE TeachingAssistant (
-	sid	varchar(80) PRIMARY KEY REFERENCES users(id),
-	cid	varchar(80),
-	password integer
-	FOREIGN KEY (sid, cid) REFERENCES PossibleTA
+CREATE TABLE GroupInfo (
+	gid			INTEGER REFERENCES Groups ON DELETE CASCADE,
+	sid			INTEGER NOT NULL,
+	name		VARCHAR(80) NOT NULL,
+	FOREIGN KEY (sid, name) REFERENCES Students,
+	PRIMARY KEY (gid, sid, name)
+);
+
+CREATE TABLE Forums (
+	fid			INTEGER PRIMARY KEY,
+	title		VARCHAR(100) NOT NULL,
+	gid			INTEGER NOT NULL REFERENCES Groups
+	pid			INTEGER NOT NULL REFERENCES Professors
+);
+
+CREATE TABLE Posts (
+	post_num	INTEGER NOT NULL,
+	fid			INTEGER REFERENCES Forums ON DELETE CASCADE,
+	sid			INTEGER NOT NULL REFERENCES Students,
+	title		VARCHAR(100) NOT NULL,
+	content		TEXT NOT NULL
+	date_posted	DATE NOT NULL,
+	rating		INTEGER DEFAULT NULL CHECK (rating IS NULL OR (rating >= 0 AND rating <= 5))
+	PRIMARY KEY (fid, post_num)
 );
