@@ -1,4 +1,4 @@
-CREATE TABLE Students (
+ TABLE Students (
 	sid		INTEGER PRIMARY KEY,
 	name		VARCHAR(80) NOT NULL,
 	year		INTEGER CHECK (year >= 1 AND year <= 5),
