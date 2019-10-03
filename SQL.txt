@@ -70,8 +70,8 @@ CREATE TABLE Groups (
 
 CREATE TABLE GroupInfo (
 	gid		INTEGER REFERENCES Groups ON DELETE CASCADE,
-	sid		INTEGER NOT NULL,
-	name		VARCHAR(80) NOT NULL,
+	sid		INTEGER,
+	name		VARCHAR(80),
 	FOREIGN KEY (sid, name) REFERENCES Students,
 	PRIMARY KEY (gid, sid, name)
 );
@@ -84,7 +84,7 @@ CREATE TABLE Forums (
 );
 
 CREATE TABLE Posts (
-	post_num	INTEGER NOT NULL,
+	post_num	INTEGER,
 	fid		INTEGER REFERENCES Forums ON DELETE CASCADE,
 	sid		INTEGER NOT NULL REFERENCES Students,
 	title		VARCHAR(100) NOT NULL,
