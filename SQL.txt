@@ -85,17 +85,23 @@ CREATE TABLE GroupInfo (
 CREATE TABLE Forums (
 	fid	 	INTEGER PRIMARY KEY,
 	title 		VARCHAR(100) NOT NULL,
-	gid	 	INTEGER NOT NULL REFERENCES Groups,
 	pid	 	INTEGER NOT NULL REFERENCES Professors
+);
+
+CREATE TABLE ForumInfo (
+	fid	 	INTEGER REFERENCES Forums,
+	gid 		INTEGER REFERENCES Groups,
+	PRIMARY KEY (fid, gid)
 );
 
 CREATE TABLE Posts (
 	post_num 	INTEGER NOT NULL,
 	fid	 	INTEGER REFERENCES Forums ON DELETE CASCADE,
 	sid	 	INTEGER NOT NULL REFERENCES Students,
+	pid 		INTEGER REFERENCES Professors,
 	title 		VARCHAR(100) NOT NULL,
 	content	 	TEXT NOT NULL,
-	date_posted 	DATE NOT NULL,
+	date_posted DATE NOT NULL,
 	rating 		INTEGER DEFAULT NULL CHECK (rating IS NULL OR (rating >= 0 AND rating <= 5)),
 	PRIMARY KEY (fid, post_num)
 );
