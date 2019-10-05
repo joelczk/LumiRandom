@@ -29,7 +29,7 @@
 	</style>
 	<body class = "bg">
 		<header class="site-header">
-			<nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+			<nav class="navbar navbar-expand-md navbar-dark bg-steel navbar-1 fixed-top">
 				<div class="container">
 					<a class="navbar-brand mr-4" href="/">LumiRandom</a>
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,14 +37,23 @@
 					</button>
 					<div class="collapse navbar-collapse" id="navbarToggle">
 						<div class="navbar-nav mr-auto">
-							<a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
 							<a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
 						</div>
 						<!-- Navbar Right Side -->
 						<div class="navbar-nav">
-							{% if current_user.is_authenticated %}
-								<a class="nav-item nav-link" href="{{ url_for('account') }}">Account</a>
-								<a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
+							{% if current_user.is_authenticated %}		  
+								<div class="dropdown">
+									<button class="nav-item nav-link bg-steel btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Menu <a class="navbar-toggler-icon ml-2"></a>
+									</button>
+									<div class="bg-paleblue dropdown-menu" aria-labelledby="dropdownMenuButton">
+										<a class="dropdown-item" href="{{ url_for('account') }}">My Profile</a>
+										<a class="dropdown-item" href="#">My Modules</a>
+										<a class="dropdown-item" href="{{ url_for('module_search')}}">Module Search</a>
+										<a class="dropdown-item" href="#">Forums</a>
+										<a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+									</div>
+								</div>
 							{% else %}
 								<a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
 								<a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>

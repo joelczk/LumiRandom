@@ -3,6 +3,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Radio
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from lumirandom.models import User
 
+
 class RegistrationForm(FlaskForm):
     f_name = StringField('First Name', validators=[DataRequired(), Length(max=20)])
     l_name = StringField('Last Name', validators=[DataRequired(), Length(max=20)])

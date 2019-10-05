@@ -10,15 +10,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 db = SQLAlchemy(app)
 
 # Uncomment this block and comment above two lines to switch from SQLite to PostGreSQL
-# You have to set up the create the database first
 #
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{username}:{password}@{host}:{port}/{database}'\
 #     .format(
 #         username='postgres',
-#         password='cs2102', # Your own password please
+#         password='cs2102',
 #         host='localhost',
 #         port=5432,
-#         database='lumirandom' # Your own database name
+#         database='lumirandom'
 #     )
 # app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 # app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

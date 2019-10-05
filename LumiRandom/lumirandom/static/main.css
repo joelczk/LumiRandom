@@ -12,6 +12,10 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #5f788a;
 }
 
+.bg-paleblue {
+  background-color: #cbd8e0
+}
+
 .site-header .navbar-nav .nav-link {
   color: #cbd5db;
 }
@@ -24,6 +28,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
 }
 
+.navbar.navbar-1 .navbar-toggler-icon {
+  background-image: url('https://mdbootstrap.com/img/svg/hamburger6.svg?color=256');
+}
+
 .content-section {
   background: #ffffff;
   padding: 10px 20px;
@@ -33,7 +41,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .content-section:hover {
-  border: 1px solid #6495ed
+  border: 1px solid #478797
 }
 
 .article-title {

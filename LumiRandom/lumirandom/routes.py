@@ -1,7 +1,7 @@
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, abort
 from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm
-from lumirandom.models import User, Post
+from lumirandom.models import User, Post, Courses
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -72,3 +72,11 @@ def logout():
 @login_required
 def account():
     return render_template('account.html', title='Account')
+
+
+@app.route("/module-search", methods=['GET', 'POST'])
+@login_required
+def module_search():
+    page = request.args.get('page', 1, type=int)
+    courses = Courses.query.paginate(page=page, per_page=15)
+    return render_template('module_search.html', title='Module Search', courses=courses)

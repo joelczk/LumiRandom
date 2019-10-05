@@ -211,6 +211,7 @@ class Forums(db.Model):
     fid = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     pid = db.Column(db.Integer, db.ForeignKey('professors.pid'), nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.now)
     post = db.relationship('Posts', cascade='all, delete', backref='forum')
     foruminfo = db.relationship('ForumInfo', backref='info')
 
