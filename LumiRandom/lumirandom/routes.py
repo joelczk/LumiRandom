@@ -37,7 +37,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(name=form.f_name.data + ' ' + form.l_name.data, account_id=form.account_id.data, password=hashed_password)
+        user = SAccount(name=form.f_name.data + ' ' + form.l_name.data, account_id=form.account_id.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
         flash(f'Account created for {form.f_name.data} {form.l_name.data}!', 'success')
@@ -51,7 +51,7 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(account_id=form.account_id.data).first()
+        user = SAccount.query.filter_by(account_id=form.account_id.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
@@ -60,6 +60,7 @@ def login():
         else:
             flash('Login Unsuccessful. Please try again.', 'danger')
     return render_template('login.html', title='Login', form=form)
+
 
 
 @app.route("/logout")
@@ -78,7 +79,7 @@ def account():
 @login_required
 def module_search():
     page = request.args.get('page', 1, type=int)
-    courses = Courses.query.paginate(page=page, per_page=15)
+    courses = Courses.query.paginate(page=page, per_page=20)
     return render_template('module_search.html', title='Module Search', courses=courses)
 
 @app.route("/students")
