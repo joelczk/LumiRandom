@@ -20,11 +20,11 @@
 			height: 100%
 		}
 		.bg {
-			background-image: url("https://mdbootstrap.com/img/Photos/Horizontal/Nature/full page/img(11).jpg");
-			height: 100%;
-			background-position: center;
-			background-repeat: no-repeat;
-			background-size: cover;
+			background: url("https://mdbootstrap.com/img/Photos/Horizontal/Nature/full page/img(11).jpg") no-repeat center center fixed;
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size : cover
 		}
 	</style>
 	<body class = "bg">
@@ -50,6 +50,8 @@
 										<a class="dropdown-item" href="{{ url_for('account') }}">My Profile</a>
 										<a class="dropdown-item" href="#">My Modules</a>
 										<a class="dropdown-item" href="{{ url_for('module_search')}}">Module Search</a>
+										<a class = "dropdown-item" href = "{{ url_for('students') }}">Students</a>
+										<a class = "dropdown-item" href = "{{ url_for('staff') }}">Module Staff</a>
 										<a class="dropdown-item" href="#">Forums</a>
 										<a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
 									</div>
