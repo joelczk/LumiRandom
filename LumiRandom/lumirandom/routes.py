@@ -1,7 +1,8 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm
-from lumirandom.models import User, Post, Courses
+from lumirandom.models import User, Post, Courses, Students
+from sqlalchemy_utils.functions import sort_query
 from flask_login import login_user, current_user, logout_user, login_required
 
 
@@ -37,7 +38,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = SAccount(name=form.f_name.data + ' ' + form.l_name.data, account_id=form.account_id.data, password=hashed_password)
+        user = User(name=form.f_name.data + ' ' + form.l_name.data, account_id=form.account_id.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
         flash(f'Account created for {form.f_name.data} {form.l_name.data}!', 'success')
@@ -51,7 +52,7 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = SAccount.query.filter_by(account_id=form.account_id.data).first()
+        user = User.query.filter_by(account_id=form.account_id.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
@@ -60,7 +61,6 @@ def login():
         else:
             flash('Login Unsuccessful. Please try again.', 'danger')
     return render_template('login.html', title='Login', form=form)
-
 
 
 @app.route("/logout")
@@ -79,13 +79,16 @@ def account():
 @login_required
 def module_search():
     page = request.args.get('page', 1, type=int)
-    courses = Courses.query.paginate(page=page, per_page=20)
+    courses = Courses.query.order_by(Courses.cid.asc(),Courses.cname.asc()).paginate(page=page, per_page=15)
     return render_template('module_search.html', title='Module Search', courses=courses)
 
-@app.route("/students")
+@app.route("/students", methods=['GET', 'POST'])
 @login_required
 def students():
-    return render_template("student.html")
+    page = request.args.get('page', 1, type=int)
+
+    students = Students.query.order_by(Students.year.asc(), Students.name.asc()).paginate(page=page, per_page=15)
+    return render_template('student.html', title='Student List', students=students)
 
 @app.route("/tutors")
 @login_required
