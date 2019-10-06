@@ -80,3 +80,13 @@ def module_search():
     page = request.args.get('page', 1, type=int)
     courses = Courses.query.paginate(page=page, per_page=15)
     return render_template('module_search.html', title='Module Search', courses=courses)
+
+@app.route("/students")
+@login_required
+def students():
+    return render_template("student.html")
+
+@app.route("/tutors")
+@login_required
+def staff():
+    return render_template("staff.html")
