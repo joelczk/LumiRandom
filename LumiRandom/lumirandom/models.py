@@ -4,7 +4,7 @@ from flask_login import UserMixin
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return SAccount.query.get(int(user_id))
 
 class User(db.Model, UserMixin):
     sid = db.Column(db.Integer, primary_key=True)
@@ -53,7 +53,7 @@ class Students(db.Model):
         return f"Students('{self.sid}', '{self.name}', '{self.year}')"
 
 
-class SAccount(db.Model):
+class SAccount(db.Model, UserMixin):
     __tablename__ = "saccount"
     __table_args__ = (
         db.ForeignKeyConstraint(['sid', 'name'], ['students.sid', 'students.name']),
@@ -85,12 +85,9 @@ class Courses(db.Model):
 
 class TakenCourses(db.Model):
     __tablename__ = "takencourses"
-    __table_args__ = (
-        db.PrimaryKeyConstraint('sid', 'cid'),
-    )
-    sid = db.Column(db.Integer, db.ForeignKey('students.sid'))
-    cid = db.Column(db.String(10), db.ForeignKey('courses.cid'))
-    year = db.Column(db.Integer, nullable=False)
+    sid = db.Column(db.Integer, db.ForeignKey('students.sid'), priamry_key=True)
+    cid = db.Column(db.String(10), db.ForeignKey('courses.cid'), primary_key=True)
+    year = db.Column(db.String(10), nullable=False)
     sem = db.Column(db.Integer, db.CheckConstraint('sem = 1 OR sem = 2'), nullable=False)
     grade = db.Column(db.String(5))
 
@@ -125,7 +122,7 @@ class Professors(db.Model):
         return f"Professors('{self.pid}', '{self.name}', '{self.cid}')"
 
 
-class PAccount(db.Model):
+class PAccount(db.Model, UserMixin):
     __tablename__ = "paccount"
     __table_args__ = (
         db.ForeignKeyConstraint(['pid', 'name'], ['professors.pid', 'professors.name']),
