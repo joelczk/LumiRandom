@@ -1,7 +1,18 @@
 {% extends "layout.html" %}
+{% block search %}
+    <form method = "POST" action = "">
+        <div>
+            <table>
+                <td><input type = "text" name = "search" id = "search" placeholder = "Search for Module Codes" class = "form-control left rounded" style = "margin-bottom:3%; width:150%"></td>
+                <td><button type = "submit" class = "btn btn-outline-info" style = "display:inline; margin-left:150%">Submit</button></table></td>
+            </table>
+        </div>
+    </form>
+{% endblock search %}
 {% block content %}
     <div class="content-section">
         <legend class="border-bottom mb-4", style="text-align:center;">Available Modules</legend>
+        {% if courses %}
         <table class="table table-hover border-bottom pt-1 mb-4">
             <thead>
                 <tr>
@@ -33,5 +44,23 @@
                 {% endif %}
             {% endfor %}
         </div>
+        {% else %}
+        <table class="table table-hover border-bottom pt-1 mb-4">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Module Code</th>
+                    <th scope="col">Module Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope = "row">1</th>
+                    <td style="width: 15%"><a href="{{ url_for('module', cid=courses_show.cid) }}">{{ courses_show.cid }}</a></td>
+                    <td style="width: 80%">{{ courses_show.cname }}</td>
+                </tr>
+            </tbody>
+
+        {% endif %}
     </div>
 {% endblock content %}
