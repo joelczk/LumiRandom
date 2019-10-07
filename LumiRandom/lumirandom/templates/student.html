@@ -1,37 +1,66 @@
 {% extends "layout.html" %}
+{% block search %}
+    <form method = "POST" action = "">
+        <div>
+            <table>
+                <td><input type = "text" name = "search" id = "search" placeholder = "Search for names" class = "form-control left rounded" style = "margin-bottom:3%; width:150%"></td>
+                <td><button type = "sumbit" class = "btn btn-outline-info" style = "display:inline; margin-left:150%">Submit</button></table></td>
+            </table>
+        </div>
+    </form>
+{% endblock search %}
 {% block content %}
     <div class="content-section">
         <legend class="border-bottom mb-4", style="text-align:center;">Students List</legend>
-        <table class="table table-hover border-bottom pt-1 mb-4">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Student Name</th>
-                    <th scope="col">Student year</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for s in students.items %}
+        {%if students %}
+            <table class="table table-hover border-bottom pt-1 mb-4">
+                <thead>
                     <tr>
-                        <th scope="row">{{ loop.index }}</th>
-                        <td style="width: 16.66%">{{ s.name }}</td>
-                        <td>{{ s.year }}</td>
+                        <th scope="col">#</th>
+                        <th scope="col">Student Name</th>
+                        <th scope="col">Student year</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div style="text-align:center;">
-            {% for page_num in students.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-                {% if page_num %}
-                    {% if students.page == page_num %}
-                        <a class="btn btn-info mb-4" href="{{ url_for('students', page=page_num) }}">{{ page_num }}</a>
+                </thead>
+                <tbody>
+                    {% for s in students.items %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td style="width: 16.66%">{{ s.name }}</td>
+                            <td>{{ s.year }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="text-align:center;">
+                {% for page_num in students.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if page_num %}
+                        {% if students.page == page_num %}
+                            <a class="btn btn-info mb-4" href="{{ url_for('students', page=page_num) }}">{{ page_num }}</a>
+                        {% else %}
+                            <a class="btn btn-outline-info mb-4" href="{{ url_for('students', page=page_num) }}">{{ page_num }}</a>
+                        {% endif %}
                     {% else %}
-                        <a class="btn btn-outline-info mb-4" href="{{ url_for('students', page=page_num) }}">{{ page_num }}</a>
+                        ...
                     {% endif %}
-                {% else %}
-                    ...
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <table class="table table-hover border-bottom pt-1 mb-4">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Student Name</th>
+                        <th scope="col">Student year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope = "row">1</th>
+                        <th width = "16.66%">{{ students_search.name }}</th>
+                        <th>{{ students_search.year }}</th>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
         </div>
-    </div>
 {% endblock content %}
