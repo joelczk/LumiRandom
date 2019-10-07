@@ -7,15 +7,16 @@
                 <div class="col-xs-12 ">
                     <nav>
                         <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                            <a class="nav-item nav-link active" id="enrolled-tab" data-toggle="tab" href="#enrolled" role="tab" aria-controls="enrolled" aria-selected="true">Enrolled Modules</a>
-                            <a class="nav-item nav-link" id="taken-tab" data-toggle="tab" href="#taken" role="tab" aria-controls="taken" aria-selected="false">Taken Modules</a>
+                            <a class="nav-item nav-link active" id="enrolled-tab" data-toggle="tab" href="#enrolled" role="tab" aria-controls="enrolled" aria-selected="true" style="width: 555px">Enrolled Modules</a>
+                            <a class="nav-item nav-link" id="taken-tab" data-toggle="tab" href="#taken" role="tab" aria-controls="taken" aria-selected="false" style="width: 555px">Taken Modules</a>
                         </div>
                     </nav>
                     <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
                         <div class="tab-pane fade show active" id="enrolled" role="tabpanel" aria-labelledby="enrolled-tab">
                             <div class="container-fluid mt-4">
+                                {% if takingmods.first() %}
                                 <div class="row justify-content-left">
-                                    {% for takingmod in takingmods %}
+                                        {% for takingmod in takingmods %}
                                             <div class="col-auto mb-3">
                                                 <a class="card" href="{{ url_for('module', cid=takingmod.cid) }}" style="width: 15rem; height: 15rem">
                                                         <div class="card-body">
@@ -29,8 +30,11 @@
                                                     </span>
                                                 </a>
                                             </div>
-                                    {% endfor %}               
+                                        {% endfor %}        
                                 </div>
+                                {% else %}
+                                    <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You are not enrolled to any modules this semester!</h6>
+                                {% endif %}
                             </div>
                         </div>
                         <div class="tab-pane fade" id="taken" role="tabpanel" aria-labelledby="taken-tab">
