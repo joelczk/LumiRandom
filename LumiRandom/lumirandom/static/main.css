@@ -121,6 +121,10 @@ a.article-title:hover {
   justify-content: center;
 }
 
+.text-center {
+  text-align: center;
+}
+
 /* .click a {
   display: block
 } */
