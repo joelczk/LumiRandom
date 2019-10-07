@@ -100,13 +100,32 @@ def module(cid):
 @login_required
 def module_enrol(cid):
     if TakenCourses.query.filter_by(sid=current_user.sid, cid=cid).first():
-        redirect(url_for('module', cid=cid))
+        flash(f'You have already taken {cid} before.', 'warning')
     elif Professors.query.filter_by(cid=cid).first() == None:
-        redirect(url_for('module', cid=cid))
+        flash(f'Sorry! {cid} is not available this semester!', 'warning')
+    elif TakingCourses.query.filter_by(sid=current_user.sid, cid=cid).first():
+        flash(f'You already enrolled to {cid}!', 'warning')
     else:
-        course = TakingCourses(sid=current_user.sid, cid=cid)
-        db.session.add(course)
+        if TakingCourses.query.filter_by(sid=current_user.sid).count() >= 6:
+            flash(f'Sorry! You have already enrolled to the maximum number of modules for this semester!', 'warning')
+        else:
+            course = TakingCourses(sid=current_user.sid, cid=cid)
+            db.session.add(course)
+            db.session.commit()
+            flash(f'You have enrolled to {cid}!', 'success')  
+    return redirect(url_for('module', cid=cid))
+
+
+@app.route("/module/<string:cid>/withdraw", methods=['GET', 'POST'])
+@login_required
+def module_withdraw(cid):
+    course = TakingCourses.query.filter_by(sid=current_user.sid, cid=cid).first()
+    if course:
+        db.session.delete(course)
         db.session.commit()
+        flash(f'You have withdrawn from {cid}!', 'warning')
+    else:
+        flash(f'You are not enrolled to {cid}!', 'danger')
     return redirect(url_for('module', cid=cid))
 
 
