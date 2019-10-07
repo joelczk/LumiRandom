@@ -90,3 +90,37 @@ a.article-title:hover {
 .account-heading {
   font-size: 2.5rem;
 }
+
+.nav-tabs > a.nav-color {
+  color: #333;
+  font-weight: bold;
+}
+
+.nav-tabs > a.nav-color:hover, .nav-tabs > a.nav-color:focus {
+  background: #aebdca;
+}
+
+
+#tabs .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: #4f576b;
+    background-color: transparent;
+    border-color: #3b3d44;
+    border-bottom: 4px solid !important;
+}
+
+#tabs .nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    color: #62829e;
+    font-weight: bold;
+}
+
+.vertical-center {
+  display: flex;
+  justify-content: center;
+}
+
+/* .click a {
+  display: block
+} */

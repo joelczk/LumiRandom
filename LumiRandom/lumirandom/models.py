@@ -85,8 +85,11 @@ class Courses(db.Model):
 
 class TakenCourses(db.Model):
     __tablename__ = "takencourses"
-    sid = db.Column(db.Integer, db.ForeignKey('students.sid'), priamry_key=True)
-    cid = db.Column(db.String(10), db.ForeignKey('courses.cid'), primary_key=True)
+    __table_args__ = (
+        db.PrimaryKeyConstraint('sid', 'cid'),
+    )
+    sid = db.Column(db.Integer, db.ForeignKey('students.sid'))
+    cid = db.Column(db.String(10), db.ForeignKey('courses.cid'))
     year = db.Column(db.String(10), nullable=False)
     sem = db.Column(db.Integer, db.CheckConstraint('sem = 1 OR sem = 2'), nullable=False)
     grade = db.Column(db.String(5))

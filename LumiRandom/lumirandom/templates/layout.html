@@ -48,7 +48,7 @@
 									</button>
 									<div class="bg-paleblue dropdown-menu" aria-labelledby="dropdownMenuButton">
 										<a class="dropdown-item" href="{{ url_for('account') }}">My Profile</a>
-										<a class="dropdown-item" href="#">My Modules</a>
+										<a class="dropdown-item" href="{{ url_for('modules')}}">My Modules</a>
 										<a class="dropdown-item" href="{{ url_for('module_search')}}">Module Search</a>
 										<a class = "dropdown-item" href = "{{ url_for('students') }}">Students</a>
 										<a class = "dropdown-item" href = "{{ url_for('staff') }}">Module Staff</a>
@@ -67,32 +67,17 @@
 		</header>
 		
 		<main role="main" class="container">
-			<div class="row">
-				<div class="col-md-8">
-					{% with messages = get_flashed_messages(with_categories=true) %}
-						{% if messages %}
-							{% for category, message in messages %}
-								<div class="alert alert-{{ category }}">
-									{{ message }}
-								</div>
-							{% endfor %}
-						{% endif %}
-					{% endwith %}
-					{% block content %}{% endblock %}
-				</div>
-				<div class="col-md-4">
-					<div class="content-section">
-						<h3>Latest Random</h3>
-						<p class='text-muted'>Click to Access<br>(Though not functioning now)
-							<ul class="list-group">
-								<li class="list-group-item list-group-item-light">What's New?</li>
-								<li class="list-group-item list-group-item-light">Announcements</li>
-								<li class="list-group-item list-group-item-light">Calendars</li>
-								<li class="list-group-item list-group-item-light">Get A for CS2102</li>
-							</ul>
-						</p>
-					</div>
-				</div>
+			<div class="col-md-14">
+				{% with messages = get_flashed_messages(with_categories=true) %}
+					{% if messages %}
+						{% for category, message in messages %}
+							<div class="alert alert-{{ category }}">
+								{{ message }}
+							</div>
+						{% endfor %}
+					{% endif %}
+				{% endwith %}
+				{% block content %}{% endblock %}
 			</div>
 		</main>
   

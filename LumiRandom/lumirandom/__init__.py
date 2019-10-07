@@ -2,11 +2,13 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+from sqlalchemy import create_engine
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'something only you know'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+engine = create_engine('sqlite:///site.db')
 db = SQLAlchemy(app)
 
 # Uncomment this block and comment above two lines to switch from SQLite to PostGreSQL

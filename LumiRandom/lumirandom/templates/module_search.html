@@ -6,7 +6,7 @@
             <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">Code</th>
+                    <th scope="col">Module Code</th>
                     <th scope="col">Module Name</th>
                 </tr>
             </thead>
@@ -14,8 +14,8 @@
                 {% for module in courses.items %}
                     <tr>
                         <th scope="row">{{ loop.index }}</th>
-                        <td style="width: 16.66%">{{ module.cid }}</td>
-                        <td>{{ module.cname }}</td>
+                        <td style="width: 15%"><a href="{{ url_for('module', cid=module.cid) }}">{{ module.cid }}</a></td>
+                        <td style="width: 80%">{{ module.cname }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
