@@ -73,6 +73,10 @@ def modules():
 @app.route("/module-search", methods=['GET', 'POST'])
 @login_required
 def module_search():
+    if request.method == "POST":
+        id = request.form['search']
+        cse_id = Courses.query.filter_by(cid = id).first()
+        return render_template('module_search.html', title = 'Module Search', courses_show = cse_id)
     page = request.args.get('page', 1, type=int)
     courses = Courses.query.order_by(Courses.cid.asc()).paginate(page=page, per_page=15)
     return render_template('module_search.html', title='Module Search', courses=courses)
@@ -109,6 +113,10 @@ def module_enrol(cid):
 @app.route("/students", methods=['GET', 'POST'])
 @login_required
 def students():
+    if request.method == "POST":
+        name = request.form['search']
+        student = Students.query.filter_by(name = name).first()
+        return render_template('student.html', title = 'Student List', students_search = student)
     page = request.args.get('page', 1, type=int)
     students = Students.query.order_by(Students.year.asc(), Students.name.asc()).paginate(page=page, per_page=15)
     return render_template('student.html', title='Student List', students=students)
