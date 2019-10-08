@@ -153,7 +153,19 @@ def students():
     students = Students.query.order_by(Students.year.asc(), Students.name.asc()).paginate(page=page, per_page=15)
     return render_template('student.html', title='Student List', students=students)
 
-@app.route("/tutors")
+@app.route("/prof", methods = ['GET','POST'])
 @login_required
 def staff():
-    return render_template("staff.html", title='Staff')
+    if request.method == "POST":
+        p_name = request.form['search']
+        if len(p_name) == 1:
+            flash(f'Please enter more than 1 characters','danger')
+        else:
+            query = str(p_name) + '%'
+            page = request.args.get('page',1,type = int)
+            # student = Students.query.filter_by(name = s_name).paginate(page = page,per_page = 10)
+            profs_search = Professors.query.filter(Professors.name.like(query)).order_by(Professors.name.asc(),Professors.cid.asc()).paginate(page = page,per_page = 20)
+            return render_template('prof.html', title = 'Student List', profs_search=profs_search)
+    page = request.args.get('page', 1, type=int)
+    profs = Professors.query.order_by(Professors.name.asc(), Professors.cid.asc()).paginate(page=page, per_page=15)
+    return render_template('prof.html', title='Professor List', prof=profs)
