@@ -3,6 +3,7 @@ from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm
 from lumirandom.models import User, Post, Students, SAccount, Courses, TakenCourses, TakingCourses, Professors, PAccount
 from flask_login import login_user, current_user, logout_user, login_required
+from sqlalchemy.orm import Query
 
 @app.route("/")
 @app.route("/home")
@@ -74,8 +75,9 @@ def modules():
 @login_required
 def module_search():
     if request.method == "POST":
-        id = request.form['search']
-        cse_id = Courses.query.filter_by(cid = id).first()
+        page = request.args.get('page',1,type = int)
+        course_id = request.form['search']
+        cse_id = Courses.query.filter_by(cid = course_id).paginate(page=page,per_page = 10)
         return render_template('module_search.html', title = 'Module Search', courses_show = cse_id)
     page = request.args.get('page', 1, type=int)
     courses = Courses.query.order_by(Courses.cid.asc()).paginate(page=page, per_page=15)
@@ -133,9 +135,10 @@ def module_withdraw(cid):
 @login_required
 def students():
     if request.method == "POST":
-        name = request.form['search']
-        student = Students.query.filter_by(name = name).first()
-        return render_template('student.html', title = 'Student List', students_search = student)
+        s_name = request.form['search']
+        page = request.args.get('page',1,type = int)
+        student = Students.query.filter_by(name = s_name).paginate(page = page,per_page = 10)
+        return render_template('student.html', title = 'Student List', students_search=student)
     page = request.args.get('page', 1, type=int)
     students = Students.query.order_by(Students.year.asc(), Students.name.asc()).paginate(page=page, per_page=15)
     return render_template('student.html', title='Student List', students=students)
