@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% block search %}
+    <form method = "POST" action = "">
+        <div>
+            <table>
+                <td><input type = "text" name = "search" id = "search" placeholder = "Search for names" class = "form-control left rounded" style = "margin-bottom:3%; width:150%"></td>
+                <td><button type = "sumbit" class = "btn btn-outline-info" style = "display:inline; margin-left:150%">Submit</button></table></td>
+            </table>
+        </div>
+    </form>
+{% endblock search %}
+{% block content %}
+    <div class="content-section">
+        <legend class="border-bottom mb-4", style="text-align:center;">Students List</legend>
+        {%if prof %}
+            <table class="table table-hover border-bottom pt-1 mb-4">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Professors Name</th>
+                        <th scope="col">CID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in prof.items %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td style="width: 16.66%">{{ s.name }}</td>
+                            <td>{{ s.cid }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="text-align:center;">
+                {% for page_num in prof.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if page_num %}
+                        {% if prof.page == page_num %}
+                            <a class="btn btn-info mb-4" href="{{ url_for('staff', page=page_num) }}">{{ page_num }}</a>
+                        {% else %}
+                            <a class="btn btn-outline-info mb-4" href="{{ url_for('staff', page=page_num) }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        ...
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <table class="table table-hover border-bottom pt-1 mb-4">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Professor Name</th>
+                        <th scope="col">CID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in profs_search.items %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td style="width: 16.66%">{{ s.name }}</td>
+                            <td>{{ s.cid }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="text-align:center;">
+                {% for page_num in profs_search.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if page_num %}
+                        {% if profs_search.page == page_num %}
+                            <a class="btn btn-info mb-4" href="{{ url_for('staff', page=page_num) }}">{{ page_num }}</a>
+                        {% else %}
+                            <a class="btn btn-outline-info mb-4" href="{{ url_for('staff', page=page_num) }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        ...
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+{% endblock content %}
