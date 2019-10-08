@@ -8,3 +8,6 @@ Connect to localhost:5300 in Browser
 Default Account ID and Password for LumiRandom\
 Account ID: admin\
 Password: password
+
+To view database, please download DB browser for SQL Lite\
+Load site.db into DB Browser\
