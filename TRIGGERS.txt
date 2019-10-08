@@ -1,0 +1,15 @@
+//Check if student passes the course
+CREATE OR REPLACE FUNCTION check_grade()
+    RETURN TRIGGERS AS $$
+    IF NEW.grade = 'f' THEN
+        RETURN NULL;
+    ELSE
+        RETURN NEW
+    END IF
+    END;
+    $$LANGUAGE plpgsql
+
+CREATE TRIGGER check()
+BEFORE INSERT OR UPDATE on TakenCourses
+FOR EACH ROW EXECUTE PROCEDURE check_grade()
+
