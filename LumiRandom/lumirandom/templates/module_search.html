@@ -54,13 +54,28 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <th scope = "row">1</th>
-                    <td style="width: 15%"><a href="{{ url_for('module', cid=courses_show.cid) }}">{{ courses_show.cid }}</a></td>
-                    <td style="width: 80%">{{ courses_show.cname }}</td>
-                </tr>
+                {% for module in courses_show.items %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td style="width: 15%"><a href="{{ url_for('module_search', courses_show=module.cid) }}">{{ module.cid }}</a></td>
+                        <td style="width: 80%">{{ module.cname }}</td>
+                    </tr>
+                {% endfor %}
             </tbody>
-
+        </table>
+        <div style="text-align:center;">
+                {% for page_num in courses_show.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if page_num %}
+                        {% if courses_show.page == page_num %}
+                            <a class="btn btn-info mb-4" href="{{ url_for('module_search', page=page_num) }}">{{ page_num }}</a>
+                        {% else %}
+                            <a class="btn btn-outline-info mb-4" href="{{ url_for('module_search', page=page_num) }}">{{ page_num }}</a>
+                        {% endif %}
+                    {% else %}
+                        ...
+                    {% endif %}
+                {% endfor %}
+        </div>
         {% endif %}
     </div>
 {% endblock content %}
