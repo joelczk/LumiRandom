@@ -10,4 +10,4 @@ Account ID: admin\
 Password: password
 
 To view database, please download DB browser for SQL Lite\
-Load site.db into DB Browser\
+Load site.db into DB Browser
