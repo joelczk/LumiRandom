@@ -13,3 +13,25 @@ CREATE TRIGGER check()
 BEFORE INSERT OR UPDATE on TakenCourses
 FOR EACH ROW EXECUTE PROCEDURE check_grade()
 
+//Check if student has exceed the maximum number of courses he can
+//Based on current ER Diagram STUDENT - COURSES r/s is ENTER and TAKEN
+//Check the academic year and semester too ?
+//This could be enforced with column/ table constraint?
+CREATE OR REPLACE FUNCTION check_maxCourse()
+    RETURN TRIGGER AS $$
+    WITH numCourseTaken AS
+    (SELECT    sid, COUNT(sid) as count
+     FROM      taken
+     GROUP BY  sid)
+
+     IF (SELECT count FROM numCourseTaken WHERE numCourseTaken = NEW.sid) >= 4
+         THEN RETURN NULL;
+     END IF;
+
+     RETURN NEW;
+     END;
+    $$LANGUAGE plpgsql
+CREATE TRIGGER maxCourse()
+BEFORE INSERT OR UPDATE ON Enter
+FOR EACH ROW
+EXECUTE PROCEDURE check_maxCourse()
