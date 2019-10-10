@@ -11,3 +11,5 @@ Password: password
 
 To view database, please download DB browser for SQL Lite\
 Load site.db into DB Browser
+
+![ER Diagram](https://github.com/joelczk/CS2102-Project/blob/v1.1/ER%20Diagram.jpg)
