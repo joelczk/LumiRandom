@@ -1,3 +1,8 @@
+from lumirandom import db
+from lumirandom.models import Groups
+
+db.create_all()
+
 G0 = Groups(sid = "23",cid = "AC11001",pid = "128", gid = "G0000",gname = "AC11001 tutorial group 0")
 G1 = Groups(sid = "40",cid = "AC11001",pid = "128", gid = "G0001",gname = "AC11001 tutorial group 1")
 G2 = Groups(sid = "48",cid = "AC11001",pid = "128", gid = "G0002",gname = "AC11001 tutorial group 2")
