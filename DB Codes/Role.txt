@@ -1,0 +1,12 @@
+from lumirandom import db
+from lumirandom.models import Role
+
+db.create_all()
+
+r1 = Role(name="Student")
+r2 = Role(name="TA")
+r3 = Role(name="Professor")
+db.session.add(r1)
+db.session.add(r2)
+db.session.add(r3)
+db.session.commit()
