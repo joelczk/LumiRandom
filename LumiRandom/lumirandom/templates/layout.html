@@ -6,7 +6,8 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 		<!-- Bootstrap CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
 		{% if title %}
@@ -39,21 +40,105 @@
 						<div class="navbar-nav mr-auto">
 							<a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
 						</div>
+
 						<!-- Navbar Right Side -->
 						<div class="navbar-nav">
-							{% if current_user.is_authenticated %}		  
+							{% if current_user.is_authenticated %}
+								{% for role in current_user.roles %}
+								{% if role.name == 'Professor' %}
+									<div class="dropdown">
+										<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonProf" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												Professor <i class="fa fa-tasks ml-2"></i>
+										</button>
+										<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButtonStudent", style="width: 20rem;">
+											<div class="container-fluid">
+												<div class="row justify-content-left">
+													<div class="col-sm-4">
+														<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('my_tas')}}">
+															<div class="card-body menu-icon">
+																<i class="fa fa-users fa-2x" style="color: #5f788a"></i>
+																<br><h6 class="text-muted"><small><small>My TAs</small></small></h6>
+															</div>
+														</a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>	
+								{% elif role.name == 'Student' %}
 								<div class="dropdown">
-									<button class="nav-item nav-link bg-steel btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											Menu <a class="navbar-toggler-icon ml-2"></a>
+									<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStudent" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Student <i class="fa fa-tasks ml-2"></i>
 									</button>
-									<div class="bg-paleblue dropdown-menu" aria-labelledby="dropdownMenuButton">
-										<a class="dropdown-item" href="{{ url_for('account') }}">My Profile</a>
-										<a class="dropdown-item" href="{{ url_for('modules')}}">My Modules</a>
-										<a class="dropdown-item" href="{{ url_for('module_search')}}">Module Search</a>
-										<a class = "dropdown-item" href = "{{ url_for('students') }}">Students</a>
-										<a class = "dropdown-item" href = "{{ url_for('staff') }}">Module Staff</a>
-										<a class="dropdown-item" href="#">Forums</a>
-										<a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+									<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButtonStudent", style="width: 20rem;">
+										<div class="container-fluid">
+											<div class="row justify-content-left">
+												<div class="col-sm-4">
+													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('modules')}}">
+														<div class="card-body menu-icon">
+															<i class="fa fa-book fa-2x" style="color: #5f788a"></i>
+															<br><h6 class="text-muted"><small><small>My Modules</small></small></h6>
+														</div>
+													</a>
+												</div>
+												<div class="col-sm-4">
+													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('module_search')}}">
+														<div class="card-body menu-icon">
+															<i class="fa fa-search fa-2x" style="color: #5f788a"></i>
+															<br><h6 class="text-muted"><small><small>Module Search</small></small></h6>
+														</div>
+													</a>
+												</div>
+												<div class="col-sm-4">
+													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('student_list', query=None) }}">
+														<div class="card-body menu-icon">
+															<i class="fa fa-address-book-o fa-2x" style="color: #5f788a"></i>
+															<br><h6 class="text-muted"><small><small>Student List</small></small></h6>
+														</div>
+													</a>
+												</div>
+												<div class="col-sm-4">
+													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('prof_list') }}">
+														<div class="card-body menu-icon">
+															<i class="fa fa-address-book fa-2x" style="color: #5f788a"></i>
+															<br><h6 class="text-muted"><small><small>Professor List</small></small></h6>
+														</div>
+													</a>
+												</div>
+												<div class="col-sm-4">
+													<a class="card unref bg-paleblue menu-icon-box" href="#">
+														<div class="card-body menu-icon">
+															<i class="fa fa-comment fa-2x" style="color: #5f788a"></i>
+															<br><h6 class="text-muted"><small><small>Forums</small></small></h6>						
+														</div>
+													</a>
+												</div>
+											</div>	
+										</div>
+									</div>
+								</div>
+								{% endif %}
+								{% endfor %}
+								<div class="dropdown">
+									<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											<img class="rounded-circle nav-img" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}">
+									</button>
+									<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButton" style="width: 20rem">
+										<div>
+											<div style="display: inline-block">
+												<a class="container" href="{{ url_for('profile', id=current_user.account_id) }}">
+													<img class="rounded-circle menu-img fadeimage" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}">
+												</a>
+											</div>
+											<div class="menu-profile">
+												<div class="text-muted"><b><small>{{ current_user.account_id }}</small></b></div>
+												<div>{{ current_user.name }}</div>
+											</div>
+										</div>
+										<div class="menu-footer">
+											<a class="btn btn-info btn-sm mt-1 mr-2" style="float: right;" href="{{ url_for('logout') }}">Logout</a>
+										</div>
+										
 									</div>
 								</div>
 							{% else %}
@@ -82,10 +167,55 @@
 			</div>
 		</main>
   
-	<!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		<script>
+			/* When the user clicks on the button, 
+			toggle between hiding and showing the dropdown content */
+			function clickdrop() {
+				document.getElementById("myDropdown").classList.toggle("show");
+			}
+			
+			// Close the dropdown if the user clicks outside of it
+			window.onclick = function(event) {
+				if (!event.target.matches('.dropbtn')) {
+					var dropdowns = document.getElementsByClassName("dropdown-content");
+					var i;
+					for (i = 0; i < dropdowns.length; i++) {
+						var openDropdown = dropdowns[i];
+						if (openDropdown.classList.contains('show')) {
+							openDropdown.classList.remove('show');
+						}
+					}
+				}
+			}
+		</script>
+		<script>
+			$(document).ready(function(){
+				$('[data-toggle="tooltip"]').tooltip();   
+			});
+		</script>
+		<script>
+			$(document).ready(function() {
+				var readURL = function(input) {
+					if (input.files && input.files[0]) {
+						var reader = new FileReader();
+						reader.onload = function (e) {
+							$('.profile-pic').attr('src', e.target.result);
+						}
+						reader.readAsDataURL(input.files[0]);
+					}
+				}
+				$(".file-upload").on('change', function(){
+					readURL(this);
+				});
+				$(".upload-button").on('click', function() {
+					$(".file-upload").click();
+				});
+			});
+		</script>
 	</body>
 </html>

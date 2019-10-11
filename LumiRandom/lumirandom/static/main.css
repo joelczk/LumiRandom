@@ -13,7 +13,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .bg-paleblue {
-  background-color: #cbd8e0
+  background-color: #e7ecf0
 }
 
 .site-header .navbar-nav .nav-link {
@@ -30,6 +30,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .navbar.navbar-1 .navbar-toggler-icon {
   background-image: url('https://mdbootstrap.com/img/svg/hamburger6.svg?color=256');
+}
+
+button.match {
+  background-color: #5f788a;
+  border: 0
 }
 
 .content-section {
@@ -124,6 +129,124 @@ a.article-title:hover {
 .text-center {
   text-align: center;
 }
+
+a.unref:link, a.unref:visited, a.unref:active
+{
+  color: #000000;
+  text-decoration: none;
+}
+
+a.unref:hover {
+  background-color: #d1d8db;
+}
+
+a.unref2:link, a.unref2:visited, a.unref2:active
+{
+  color: #000000;
+  text-decoration: none;
+}
+
+a.unref2:hover {
+  background-color: #ebeff1;
+}
+
+li.hover:hover {
+  background-color: #ebeff1;
+}
+
+div.unref:link, div.unref:visited, div.unref:hover, div.unref:active
+{
+   text-decoration: none;
+   background-color: #ebeff1;
+}
+
+.unrefany {
+  color: #444444;
+  text-decoration: none;
+}
+
+
+.nav-img {
+  height: 30px;
+  width: 30px;
+  padding: 0px 0px;
+}
+
+.menu-content {
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.menu-img {
+  display: inline-block;
+  height: 80px;
+  width: 80px;
+  margin: 10px 15px 10px 5px;
+}
+
+div.menu-profile {
+  display: inline-block;
+  width: 10rem; 
+  margin: 0px;
+}
+
+.menu-footer {
+  background-color: #d1d7db;
+  height: 40px;
+}
+
+.menu-icon-box {
+  width: 5.5rem; 
+  height: 4.5rem;
+  background-color: #e7ecf0;
+  border: 0px;
+}
+
+.menu-icon {
+  text-align: center; 
+  padding: 10px 5px 10px 5px;
+}
+
+
+.fadeimage:hover {
+  opacity: 0.7;
+}
+
+.icon {
+  color: #62829e;
+}
+
+.icon:hover, .icon:link, .icon:visited, .icon:active {
+  color: #b1bbc7
+}
+
+.p-image {
+  position: absolute;
+  top: 167px;
+  left: 30rem;
+  color: #666666;
+  transition: all .3s cubic-bezier(.175, .885, .32, 1.275);
+}
+.p-image:hover {
+  transition: all .3s cubic-bezier(.175, .885, .32, 1.275);
+}
+.upload-button {
+  font-size: 1.2em;
+}
+
+.upload-button:hover {
+  transition: all .3s cubic-bezier(.175, .885, .32, 1.275);
+  color: #999;
+}
+
+.file-upload {
+  display: none;
+}
+
+.profile-pic {
+  display: block;
+}
+
 
 /* .click a {
   display: block

@@ -1,0 +1,123 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+    <div class="container">
+        <h2 class="border-bottom mb-4", style="text-align:center;">My Teaching Assistants</h2>
+        <div class="row">
+            <div class="col-xs-12 ">
+                <nav>
+                    <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="current-tab" data-toggle="tab" href="#current" role="tab" aria-controls="current" aria-selected="true" style="width: 555px">Current</a>
+                        <a class="nav-item nav-link" id="request-tab" data-toggle="tab" href="#request" role="tab" aria-controls="request" aria-selected="false" style="width: 555px">Requests</a>
+                    </div>
+                </nav>
+                <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+                        <div class="container-fluid mt-4">
+                            {% if tas.query.filter_by(cid=cid).all() %}
+                                <div class="row justify-content-left">
+                                    {% for ta in tas.query.filter_by(cid=cid).all() %}
+                                        <div class="col-auto mb-3">
+                                            <div class="card unref" style="width: 25rem; height: 14rem">
+                                                <div class="card-body">
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unrefany" href="{{ url_for('profile', id=user.query.get(ta.sid).account_id) }}"><small>{{ user.query.get(ta.sid).account_id }}</small></a></h6>
+                                                    <h6 class="card-title"><a class="unrefany" href="{{ url_for('profile', id=user.query.get(ta.sid).account_id) }}">{{ students.query.get(ta.sid).info.name }}</a></h6>
+                                                    <h6><small>Year: {{ students.query.get(ta.sid).year }}</small></h6>
+                                                </div>
+                                                <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                                    <small>2019/2020 Semester 2</small>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}        
+                                </div>
+                            {% else %}
+                                <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No Teaching Assistants yet! Go find some!</h6>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="request" role="tabpanel" aria-labelledby="request-tab">
+                        <div class="tab-pane fade show active" id="request" role="tabpanel" aria-labelledby="request-tab">
+                            <div class="container-fluid mt-4">
+                                {% if requests %}
+                                <div class="row justify-content-left">
+                                    {% for request in requests %}
+                                    {% if not tas.query.filter_by(sid=request.sid).all() %}
+                                        <div class="col-auto mb-3">
+                                            <div class="card unref" style="width: 25rem; height: 14rem">
+                                                <div class="card-body">
+                                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Reject{{ request.cid }}Modal" style="float: right">
+                                                        Reject
+                                                    </button>      
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="Reject{{ request.cid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Reject{{ request.cid }}ModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="Reject{{ request.cid }}ModalLabel">Take Note</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <small>Are you sure you want to reject this student as your Teaching Assistant?</small>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                    <form action="{{ url_for('ta_reject', sid=request.sid) }}" method='POST'>
+                                                                        <input class="btn btn-danger" type="submit" value="Reject">
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#Accept{{ request.cid }}Modal" style="float: right">
+                                                        Accept
+                                                    </button>      
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="Accept{{ request.cid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Accept{{ request.cid }}ModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="Accept{{ request.cid }}ModalLabel">Take Note</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <small>Are you sure you want to accept this student as your Teaching Assistant?</small>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                    <form action="{{ url_for('ta_accept', sid=request.sid) }}" method='POST'>
+                                                                        <input class="btn btn-success" type="submit" value="Accept">
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unrefany" href="{{ url_for('profile', id=user.query.get(request.sid).account_id) }}"><small>{{ user.query.get(request.sid).account_id }}</small></a></h6>
+                                                    <h6 class="card-title"><a class="unrefany" href="{{ url_for('profile', id=user.query.get(request.sid).account_id) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
+                                                    <h6><small>Year: {{ students.query.get(request.sid).year }}</small></h6>
+                                                    <h6><small>Grade: {{ request.courseinfo.grade }}</small></h6>
+                                                </div>
+                                                <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                                    <small>2019/2020 Semester 2</small>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endif %} 
+                                    {% endfor %}      
+                                </div>
+                                {% else %}
+                                    <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No requests currently!</h6>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>  
+{% endblock content %}

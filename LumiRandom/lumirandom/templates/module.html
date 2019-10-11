@@ -30,7 +30,7 @@
                     </div>
                 </div>
             </div>
-        {% else %}
+        {% elif status == "nil" %}
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#EnrolModal" style="float: right">
             Enrol
         </button>      
@@ -59,10 +59,15 @@
         {% endif %}
         <h4>{{ module.cid }}</h4>
         <h2>{{ module.cname }}</h2>
-        <p>Modular Credit: 4</p>
+        <p class="text-muted">Modular Credit: 4<br>
+        {% if status == "unavailable" %}
+            <b style="font-style: italic">This module is not available for this semester!</b>
+        {% else %}
+            Semester 2 2019/2020
+        {% endif %}
+        </p>
     </div><br><br>
-    
-    <div>
+    <div style="border-top: 2px solid; border-color: #b0b9c0; padding: 10px">
         <h5>Module Description</h5>
         <p>The BEST module in the world! Enrol today!</p>
     </div>

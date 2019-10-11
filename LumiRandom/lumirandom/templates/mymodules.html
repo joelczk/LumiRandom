@@ -18,15 +18,15 @@
                                 <div class="row justify-content-left">
                                         {% for takingmod in takingmods %}
                                             <div class="col-auto mb-3">
-                                                <a class="card" href="{{ url_for('module', cid=takingmod.cid) }}" style="width: 15rem; height: 15rem">
+                                                <a class="card unref2" href="{{ url_for('module', cid=takingmod.cid) }}" style="width: 15rem; height: 15rem">
                                                         <div class="card-body">
                                                             <h6 class="card-subtitle mb-2 text-muted"><small>{{ takingmod.cid }}</small></h6>
                                                             <h6 class="card-title">{{ mods.query.filter_by(cid=takingmod.cid).first().cname }}</h6>
                                                             <p class="card-text"></p>
                                                         </div>
                                                     <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
-                                                        <small>2019/2020 Semester 1</small><br>
-                                                        <small>{{ profs.query.filter_by(cid=takingmod.cid).first().name }}</small>
+                                                        <small>2019/2020 Semester 2</small><br>
+                                                        <small>{{ profs.query.filter_by(cid=takingmod.cid).first().info.name }}</small>
                                                     </span>
                                                 </a>
                                             </div>
@@ -40,21 +40,19 @@
                         <div class="tab-pane fade" id="taken" role="tabpanel" aria-labelledby="taken-tab">
                             <div class="tab-pane fade show active" id="enrolled" role="tabpanel" aria-labelledby="enrolled-tab">
                                 <div class="container-fluid mt-4">
-                                    <div class="row justify-content-center">
+                                    <div class="row justify-content-left">
                                         {% for takenmod in takenmods %}
-                                            <a href="{{ url_for('module', cid=takenmod.cid) }}">
-                                                <div class="col-auto mb-3">
-                                                        <div class="card" style="width: 15rem; height: 15rem" href="{{ url_for('module', cid=takenmod.cid) }}">
-                                                        <div class="card-body">
-                                                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ takenmod.cid }}</small></h6>
-                                                            <h6 class="card-title">{{ mods.query.filter_by(cid=takenmod.cid).first().cname }}</h6>
-                                                        </div>
-                                                        <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
-                                                                <small>{{ takenmod.year }} Semester {{ takenmod.sem }}</small>
-                                                        </span>
+                                            <div class="col-auto mb-3">
+                                                <a class="card unref2" style="width: 15rem; height: 15rem" href="{{ url_for('module', cid=takenmod.cid) }}">
+                                                    <div class="card-body">
+                                                        <h6 class="card-subtitle mb-2 text-muted"><small>{{ takenmod.cid }}</small></h6>
+                                                        <h6 class="card-title">{{ mods.query.filter_by(cid=takenmod.cid).first().cname }}</h6>
                                                     </div>
-                                                </div> 
-                                            </a>
+                                                    <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                                            <small>{{ takenmod.year }} Semester {{ takenmod.sem }}</small>
+                                                    </span>
+                                                </a>
+                                            </div> 
                                         {% endfor %}      
                                     </div>
                                 </div>
