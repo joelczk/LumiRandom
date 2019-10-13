@@ -1,6 +1,6 @@
 //Check if student passes the course
 CREATE OR REPLACE FUNCTION check_grade()
-    RETURN TRIGGERS AS $$
+    RETURNS TRIGGER AS $$ BEGIN
     IF NEW.grade = 'f' THEN
         RETURN NULL;
     ELSE
@@ -18,7 +18,7 @@ FOR EACH ROW EXECUTE PROCEDURE check_grade()
 //Check the academic year and semester too ?
 //This could be enforced with column/ table constraint?
 CREATE OR REPLACE FUNCTION check_maxCourse()
-    RETURN TRIGGER AS $$
+    RETURNS TRIGGER AS $$ BEGIN
     WITH numCourseTaken AS
     (SELECT    sid, COUNT(sid) as count
      FROM      taken
@@ -32,6 +32,21 @@ CREATE OR REPLACE FUNCTION check_maxCourse()
      END;
     $$LANGUAGE plpgsql
 CREATE TRIGGER maxCourse()
-BEFORE INSERT OR UPDATE ON Enter
+BEFORE INSERT OR UPDATE ON TakingCourses
 FOR EACH ROW
 EXECUTE PROCEDURE check_maxCourse()
+
+/*  Once a student's request to be a TA for a module is accepted, 
+    remove all of that student's other requests to be a TA for other modules
+    This is to prevent student from being more than 1 TA per semester
+    (not good for studies -_-") */
+CREATE OR REPLACE FUNCTION remove_requests()
+    RETURNS TRIGGER AS 
+    $$ BEGIN
+        DELETE FROM PossibleTA WHERE sid=NEW.sid AND cid<>NEW.cid;
+     END; $$
+    LANGUAGE plpgsql
+CREATE TRIGGER remove_requests_trigger()
+AFTER INSERT ON TeachingAssistants
+FOR EACH ROW
+EXECUTE PROCEDURE remove_requests()
