@@ -1,30 +1,40 @@
-CREATE TABLE Students (
-	sid	 	INTEGER PRIMARY KEY,
-	name 		VARCHAR(80) NOT NULL,
-	year 		INTEGER CHECK (year >= 1 AND year <= 5),
-	UNIQUE (sid, name)
+CREATE TABLE Users (
+	id		INTEGER PRIMARY KEY,
+	name		VARCHAR(100) NOT NULL,
+	account_id	VARCHAR(10) NOT NULL UNIQUE,
+	image_file	VARCHAR(100) NOT NULL DEFAULT 'default.jpg'
+	password	VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE SAccount (
-	sid	 	INTEGER PRIMARY KEY,
-	name  		VARCHAR(80) NOT NULL,
-	account_id 	VARCHAR(10)	NOT NULL UNIQUE,
-	password 	VARCHAR(20) NOT NULL,
-	image_file 	VARCHAR(100) NOT NULL DEFAULT 'default.jpg',
-	FOREIGN KEY (sid, name) REFERENCES Students (sid, name)
+CREATE TABLE Roles (
+	id		INTEGER PRIMARY KEY,
+	name		VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE UserRoles (
+	id		INTEGER PRIMARY KEY,
+	user_id		INTEGER NOT NULL REFERENCES Users(id),
+	role_id		INTEGER NOT NULL REFERENCES Roles(id)
+);
+
+
+
+CREATE TABLE Students (
+	sid	 	INTEGER PRIMARY KEY REFERENCES Users(id),
+	year 		INTEGER NOT NULL CHECK (year >= 1 AND year <= 5),
 );
 
 CREATE TABLE Courses (
 	cid	 	VARCHAR(10) PRIMARY KEY,
-	cname 		VARCHAR(50) NOT NULL UNIQUE
+	cname 		VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE TakenCourses (
 	sid 	 	INTEGER REFERENCES Students,
 	cid	 	VARCHAR(10) REFERENCES Courses,
 	year 		INTEGER NOT NULL,
-	sem	 	INTEGER CHECK (sem = 1 OR sem = 2),
-	grade 		VARCHAR(5),
+	sem	 	INTEGER NOT NULL CHECK (sem = 1 OR sem = 2),
+	grade 		VARCHAR(5) NOT NULL,
 	PRIMARY KEY (sid, cid)
 );
 
@@ -36,50 +46,33 @@ CREATE TABLE TakingCourses (
 
 CREATE TABLE Professors (
 	pid	 	INTEGER PRIMARY KEY,
-	name 		VARCHAR(80) NOT NULL,
 	cid	 	VARCHAR(10) NOT NULL UNIQUE REFERENCES Courses,
-	UNIQUE (pid, name),
-	UNIQUE (pid, cid)
-);
-
-CREATE TABLE PAccount (
-	pid	 	INTEGER PRIMARY KEY,
-	name 		VARCHAR(80) NOT NULL,
-	account_id 	VARCHAR(10)	NOT NULL UNIQUE,
-	password 	VARCHAR(20) NOT NULL,
-	image_file 	VARCHAR(100) NOT NULL DEFAULT 'default.jpg',
-	FOREIGN KEY (pid, name) REFERENCES Professors (pid, name)
 );
 
 CREATE TABLE PossibleTA (
-	sid	 	INTEGER PRIMARY KEY,
-	cid	 	VARCHAR(10) NOT NULL,
-	grade 		VARCHAR(5),
-	FOREIGN KEY (sid, cid) REFERENCES TakenCourses,
-	UNIQUE (sid, cid)
+	sid	 	INTEGER,
+	cid	 	VARCHAR(10),
+	FOREIGN KEY (sid, cid) REFERENCES TakenCourses (sid, cid),
+	PRIMARY KEY (sid, cid)
 );
 
 CREATE TABLE TeachingAssistants (
 	sid	 	INTEGER PRIMARY KEY,
 	cid	 	VARCHAR(10) NOT NULL,
-	FOREIGN KEY (sid, cid) REFERENCES PossibleTA (sid, cid) ON DELETE CASCADE
+	FOREIGN KEY (sid, cid) REFERENCES PossibleTA (sid, cid)
 );
 
 CREATE TABLE Groups (
 	gid	 	INTEGER PRIMARY KEY,
 	gname 		VARCHAR(50) NOT NULL,
-	cid	 	VARCHAR(10) NOT NULL,
-	pid 		INTEGER NOT NULL,
+	cid	 	VARCHAR(10) NOT NULL REFERENCES Professors,
 	sid	 	INTEGER REFERENCES TeachingAssistants,
-	FOREIGN KEY (pid, cid) REFERENCES Professors (pid, cid)
 );
 
 CREATE TABLE GroupInfo (
 	gid	 	INTEGER REFERENCES Groups ON DELETE CASCADE,
-	sid	 	INTEGER NOT NULL,
-	name 		VARCHAR(80) NOT NULL,
-	FOREIGN KEY (sid, name) REFERENCES Students (sid, name),
-	PRIMARY KEY (gid, sid, name)
+	sid	 	INTEGER REFERENCES Students,
+	PRIMARY KEY (gid, sid)
 );
 
 CREATE TABLE Forums (
@@ -96,13 +89,13 @@ CREATE TABLE ForumInfo (
 );
 
 CREATE TABLE Posts (
-	post_num 	INTEGER NOT NULL,
+	post_num 	INTEGER,
 	fid	 	INTEGER REFERENCES Forums ON DELETE CASCADE,
 	sid	 	INTEGER NOT NULL REFERENCES Students,
 	pid 		INTEGER REFERENCES Professors,
 	title 		VARCHAR(100) NOT NULL,
 	content	 	TEXT NOT NULL,
-	date_posted DATE NOT NULL,
+	date_posted 	DATE NOT NULL,
 	rating 		INTEGER DEFAULT NULL CHECK (rating IS NULL OR (rating >= 0 AND rating <= 5)),
 	PRIMARY KEY (fid, post_num)
 );
