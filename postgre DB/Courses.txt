@@ -1,4 +1,3 @@
-INSERT INTO Courses VALUES ('cid','cname');
 INSERT INTO Courses VALUES ('BS11001','Biomolecules');
 INSERT INTO Courses VALUES ('BS11002',' Evolution of Cells');
 INSERT INTO Courses VALUES ('BS11004','Laboratory and Research Skills 1B');
