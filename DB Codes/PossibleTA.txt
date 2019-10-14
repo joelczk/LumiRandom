@@ -1,5 +1,5 @@
 from lumirandom import db
-form lumirandom.models import PossibleTA
+from lumirandom.models import PossibleTA
 
 db.create_all()
 
