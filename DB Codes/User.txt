@@ -1,4 +1,3 @@
-
 from lumirandom import db
 from lumirandom.models import User
 
