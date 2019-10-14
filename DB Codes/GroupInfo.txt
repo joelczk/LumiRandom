@@ -1,5 +1,5 @@
 from lumirandom import db
-form lumirandom.models import GroupInfo
+from lumirandom.models import GroupInfo
 
 db.create_all()
 
