@@ -396,3 +396,19 @@ def group(gid):
         return render_template('group.html', title='Group', group=group, students=students, size=size, user=User())
     else:
         abort(403)
+
+
+
+
+
+@app.errorhandler(404)
+def Error404(error):
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(403)
+def Error403(error):
+    return render_template('errors/403.html'), 403
+
+@app.errorhandler(500)
+def Error500(error):
+    return render_template('errors/500.html'), 500
