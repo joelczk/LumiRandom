@@ -20,8 +20,8 @@
                                         <div class="col-auto mb-3">
                                             <div class="card unref" style="width: 25rem; height: 14rem">
                                                 <div class="card-body">
-                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unrefany" href="{{ url_for('profile', id=user.query.get(ta.sid).account_id) }}"><small>{{ user.query.get(ta.sid).account_id }}</small></a></h6>
-                                                    <h6 class="card-title"><a class="unrefany" href="{{ url_for('profile', id=user.query.get(ta.sid).account_id) }}">{{ students.query.get(ta.sid).info.name }}</a></h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=user.query.get(ta.sid).account_id) }}"><small>{{ user.query.get(ta.sid).account_id }}</small></a></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=user.query.get(ta.sid).account_id) }}">{{ students.query.get(ta.sid).info.name }}</a></h6>
                                                     <h6><small>Year: {{ students.query.get(ta.sid).year }}</small></h6>
                                                 </div>
                                                 <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
@@ -46,15 +46,15 @@
                                         <div class="col-auto mb-3">
                                             <div class="card unref" style="width: 25rem; height: 14rem">
                                                 <div class="card-body">
-                                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Reject{{ request.cid }}Modal" style="float: right">
+                                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Reject{{ request.sid }}Modal" style="float: right">
                                                         Reject
                                                     </button>      
                                                     <!-- Modal -->
-                                                    <div class="modal fade" id="Reject{{ request.cid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Reject{{ request.cid }}ModalLabel" aria-hidden="true">
+                                                    <div class="modal fade" id="Reject{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Reject{{ request.sid }}ModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog" role="document">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="Reject{{ request.cid }}ModalLabel">Take Note</h5>
+                                                                    <h5 class="modal-title" id="Reject{{ request.sid }}ModalLabel">Take Note</h5>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                     <span aria-hidden="true">&times;</span>
                                                                     </button>
@@ -71,15 +71,15 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#Accept{{ request.cid }}Modal" style="float: right">
+                                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#Accept{{ request.sid }}Modal" style="float: right">
                                                         Accept
                                                     </button>      
                                                     <!-- Modal -->
-                                                    <div class="modal fade" id="Accept{{ request.cid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Accept{{ request.cid }}ModalLabel" aria-hidden="true">
+                                                    <div class="modal fade" id="Accept{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Accept{{ request.sid }}ModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog" role="document">
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="Accept{{ request.cid }}ModalLabel">Take Note</h5>
+                                                                    <h5 class="modal-title" id="Accept{{ request.sid }}ModalLabel">Take Note</h5>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                     <span aria-hidden="true">&times;</span>
                                                                     </button>
@@ -96,8 +96,8 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unrefany" href="{{ url_for('profile', id=user.query.get(request.sid).account_id) }}"><small>{{ user.query.get(request.sid).account_id }}</small></a></h6>
-                                                    <h6 class="card-title"><a class="unrefany" href="{{ url_for('profile', id=user.query.get(request.sid).account_id) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=user.query.get(request.sid).account_id) }}"><small>{{ user.query.get(request.sid).account_id }}</small></a></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=user.query.get(request.sid).account_id) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
                                                     <h6><small>Year: {{ students.query.get(request.sid).year }}</small></h6>
                                                     <h6><small>Grade: {{ request.courseinfo.grade }}</small></h6>
                                                 </div>

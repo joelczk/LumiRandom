@@ -29,9 +29,9 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     account_id = db.Column(db.String(10), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-    password = db.Column(db.String(60), nullable=False)
-    roles = db.relationship('Role', secondary='user_roles')
+    image_file = db.Column(db.String(100), nullable=False, default='default.jpg')
+    password = db.Column(db.String(20), nullable=False)
+    roles = db.relationship('Roles', secondary='userroles')
     student = db.relationship('Students', backref='info', lazy=True)
     prof = db.relationship('Professors', backref='info', lazy=True)
 
@@ -42,21 +42,21 @@ class User(db.Model, UserMixin):
         return f"User('{self.name}', '{self.account_id}', '{self.image_file}')"
 
 
-class Role(db.Model):
+class Roles(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True)
     user_role = db.relationship('UserRoles', backref='role', lazy=True)
 
     def __repr__(self):
-        return f"Role('{self.name}')"
+        return f"Roles('{self.name}')"
 
 
 class UserRoles(db.Model):
-    __tablename__ = 'user_roles'
+    __tablename__ = 'userroles'
     id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return f"UserRoles('{self.user_id}', '{self.role.name}')"
@@ -109,9 +109,9 @@ class TakenCourses(db.Model):
     )
     sid = db.Column(db.Integer, db.ForeignKey('students.sid'))
     cid = db.Column(db.String(10), db.ForeignKey('courses.cid'))
-    year = db.Column(db.String(10), nullable=False)
+    year = db.Column(db.Integer, nullable=False)
     sem = db.Column(db.Integer, db.CheckConstraint('sem = 1 OR sem = 2'), nullable=False)
-    grade = db.Column(db.String(5))
+    grade = db.Column(db.String(5), nullable=False)
     possibleta = db.relationship('PossibleTA', backref='courseinfo', lazy=True)
 
     def __repr__(self):
@@ -129,9 +129,6 @@ class TakingCourses(db.Model):
 
 class Professors(db.Model):
     __tablename__ = "professors"
-    __table_args__ = (
-        db.UniqueConstraint('pid', 'cid', name='unique_pid_cid'),
-    )
     pid = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     cid = db.Column(db.String(10), db.ForeignKey('courses.cid'), unique=True, nullable=False)
     group = db.relationship('Groups', backref='prof', lazy=True)
@@ -168,7 +165,6 @@ class PossibleTA(db.Model):
     sid = db.Column(db.Integer, primary_key=True)
     cid = db.Column(db.String(10), primary_key=True)
     ta = db.relationship('TeachingAssistants', backref='talist', lazy=True)
-    child = db.relationship('TeachingAssistants', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"PossibleTA('{self.sid}', '{self.cid}')"
@@ -213,8 +209,8 @@ class Forums(db.Model):
     title = db.Column(db.String(100), nullable=False)
     pid = db.Column(db.Integer, db.ForeignKey('professors.pid'), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    child = db.relationship('Posts', cascade='all, delete-orphan')
-    foruminfo = db.relationship('ForumInfo', backref='info')
+    posts = db.relationship('Posts', backref='forum', lazy=True)
+    foruminfo = db.relationship('ForumInfo', backref='info', lazy=True)
 
     def __repr__(self):
         return f"Forums('{self.gid}', '{self.sid}', '{self.name}')"
@@ -232,7 +228,7 @@ class ForumInfo(db.Model):
 class Posts(db.Model):
     __tablename__ = "posts"
     post_num = db.Column(db.Integer, primary_key=True)
-    fid = db.Column(db.Integer, db.ForeignKey('forums.fid'), primary_key=True)
+    fid = db.Column(db.Integer, db.ForeignKey('forums.fid', ondelete='CASCADE'), primary_key=True)
     sid = db.Column(db.Integer, db.ForeignKey('students.sid'))
     pid = db.Column(db.Integer, db.ForeignKey('professors.pid'))
     title = db.Column(db.String(100), nullable=False)

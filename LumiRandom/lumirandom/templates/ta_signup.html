@@ -54,12 +54,12 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <h6 class="card-subtitle mb-2 text-muted"><small>{{ mod.cid }}</small></h6>
-                                                    <h6 class="card-title">{{ mod.courseinfo.cname }}</h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><small><a class="unref" href="{{ url_for('module', cid=mod.cid) }}">{{ mod.cid }}</a></small></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('module', cid=mod.cid) }}">{{ mod.courseinfo.cname }}</a></h6>
                                                 </div>
                                                 <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
                                                     <small>2019/2020 Semester 2</small>
-                                                    <span style="float: right"><small>{{ profs.query.filter_by(cid=mod.cid).first().info.name }}</small></span>
+                                                    <span style="float: right"><small><a class="unref" style="color: #e8ebee" href="{{ url_for('profile', id=profs.query.filter_by(cid=mod.cid).first().info.account_id) }}">{{ profs.query.filter_by(cid=mod.cid).first().info.name }}</a></small></span>
                                                 </span>
                                             </div>
                                         </div>
@@ -77,7 +77,7 @@
                                 <div class="row justify-content-left">
                                     {% for request in requested %}
                                         <div class="col-auto mb-3">
-                                            <a class="card unref2" style="width: 25rem; height: 15rem">
+                                            <div class="card" style="width: 25rem; height: 15rem">
                                                 <div class="card-body">
                                                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Withdraw{{ request.cid }}Modal" style="float: right">
                                                         Withdraw
@@ -104,19 +104,19 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <h6 class="card-subtitle mb-2 text-muted"><small>{{ request.cid }}</small></h6>
-                                                    <h6 class="card-title">{{ request.courseinfo.courseinfo.cname }}</h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><small><a class="unref" href="{{ url_for('module', cid=request.cid) }}">{{ request.cid }}</a></small></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('module', cid=request.cid) }}">{{ request.courseinfo.courseinfo.cname }}</a></h6>
                                                 </div>
                                                 <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
                                                     <small>2019/2020 Semester 2</small>
-                                                    <span style="float: right"><small>{{ profs.query.filter_by(cid=request.cid).first().info.name }}</small></span>
+                                                    <span style="float: right"><small><a class="unref" style="color: #e8ebee" href="{{ url_for('profile', id=profs.query.filter_by(cid=request.cid).first().info.account_id) }}">{{ profs.query.filter_by(cid=request.cid).first().info.name }}</a></small></span>
                                                 </span>
-                                            </a>
+                                            </div>
                                         </div> 
                                     {% endfor %}      
                                 </div>
                                 {% else %}
-                                    <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No requested modules!</h6>
+                                    <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No requests made!</h6>
                                 {% endif %}
                             </div>
                         </div>
