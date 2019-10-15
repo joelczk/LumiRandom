@@ -1,0 +1,22 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class = "content-section">
+    <form method="POST" action = "">
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Forums</legend>
+            <div class="form-group">
+                <input id = "mods" name = "mods" type = "text" placeholder = "Enter Course ID" class = "form-control form-control-lg">
+            </div>
+            <div class = "form-group">
+                <input id = "title" name = "title" placeholder = "Enter a title" class = "form-control form-control-lg">
+            </div>
+            <div class = "form-group">
+                <textarea name="contents" id = "contents" placeholder="Enter a comment" class="form-control form-control-lg" style = "height: 300px"></textarea>
+            </div>
+            <div class = "form-group text-center">
+                <button type = "submit" class = "btn btn-success" style = "text-align: centre;">Submit</button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+{% endblock content %}
