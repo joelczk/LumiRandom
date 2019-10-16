@@ -1,15 +1,11 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort, jsonify
+from flask import render_template, url_for, flash, redirect, request, abort
 from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm, UpdateAccountForm
-from lumirandom.models import User, Students, Courses, TakenCourses, TakingCourses, Professors, PossibleTA, TeachingAssistants, role_required, Posts
+from lumirandom.models import User, Students, Courses, TakenCourses, TakingCourses, Professors, PossibleTA, TeachingAssistants, Groups, GroupInfo, role_required
 from flask_login import login_user, current_user, logout_user, login_required
-from random import seed
-from random import randint
-import sys
-import datetime
 
 @app.route("/")
 @app.route("/home")
@@ -70,7 +66,7 @@ def profile(id):
     roles = user.roles
     student = Students()
     prof = Professors()
-    return render_template('profile.html', title='Profile', user=user, roles=roles, student=student, prof=prof)
+    return render_template('profile.html', title='Profile ' + id, user=user, roles=roles, student=student, prof=prof)
 
 
 def save_picture(form_picture):
@@ -361,6 +357,46 @@ def ta_reject(sid):
         flash(f'{Students.query.get(sid).info.name} is rejected from being your slave!', 'warning')  
     return redirect(url_for('my_tas'))
 
+
+@app.route("/mygroups")
+@login_required
+@role_required(role='Student')
+def my_groups():
+    groups = GroupInfo.query.filter_by(sid=current_user.id).all()
+    user = User()
+    return render_template('my_groups.html', title='Groups', groups=groups, groupinfo=GroupInfo(), user=user)
+
+
+@app.route("/prof/groups")
+@login_required
+@role_required(role='Professor')
+def prof_groups():
+    groups = Groups.query.filter_by(cid=Professors.query.get(current_user.id).cid).all()
+    groupinfo = GroupInfo()
+    user = User()
+    return render_template('prof_groups.html', title='Groups', groups=groups, groupinfo=groupinfo, user=user)
+
+
+@app.route("/group/<int:gid>")
+@login_required
+def group(gid):
+    is_student = is_ta = is_prof = False
+    for role in current_user.roles:
+        if role.name == 'Student':
+            is_student = True
+        elif role.name == 'TA':
+            is_ta = True
+        elif role.name == 'Professor':
+            is_prof = True
+    if (is_student and GroupInfo.query.filter(GroupInfo.gid==gid, GroupInfo.sid==current_user.id).first()) or (is_ta and current_user.id==Groups.query.get(gid).sid) \
+        or (is_prof and Professors.query.get(current_user.id).cid==Groups.query.get(gid).cid):
+        group = Groups.query.get(gid)
+        students = GroupInfo.query.join(User, GroupInfo.sid==User.id).filter(GroupInfo.gid==gid).order_by(User.name.asc()).all()
+        size = GroupInfo.query.filter_by(gid=group.gid).count()
+        return render_template('group.html', title='Group', group=group, students=students, size=size, user=User())
+    else:
+        abort(403)
+
 @app.route("/create_post/", methods=['GET', 'POST'])
 @login_required
 def createpost():
@@ -397,3 +433,16 @@ def createpost():
             flash(f'Post created successfully', 'success')
             return render_template('create_post.html', title = "Create Post")
     return render_template('create_post.html',title = "Create Post")
+
+
+@app.errorhandler(404)
+def Error404(error):
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(403)
+def Error403(error):
+    return render_template('errors/403.html'), 403
+
+@app.errorhandler(500)
+def Error500(error):
+    return render_template('errors/500.html'), 500
