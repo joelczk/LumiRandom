@@ -1,18 +1,18 @@
 CREATE TABLE Users (
-	id					INTEGER PRIMARY KEY,
-	name				VARCHAR(100) NOT NULL,
+	id		INTEGER PRIMARY KEY,
+	name		VARCHAR(100) NOT NULL,
 	image_file	VARCHAR(100) NOT NULL DEFAULT 'default.jpg'
-	password		VARCHAR(20) NOT NULL
+	password	VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE Students (
-	sid	 				INTEGER PRIMARY KEY REFERENCES Users(id) ON DELETE cascade,
-	year 				INTEGER NOT NULL CHECK (year >= 1 AND year <= 5)
+	sid	 	INTEGER PRIMARY KEY REFERENCES Users(id) ON DELETE cascade,
+	year 		INTEGER NOT NULL CHECK (year >= 1 AND year <= 5)
 );
 
 CREATE TABLE Courses (
-	cid	 				VARCHAR(10) PRIMARY KEY,
-	cname 			VARCHAR(100) NOT NULL UNIQUE
+	cid	 	VARCHAR(10) PRIMARY KEY,
+	cname 		VARCHAR(100) NOT NULL UNIQUE
 );
 
 /*
@@ -20,100 +20,100 @@ When a student enters into a course, the grade will be IP (in-progress)
 Have to update the grades when they completed the course
 */
 CREATE TABLE TakenCourses (
-	sid 	 			INTEGER REFERENCES Students(sid),
-	cid	 				VARCHAR(10) REFERENCES Courses(cid),
-	year 				INTEGER NOT NULL,
-	sem	 				INTEGER NOT NULL CHECK (sem = 1 OR sem = 2),
-	grade 			VARCHAR(5) DEFAULT 'IP',
-	PRIMARY KEY (sid, cid)
+	sid 	 	INTEGER REFERENCES Students(sid),
+	cid	 	VARCHAR(10) REFERENCES Courses(cid),
+	year 		INTEGER NOT NULL,
+	sem	 	INTEGER NOT NULL CHECK (sem = 1 OR sem = 2),
+	grade 		VARCHAR(5) DEFAULT 'IP',
+	PRIMARY KEY 	(sid, cid)
 );
 
 CREATE TABLE Professors (
-	pid	 				INTEGER PRIMARY KEY	REFERENCES Users(id) ON DELETE cascade
+	pid		INTEGER PRIMARY KEY	REFERENCES Users(id) ON DELETE cascade
 );
 
 /*
 Each professor can manage one course
 */
 CREATE TABLE Manages(
-	pid 				INTEGER PRIMARY KEY REFERENCES Professors(pid),
-	cid 				INTEGER REFERENCES Courses(cid)
+	pid		INTEGER PRIMARY KEY REFERENCES Professors(pid),
+	cid		INTEGER REFERENCES Courses(cid)
 );
 
 /*
 Students entries keyed into TA tables have the is_ta boolean set to true
 */
 CREATE TABLE TeachingAssistants (
-	sid	 				INTEGER PRIMARY KEY,
-	cid	 				VARCHAR(10) NOT NULL,
-	is_ta 			BOOLEAN DEFAULT TRUE;
-	FOREIGN KEY (sid, cid) REFERENCES TakenCourses(sid, cid);
+	sid	 	INTEGER PRIMARY KEY,
+	cid	 	VARCHAR(10) NOT NULL,
+	is_ta 		BOOLEAN DEFAULT TRUE;
+	FOREIGN KEY 	(sid, cid) REFERENCES TakenCourses(sid, cid);
 );
 
 /*
 Each student can belong to one more groups from the same course
 */
 CREATE TABLE Belongs (
-	sid 				INTEGER REFERENCES TakenCourses(sid),
-	cid 				INTEGER REFERENCES TakenCourses(cid),
-	gid 				INTEGER REFERENCES Groups(gid),
-	PRIMARY KEY (sid, cid, gid)
+	sid 		INTEGER REFERENCES TakenCourses(sid),
+	cid 		INTEGER REFERENCES TakenCourses(cid),
+	gid 		INTEGER REFERENCES Groups(gid),
+	PRIMARY KEY 	(sid, cid, gid)
 );
 
 CREATE TABLE Groups (
-	gid	 				INTEGER PRIMARY KEY,
-	gname 			VARCHAR(50) NOT NULL,
+	gid	 	INTEGER PRIMARY KEY,
+	gname 		VARCHAR(50) NOT NULL,
 );
 
 // Creates table for professor creating groups
 CREATE TABLE Creates (
-	gid					INTEGER PRIMARY KEY REFERENCES Groups(gid),
-	pid  				INTEGER REFERENCES Professors(pid)
+	gid		INTEGER PRIMARY KEY REFERENCES Groups(gid),
+	pid  		INTEGER REFERENCES Professors(pid)
 )
 
 /*
 Each TA can manage at most one tutorial group
 */
 CREATE TABLE Managed (
-	gid 				INTEGER REFERENCES Groups,
-	sid					INTEGER PRIMARY KEY REFERENCES TeachingAssistants(sid),
+	gid 		INTEGER REFERENCES Groups,
+	sid		INTEGER PRIMARY KEY REFERENCES TeachingAssistants(sid),
 );
 
 // I think do not need this anymore as there is a belongs table
 CREATE TABLE GroupInfo (
-	gid	 				INTEGER REFERENCES Groups ON DELETE CASCADE,
-	sid	 				INTEGER REFERENCES Students,
-	PRIMARY KEY (gid, sid)
+	gid	 	INTEGER REFERENCES Groups ON DELETE CASCADE,
+	sid	 	INTEGER REFERENCES Students,
+	PRIMARY KEY 	(gid, sid)
 );
 
 CREATE TABLE Forums (
-	fid	 					INTEGER PRIMARY KEY,
-	title 				VARCHAR(100) NOT NULL,
+	fid	 	INTEGER PRIMARY KEY,
+	title 		VARCHAR(100) NOT NULL,
 );
 
 CREATE TABLE CreatesForum (
-	pid					INTEGER REFERENCES Professors(pid),
-	fid 				INTEGER PRIMARY KEY REFERENCES Forums(fid)
-	DATE_CREATED DATE NOT NULL
+	pid		INTEGER REFERENCES Professors(pid),
+	fid 		INTEGER PRIMARY KEY REFERENCES Forums(fid)
+	DATE_CREATED 	DATE NOT NULL
 
 )
 
 // groups accessing forum
 CREATE TABLE ForumInfo (
-	fid	 				INTEGER REFERENCES Forums,
-	gid 				INTEGER REFERENCES Groups,
-	PRIMARY KEY (fid, gid)
+	fid	 	INTEGER REFERENCES Forums,
+	gid 		INTEGER REFERENCES Groups,
+	PRIMARY KEY 	(fid, gid)
 );
 
 // constraints not captured on ER diagram?
 CREATE TABLE Posts (
-	post_num 			INTEGER PRIMARY KEY,
-	fid	 					INTEGER REFERENCES Forums ON DELETE CASCADE,
-	sid	 					INTEGER NOT NULL REFERENCES Students,
-	pid 					INTEGER REFERENCES Professors,
-	title 				VARCHAR(100) NOT NULL,
-	content	 			TEXT NOT NULL,
+	post_num	INTEGER PRIMARY KEY,
+	fid		INTEGER REFERENCES Forums ON DELETE CASCADE,
+	sid	 	INTEGER NOT NULL REFERENCES Students,
+	pid 		INTEGER REFERENCES Professors,
+	title 		VARCHAR(100) NOT NULL,
+	content	 	TEXT NOT NULL,
 	date_posted 	DATE NOT NULL,
-	rating 				INTEGER DEFAULT NULL CHECK (rating IS NULL OR (rating >= 0 AND rating <= 5)),
+	rating 		INTEGER DEFAULT NULL CHECK (rating IS NULL OR (rating >= 0 AND rating <= 5)),
 	PRIMARY KEY 	(fid, post_num)
 );
