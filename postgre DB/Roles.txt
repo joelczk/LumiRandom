@@ -1,3 +1,0 @@
-INSERT INTO Roles VALUES ('1', 'Student');
-INSERT INTO Roles VALUES ('2', 'TA');
-INSERT INTO Roles VALUES ('3', 'Professor');
