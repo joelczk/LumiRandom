@@ -4,8 +4,11 @@ from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm, UpdateAccountForm
-from lumirandom.models import User, Students, Courses, TakenCourses, TakingCourses, Professors, PossibleTA, TeachingAssistants, Groups, GroupInfo, role_required
+from lumirandom.models import User, Students, Courses, TakenCourses, TakingCourses, Professors, PossibleTA, TeachingAssistants, Groups, GroupInfo, role_required, Posts
 from flask_login import login_user, current_user, logout_user, login_required
+from random import randint
+import datetime
+import sys
 
 @app.route("/")
 @app.route("/home")
@@ -397,11 +400,12 @@ def group(gid):
     else:
         abort(403)
 
-@app.route("/create_post/", methods=['GET', 'POST'])
+@app.route("/module/<string:cid>/forums/create_post", methods=['GET', 'POST'])
 @login_required
-def createpost():
+def createpost(cid):
+    Courses.query.get_or_404(cid)
+    module = Courses.query.filter_by(cid=cid).first()
     if request.method == 'POST':
-        mods = request.form['mods']
         title = request.form['title']
         content = request.form['contents']
         randnumber = randint(0,sys.maxsize)
@@ -411,10 +415,12 @@ def createpost():
         #FID is set to 1 temporarily first until fid has been created 
         fid = 1
         rating = None
-        if mods == '' or title == '' or content == '':
+        if title == '' or content == '':
             flash(f'Invalid Fields!', 'danger')
-        elif Courses.query.filter_by(cid = mods).first() == None:
-            flash(f'Invalid Module Code!', 'danger')
+        # elif Courses.query.filter_by(cid = mods).first() == None:
+        #     flash(f'Invalid Module Code!', 'danger')
+        elif Posts.query.filter_by(title = title).first() != None:
+            flash(f'Title already exists', 'danger')
         else:
             # print("mods:",mods)
             # print("title:", title)
@@ -431,9 +437,8 @@ def createpost():
                 db.session.add(post)
                 db.session.commit()
             flash(f'Post created successfully', 'success')
-            return render_template('create_post.html', title = "Create Post")
-    return render_template('create_post.html',title = "Create Post")
-
+            return render_template('create_post.html', title = "Create Post", module = module)
+    return render_template('create_post.html',title = "Create Post", module = module)
 
 @app.errorhandler(404)
 def Error404(error):
