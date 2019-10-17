@@ -28,7 +28,7 @@
                     {% for s in students.items %}
                         <tr>
                             <th scope="row">{{ loop.index }}</th>
-                            <td style="width: 80%"><a class="unref" href="{{ url_for('profile', id=s.info.account_id) }}">{{ s.info.name }}</a></td>
+                            <td style="width: 80%"><a class="unref" href="{{ url_for('profile', id=s.sid) }}">{{ s.info.name }}</a></td>
                             <td style="width: 10%">{{ s.year }}</td>
                         </tr>
                     {% endfor %}

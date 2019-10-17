@@ -8,13 +8,13 @@
                 <div class="card unref2" style="width: 18rem; height: 10rem">
                         <a class="card-body unref2" href="{{ url_for('group', gid=group.gid) }}">
                             <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
-                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ group.cid }}</small></h6>
+                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ cid }}</small></h6>
                             <h6 class="card-title">{{ group.gname }}</h6>
                         </a>
                         {% if group.sid %}
-                            <a class="card-footer unref2" style="background-color: #a1b4c2; color: #e8ebee" href="{{ url_for('profile', id=user.query.get(group.sid).account_id) }}">
+                            <a class="card-footer unref2" style="background-color: #a1b4c2; color: #e8ebee" href="{{ url_for('profile', id=group.sid) }}">
                                 <small style="float: left">Teaching Assistant</small>
-                                <small style="float: right">{{ user.query.get(group.sid).name }}</small>
+                                <small style="float: right">{{ group.ta.info.name }}</small>
                             </a>
                         {% else %}
                             <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">

@@ -1,8 +1,8 @@
 {% extends 'layout.html' %}
 {% block content %}
-{% if tas.query.get(current_user.id) %}
+{% if ta %}
     <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">
-        You are already a Teaching Assistant for {{ tas.query.get(current_user.id).cid }} {{ profs.query.filter_by(cid=tas.query.get(current_user.id).cid).first().courseinfo.cname }}.
+        You are already a Teaching Assistant for {{ ta.cid }} {{ ta.courseinfo.courseinfo.cname }}.
     </h6>
 {% else %} 
 <section id="tabs">

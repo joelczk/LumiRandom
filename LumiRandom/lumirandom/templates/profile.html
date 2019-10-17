@@ -32,14 +32,14 @@
 				</div>
 			</div>
 			{% endif %}
-			<h4 class="text-muted">{{ user.account_id }}</h4>
+			<h4 class="text-muted">{{ user.id }}</h4>
 			<h2>{{ user.name }}</h2>
 			{% for role in roles %}
-				{% if role.name == 'Student' %}
-					<h6 class="text-muted">{{ role.name }}<br>Year {{ student.query.get(user.id).year }}</h6>
+				{% if role == 'Student' %}
+					<h6 class="text-muted">{{ role }}<br>Year {{ student.query.get(user.id).year }}</h6>
 				{% endif %}
-				{% if role.name == 'Professor' %}
-					<h6 class="text-muted">{{ role.name }}<br> {{ prof.query.get(user.id).cid }}</h6>
+				{% if role == 'Professor' %}
+					<h6 class="text-muted">{{ role }}<br> {{ prof.query.get(user.id).cid }}</h6>
 				{% endif %}
 			{% endfor %}
 		</div>

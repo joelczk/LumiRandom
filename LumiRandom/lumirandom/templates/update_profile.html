@@ -13,12 +13,12 @@
             <div class="media-body">
                 <h4 class="text-muted">{{ current_user.account_id }}</h4>
                 <h2>{{ current_user.name }}</h2>
-                {% for role in current_user.roles %}
-                    {% if role.name == 'Student' %}
-                        <h6 class="text-muted">{{ role.name }}<br>Year {{ student.query.get(current_user.id).year }}</h6>
+                {% for role in current_user.roles() %}
+                    {% if role == 'Student' %}
+                        <h6 class="text-muted">{{ role }}<br>Year {{ student.query.get(current_user.id).year }}</h6>
                     {% endif %}
-                    {% if role.name == 'Professor' %}
-                        <h6 class="text-muted">{{ role.name }}<br> {{ prof.query.get(current_user.id).cid }}</h6>
+                    {% if role == 'Professor' %}
+                        <h6 class="text-muted">{{ role }}<br> {{ prof.query.get(current_user.id).cid }}</h6>
                     {% endif %}
                 {% endfor %}
             </div>
@@ -27,7 +27,7 @@
         <div class="row">      
         <div style="width: 35%; padding-left: 20px">
             <h6>Email</h6>
-            <h6><small>{{ current_user.account_id }}@random.com</small></h6>
+            <h6><small>{{ current_user.id }}@random.com</small></h6>
         </div>
         <div class="border-left" style="width: 65%; padding-right: 20px; padding-left: 20px">
             <h5>Change Password?</h5>

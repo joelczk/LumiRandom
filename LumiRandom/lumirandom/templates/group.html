@@ -19,9 +19,9 @@
                                 <h6 class="text-muted" style="float: right">{{ size }}<i class="fa fa-user fa-xs ml-1"></i></h6>
                                 <h6 class="text-muted">{{ group.cid }}</h6>
                                 <h4>{{ group.gname }}</h4>
-                                <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=group.prof.info.account_id) }}">{{ group.prof.info.name }}</a></h6>
+                                <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=group.prof.pid) }}">{{ group.prof.info.name }}</a></h6>
                                 {% if group.sid %}
-                                    <h6 class="text-muted">Teaching Assistant: <a class="unref text-muted" href="{{ url_for('profile', id=user.query.get(group.sid).account_id) }}">{{ user.query.get(group.sid).name }}</a></h6>
+                                    <h6 class="text-muted">Teaching Assistant: <a class="unref text-muted" href="{{ url_for('profile', id=group.sid) }}">{{ user.query.get(group.sid).name }}</a></h6>
                                 {% else %}
                                     <h6 class="text-muted">Teaching Assistant: NIL</h6>
                                 {% endif %}
@@ -34,12 +34,21 @@
                                 <div class="row justify-content-center">
                                     {% for student in students %}
                                         <div class="col-auto mb-3">
-                                            <a class="card unref2" style="width: 40rem; height: 6rem" href="{{ url_for('profile', id=user.query.get(student.sid).account_id) }}">
-                                                <div class="card-body">
-                                                    <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
-                                                    <h6 class="card-title">{{ student.student.info.name }}</h6>
-                                                </div>
-                                            </a>
+                                            {% if student.sid == current_user.id %}
+                                                <a class="card unref2" style="width: 40rem; height: 6rem; background-color: #c3d9eb;" href="{{ url_for('profile', id=student.sid) }}">
+                                                    <div class="card-body">
+                                                        <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
+                                                        <h6 class="card-title">{{ student.student.info.name }}</h6>
+                                                    </div>
+                                                </a>
+                                            {% else %}
+                                                <a class="card unref2" style="width: 40rem; height: 6rem" href="{{ url_for('profile', id=student.sid) }}">
+                                                    <div class="card-body">
+                                                        <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
+                                                        <h6 class="card-title">{{ student.student.info.name }}</h6>
+                                                    </div>
+                                                </a>
+                                            {% endif %}
                                         </div> 
                                     {% endfor %}      
                                 </div>

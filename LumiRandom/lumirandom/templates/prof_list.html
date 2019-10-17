@@ -28,8 +28,8 @@
                     {% for p in profs.items %}
                         <tr>
                             <th scope="row">{{ loop.index }}</th>
-                            <td style="width: 60%"><a class="unref" href="{{ url_for('profile', id=p.info.account_id) }}">{{ p.info.name }}</a></td>
-                            <td style="width: 30%">{{ p.cid }}</td>
+                            <td style="width: 60%"><a class="unref" href="{{ url_for('profile', id=p.pid) }}">{{ p.info.name }}</a></td>
+                            <td style="width: 30%"><a class="unref" href="{{ url_for('module', cid=p.cid) }}">{{ p.cid }}</a></td>
                         </tr>
                     {% endfor %}
                 </tbody>

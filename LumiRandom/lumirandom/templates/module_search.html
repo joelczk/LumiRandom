@@ -29,9 +29,9 @@
                             <td style="width: 15%"><a class="unref" href="{{ url_for('module', cid=module.cid) }}">{{ module.cid }}</a></td>
                             <td style="width: 72%"><a class="unref" href="{{ url_for('module', cid=module.cid) }}">{{ module.cname }}</a></td>
                             <td style="width: 15%">
-                                {% if taken.query.filter_by(cid=module.cid).filter_by(sid=current_user.id).first() %}
+                                {% if taken.query.filter_by(sid=current_user.id, cid=module.cid).filter(taken.year!=cur_year or (taken.year==cur_year and taken.sem<cur_sem)).first() %}
                                     <b class="text-muted">Taken</b>
-                                {% elif taking.query.filter_by(cid=module.cid).filter_by(sid=current_user.id).first() %}
+                                {% elif taken.query.filter_by(sid=current_user.id, cid=module.cid, year=cur_year, sem=cur_sem).first() %}
                                     <b>Enrolled</b>
                                 {% elif prof.query.filter_by(cid=module.cid).first() == none %}
                                     <b class="text-muted">Unavailable</b>

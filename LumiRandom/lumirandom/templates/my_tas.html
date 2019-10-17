@@ -14,18 +14,18 @@
                 <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
                     <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
                         <div class="container-fluid mt-4">
-                            {% if tas.query.filter_by(cid=cid).all() %}
+                            {% if tas %}
                                 <div class="row justify-content-left">
-                                    {% for ta in tas.query.filter_by(cid=cid).all() %}
+                                    {% for ta in tas %}
                                         <div class="col-auto mb-3">
                                             <div class="card unref" style="width: 25rem; height: 14rem">
                                                 <div class="card-body">
-                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=user.query.get(ta.sid).account_id) }}"><small>{{ user.query.get(ta.sid).account_id }}</small></a></h6>
-                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=user.query.get(ta.sid).account_id) }}">{{ students.query.get(ta.sid).info.name }}</a></h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=ta.sid) }}"><small>{{ ta.sid }}</small></a></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=ta.sid) }}">{{ students.query.get(ta.sid).info.name }}</a></h6>
                                                     <h6><small>Year: {{ students.query.get(ta.sid).year }}</small></h6>
                                                 </div>
                                                 <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
-                                                    <small>2019/2020 Semester 2</small>
+                                                    <small>{{ cur_year }} Semester {{ cur_sem }}</small>
                                                 </span>
                                             </div>
                                         </div>
@@ -42,7 +42,6 @@
                                 {% if requests %}
                                 <div class="row justify-content-left">
                                     {% for request in requests %}
-                                    {% if not tas.query.filter_by(sid=request.sid).all() %}
                                         <div class="col-auto mb-3">
                                             <div class="card unref" style="width: 25rem; height: 14rem">
                                                 <div class="card-body">
@@ -96,17 +95,16 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=user.query.get(request.sid).account_id) }}"><small>{{ user.query.get(request.sid).account_id }}</small></a></h6>
-                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=user.query.get(request.sid).account_id) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=request.sid) }}"><small>{{ request.sid }}</small></a></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=request.sid) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
                                                     <h6><small>Year: {{ students.query.get(request.sid).year }}</small></h6>
                                                     <h6><small>Grade: {{ request.courseinfo.grade }}</small></h6>
                                                 </div>
                                                 <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
-                                                    <small>2019/2020 Semester 2</small>
+                                                    <small>{{ cur_year }} Semester {{ cur_sem }}</small>
                                                 </span>
                                             </div>
                                         </div>
-                                    {% endif %} 
                                     {% endfor %}      
                                 </div>
                                 {% else %}

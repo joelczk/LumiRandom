@@ -44,8 +44,8 @@
 						<!-- Navbar Right Side -->
 						<div class="navbar-nav">
 							{% if current_user.is_authenticated %}
-								{% for role in current_user.roles %}
-								{% if role.name == 'Professor' %}
+								{% for role in current_user.roles() %}
+								{% if role == 'Professor' %}
 									<div class="dropdown">
 										<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonProf" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 												Professor <i class="fa fa-tasks ml-2"></i>
@@ -73,7 +73,7 @@
 											</div>
 										</div>
 									</div>	
-								{% elif role.name == 'Student' %}
+								{% elif role == 'Student' %}
 								<div class="dropdown">
 									<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStudent" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 											Student <i class="fa fa-tasks ml-2"></i>
@@ -142,12 +142,12 @@
 									<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButton" style="width: 20rem">
 										<div>
 											<div style="display: inline-block">
-												<a class="container" href="{{ url_for('profile', id=current_user.account_id) }}">
+												<a class="container" href="{{ url_for('profile', id=current_user.id) }}">
 													<img class="rounded-circle menu-img fadeimage" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}">
 												</a>
 											</div>
 											<div class="menu-profile">
-												<div class="text-muted"><b><small>{{ current_user.account_id }}</small></b></div>
+												<div class="text-muted"><b><small>{{ current_user.id }}</small></b></div>
 												<div>{{ current_user.name }}</div>
 											</div>
 										</div>
