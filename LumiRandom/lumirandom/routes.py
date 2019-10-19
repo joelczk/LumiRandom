@@ -468,6 +468,10 @@ def createpost(cid):
             # print("fid:",fid)
             # print("datetime:", datetime_obj)
             # print(current_user.id)
+            if Posts.query.filter_by(fid = fid).first() == None:
+                post_num = 1
+            else:
+                post_num = db.session.query(func.max(Posts.gid)).scalar()+1
             if Students.query.get(current_user.id):
                 post = Posts(post_num = post_num, fid = fid, pid = None, sid=current_user.id, title = title, content = content, date_posted = datetime_obj, rating = rating)
                 db.session.add(post)
