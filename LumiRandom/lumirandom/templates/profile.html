@@ -8,7 +8,7 @@
 		<div class="media-body">
 			{% if user.id == current_user.id %}
 			<span data-toggle="modal" data-target="#EditModal">
-				<a href="#" data-toggle="tooltip" title="Edit Profile" style="float: right"><i class="fa fa-pencil fa-lg icon"></i></a>
+				<a href="#" data-toggle="tooltip" title="Edit Profile" style="float: right"><i class="pencil alternate icon large"></i></a>
 			</span>
 			<div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="EditModalLabel" aria-hidden="true">
 				<div class="modal-dialog" role="document">
@@ -32,8 +32,8 @@
 				</div>
 			</div>
 			{% endif %}
-			<h4 class="text-muted">{{ user.id }}</h4>
-			<h2>{{ user.name }}</h2>
+			<h4 class="text-muted" style="margin-top: 5px">{{ user.id }}</h4>
+			<h2 style="margin-top: 0px">{{ user.name }}</h2>
 			{% for role in roles %}
 				{% if role == 'Student' %}
 					<h6 class="text-muted">{{ role }}<br>Year {{ student.query.get(user.id).year }}</h6>

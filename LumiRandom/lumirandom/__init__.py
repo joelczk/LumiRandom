@@ -39,10 +39,4 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
-# from lumirandom.models import User
-
-# user_manager = UserManager(app, db, User)
-# user_manager.login_view = 'login'
-# user_manager.login_message_category = 'info'
-
 from lumirandom import routes

@@ -247,6 +247,14 @@ div.menu-profile {
   display: block;
 }
 
+.form-format {
+  background: #ffffff;
+  padding: 10px 10px 0px 10px;
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+}
+
+
 
 /* .click a {
   display: block

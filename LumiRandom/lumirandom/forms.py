@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, RadioField, TextAreaField
+from wtforms.widgets import ListWidget, CheckboxInput
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional, ValidationError
 from lumirandom.models import User
 from flask_login import current_user
@@ -39,3 +40,8 @@ class UpdateAccountForm(FlaskForm):
     def validate_cur_password(self, cur_password):
         if cur_password.data and not bcrypt.check_password_hash(current_user.password, cur_password.data):
             raise ValidationError('Current password is wrong.')
+
+class CreateGroupForm(FlaskForm):
+    cid = StringField('Module', validators=[DataRequired()])
+    gname = StringField('Group Name', validators=[DataRequired(), Length(min=2, max=50)])
+    submit = SubmitField('Create')

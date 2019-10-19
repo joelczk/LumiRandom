@@ -2,7 +2,7 @@
 {% block content %}
 <section id="tabs">
     <div class="container">
-        <h4 class="text-muted", style="text-align:center;">{{ group.cid }}</h4>
+        <h4 class="text-muted", style="text-align:center;">{{ group.prof.cid }}</h4>
         <h2 class="border-bottom mb-4", style="text-align:center;">{{ group.gname }}</h2>
         <div class="row">
             <div class="col-xs-12 ">
@@ -17,7 +17,7 @@
                         <div class="container-fluid mt-4">
                             <div class="content-section">
                                 <h6 class="text-muted" style="float: right">{{ size }}<i class="fa fa-user fa-xs ml-1"></i></h6>
-                                <h6 class="text-muted">{{ group.cid }}</h6>
+                                <h6 class="text-muted">{{ group.prof.cid }}</h6>
                                 <h4>{{ group.gname }}</h4>
                                 <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=group.prof.pid) }}">{{ group.prof.info.name }}</a></h6>
                                 {% if group.sid %}

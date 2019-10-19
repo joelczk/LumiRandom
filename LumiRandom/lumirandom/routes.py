@@ -1,11 +1,12 @@
 import os
-import secrets
-from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
 from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from lumirandom.models import User, Students, Courses, TakenCourses, Professors, TeachingAssistants, Groups, GroupInfo, Posts, role_required
+from flask import render_template, url_for, flash, redirect, request, abort
 from flask_login import login_user, current_user, logout_user, login_required
+from sqlalchemy import func
+import secrets
+from PIL import Image
 from random import randint
 import datetime, sys
 
@@ -367,18 +368,6 @@ def my_groups():
     user = User()
     return render_template('my_groups.html', title='Groups', groups=groups, groupinfo=GroupInfo(), user=user)
 
-
-@app.route("/prof/groups")
-@login_required
-@role_required(role='Professor')
-def prof_groups():
-    groups = Groups.query.filter_by(pid=current_user.id).all()
-    groupinfo = GroupInfo()
-    cid = Professors.query.get(current_user.id).cid
-    user = User()
-    return render_template('prof_groups.html', title='Groups', groups=groups, groupinfo=groupinfo, user=user, cid=cid)
-
-
 @app.route("/group/<int:gid>")
 @login_required
 def group(gid):
@@ -397,6 +386,59 @@ def group(gid):
         return render_template('group.html', title='Group', group=group, students=students, size=size, user=User())
     else:
         abort(403)
+
+
+@app.route("/prof/groups")
+@login_required
+@role_required(role='Professor')
+def prof_groups():
+    groups = Groups.query.filter_by(pid=current_user.id).all()
+    groupinfo = GroupInfo()
+    cid = Professors.query.get(current_user.id).cid
+    user = User()
+    return render_template('prof_groups.html', title='Groups', groups=groups, groupinfo=groupinfo, user=user, cid=cid)
+
+
+@app.route("/prof/create-group", methods=['GET', 'POST'])
+@login_required
+@role_required(role='Professor')
+def create_group():
+    if request.method == 'POST':
+        gname = request.form['gname']
+        students = request.form['students'].split(',')
+        ta = request.form['ta']
+        if ta == "none":
+            ta = ''
+        if Groups.query.first() == None:
+            gid = 1
+        else:
+            gid = db.session.query(func.max(Groups.gid)).scalar()+1
+        g = Groups(gid=gid, gname=gname, pid=current_user.id, sid=ta)
+        db.session.add(g)
+        for student in students:
+            s = GroupInfo(gid=gid, sid=student)
+            db.session.add(s)
+        db.session.commit()
+        flash(f'New group {gname} successfully created!', 'success')
+        return redirect(url_for('prof_groups'))
+
+    cid = Professors.query.get(current_user.id).cid
+    students = TakenCourses.query.join(User, TakenCourses.sid==User.id).filter(TakenCourses.cid==cid, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem).order_by(User.name.asc()).all()
+    s1, s2, s3, s4, s5 = ([] for i in range(5))
+    for student in students:
+        if student.student.year == 1:
+            s1.append(student)
+        elif student.student.year == 2:
+            s2.append(student)
+        elif student.student.year == 3:
+            s3.append(student)
+        elif student.student.year == 4:
+            s4.append(student)
+        elif student.student.year == 5:
+            s5.append(student)
+    tas = TeachingAssistants.query.join(User, TeachingAssistants.sid==User.id).filter(TeachingAssistants.cid==cid).order_by(User.name.asc()).all()   
+    return render_template('create_group.html', title='Create Group', students=students, s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, tas=tas, cid=cid)
+
 
 
 @app.route("/module/<string:cid>/forums/create_post", methods=['GET', 'POST'])
@@ -437,9 +479,6 @@ def createpost(cid):
             flash(f'Post created successfully.', 'success')
             return render_template('create_post.html', title = "Create Post", module = module)
     return render_template('create_post.html',title = "Create Post", module = module)
-
-
-
 
 
 @app.errorhandler(404)

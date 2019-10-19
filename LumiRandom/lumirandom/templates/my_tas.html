@@ -20,7 +20,7 @@
                                         <div class="col-auto mb-3">
                                             <div class="card unref" style="width: 25rem; height: 14rem">
                                                 <div class="card-body">
-                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=ta.sid) }}"><small>{{ ta.sid }}</small></a></h6>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=ta.sid) }}"><small class="text-muted">{{ ta.sid }}</small></a></h6>
                                                     <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=ta.sid) }}">{{ students.query.get(ta.sid).info.name }}</a></h6>
                                                     <h6><small>Year: {{ students.query.get(ta.sid).year }}</small></h6>
                                                 </div>
@@ -95,7 +95,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=request.sid) }}"><small>{{ request.sid }}</small></a></h6>
+                                                    <h6 class="card-subtitle mb-2"><a class="unref" href="{{ url_for('profile', id=request.sid) }}"><small class="text-muted">{{ request.sid }}</small></a></h6>
                                                     <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=request.sid) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
                                                     <h6><small>Year: {{ students.query.get(request.sid).year }}</small></h6>
                                                     <h6><small>Grade: {{ request.courseinfo.grade }}</small></h6>

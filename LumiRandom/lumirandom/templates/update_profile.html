@@ -11,8 +11,8 @@
                 </a>
             </div>
             <div class="media-body">
-                <h4 class="text-muted">{{ current_user.account_id }}</h4>
-                <h2>{{ current_user.name }}</h2>
+                <h4 class="text-muted" style="margin-top: 2px">{{ current_user.id }}</h4>
+                <h2 style="margin-top: 0px">{{ current_user.name }}</h2>
                 {% for role in current_user.roles() %}
                     {% if role == 'Student' %}
                         <h6 class="text-muted">{{ role }}<br>Year {{ student.query.get(current_user.id).year }}</h6>
