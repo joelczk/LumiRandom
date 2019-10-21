@@ -1,22 +1,31 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class = "content-section">
-    <form method="POST" action = "">
-        <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Forums</legend>
-            <div class="form-group">
-                <input id = "mods" name = "mods" type = "text" placeholder = {{module.cid}} class = "form-control form-control-lg" disabled> 
+<div class="content-section">
+    <h2 class="border-bottom mb-4", style="text-align:center;">New Post</h2>
+    <form class="ui form post" method='POST'>
+        <div class="fields">
+            <div class="disabled four wide field">
+                <label>Module Code</label>
+                <input id="mods" name="mods" type="text" placeholder="{{ cid }}"> 
             </div>
-            <div class = "form-group">
-                <input id = "title" name = "title" placeholder = "Enter a title" class = "form-control form-control-lg">
+            <div class="disabled twelve wide field">
+                <label>Forum Title</label>
+                <input id="ftitle" name="ftitle" type="text" placeholder="{{ forum.title }}"> 
             </div>
-            <div class = "form-group">
-                <textarea name="contents" id = "contents" placeholder="Enter a comment" class="form-control form-control-lg" style = "height: 300px"></textarea>
-            </div>
-            <div class = "form-group text-center">
-                <button type = "submit" class = "btn btn-success" style = "text-align: centre;">Submit</button>
-            </div>
-        </fieldset>
-    </form>
+        </div>
+        <div class="required field">
+            <label>Post Title</label>
+            <input id="title" name="title" placeholder="Enter a post title">
+        </div>
+        <div class="required field">
+            <label>Comment</label>
+            <textarea rows="8" id="content" name="content" placeholder="Enter a comment"></textarea>
+        </div>
+        <div class="field text-center">
+                <div class="ui teal submit button">Submit</div>
+            <div class="ui clear button">Clear</div>
+            <div class="ui error message"></div>
+        </div>
+    </form>         
 </div>
 {% endblock content %}

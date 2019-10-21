@@ -34,6 +34,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(20), nullable=False)
     student = db.relationship('Students', backref='info', lazy=True)
     prof = db.relationship('Professors', backref='info', lazy=True)
+    post = db.relationship('Posts', backref='author', lazy=True)
 
     def roles(self):
         role = []
@@ -79,7 +80,6 @@ class Students(db.Model):
     taken = db.relationship('TakenCourses', backref='student', lazy=True)
     ta = db.relationship('Groups', backref='ta', lazy=True)
     group = db.relationship('GroupInfo', backref='student', lazy=True)
-    post = db.relationship('Posts', backref='sauthor', lazy=True)
 
     def __repr__(self):
         return f"Students('{self.sid}', '{self.year}')"
@@ -142,7 +142,6 @@ class Professors(db.Model):
     cid = db.Column(db.String(10), db.ForeignKey('courses.cid'), unique=True, nullable=False)
     group = db.relationship('Groups', backref='prof', lazy=True)
     forum = db.relationship('Forums', backref='creator', lazy=True)
-    post = db.relationship('Posts', backref='pauthor', lazy=True)
 
     def __repr__(self):
         return f"Professors('{self.pid}', '{self.name}', '{self.cid}')"
@@ -240,12 +239,11 @@ class Posts(db.Model):
     __tablename__ = "posts"
     post_num = db.Column(db.Integer, primary_key=True)
     fid = db.Column(db.Integer, db.ForeignKey('forums.fid', ondelete='CASCADE'), primary_key=True)
-    sid = db.Column(db.String(10), db.ForeignKey('students.sid'))
-    pid = db.Column(db.String(10), db.ForeignKey('professors.pid'))
+    id = db.Column(db.String(10), db.ForeignKey('users.id'))
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    rating = db.Column(db.Integer, db.CheckConstraint('rating IS NULL OR (rating >= 0 AND rating <= 5)'), nullable=True)
+    rating = db.Column(db.Integer, db.CheckConstraint('rating >= 0 AND rating <= 10'), nullable=False, server_default='0')
 
     def __repr__(self):
         return f"Posts('{self.sid}', '{self.pid}', '{self.title}', '{self.date_posted}, '{self.rating}'')"

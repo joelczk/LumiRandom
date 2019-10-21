@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+    <div class="container">
+        <h4 class="text-muted", style="text-align:center;">{{ forum.creator.cid }}</h4>
+        <h2 class="border-bottom mb-4", style="text-align:center;">{{ forum.title }}</h2>
+        <div class="row">
+            <div class="col-xs-12 ">
+                <nav>
+                    <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="post-tab" data-toggle="tab" href="#post" role="tab" aria-controls="post" aria-selected="true" style="width: 555px">Posts</a>
+                        <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="width: 555px">Forum Details</a>
+                    </div>
+                </nav>
+                <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="post" role="tabpanel" aria-labelledby="post-tab">
+                        <div class="container-fluid mt-4">
+                            <a href="{{ url_for('create_post', cid=cid, fid=fid) }}"><button class="fluid ui teal button mb-4">New Post</button></a>
+                            <div class="content-section row justify-content-left">
+                                {% if posts %}                  
+                                    <div class="ui large threaded comments" style="max-width: none;">                                        
+                                        {% for post in posts %}
+                                        <div class="comment">
+                                            <a class="avatar" href="{{ url_for('profile', id=post.author.id) }}" style="height: 60px; width: 60px;"><img src="{{ url_for('static', filename='profile_pictures/' + post.author.image_file) }}"></a>
+                                            <div class="content" style="margin-left: 4.5em">
+                                                <div class="author"><font size="+2">{{ post.title }}</font></div>
+                                                <a class="author" href="{{ url_for('profile', id=post.author.id) }}"><small>{{ post.author.name }}</small></a>
+                                                <div class="metadata">
+                                                    <span class="date"><small>{{ time_ago(post.date_posted) }}</small></span>
+                                                </div>
+                                                <div><small>
+                                                   <div class="ui star rating" data-rating="{{ rating }}" data-max-rating="5"></div></small>
+                                                </div>
+                                                <div class="mt-1" style="border-bottom: 2px solid; border-color: #b0b9c0;"></div>
+                                                <div class="text">
+                                                    {% for para in post.content.split('\n') %}
+                                                        <p>{{ para }}</p>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="actions">
+                                                    <a class="reply">Reply<i class="icon comment alternate outline ml-2"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <h6 class="mt-4" style="border-bottom: 2px solid; border-color: #b0b9c0">There are no posts in this forum yet!</h6>
+                                {% endif %}
+                                      
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
+                        <div class="container-fluid mt-4">
+                            <div class="content-section">
+                                <h6 class="text-muted">{{ forum.creator.cid }}</h6>
+                                <h4>{{ forum.title }}</h4>
+                                <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=forum.creator.pid) }}">{{ forum.creator.info.name }}</a></h6>
+                                <div class="ui accordion">
+                                    <div class="title">
+                                      <i class="dropdown icon"></i>
+                                      Show Groups ({{size}})
+                                    </div>
+                                    <div class="content">
+                                        {% for group in groups %}
+                                            <div class="col-auto mb-3">
+                                                <a class="card unref2" style="width: 40rem; height: 4rem" href="{{ url_for('group', gid=group.gid) }}">
+                                                    <div class="card-body">
+                                                        <h6 class="card-title" style="float: left">{{ group.gname }}</h6>
+                                                        {% if group.sid %}
+                                                            <small class="text-muted" style="float: right">{{ group.ta.info.name }}</small>
+                                                        {% else %}
+                                                                <small class="text-muted" style="float: right">Unmanaged</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </a>
+                                            </div> 
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <h6 class="mt-1">Total Posts: <b>{{ totalpost }}</b></h6>
+                            </div>
+                        </div>   
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

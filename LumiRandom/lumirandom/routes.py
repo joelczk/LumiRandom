@@ -1,18 +1,63 @@
 import os
 from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm, UpdateAccountForm
-from lumirandom.models import User, Students, Courses, TakenCourses, Professors, TeachingAssistants, Groups, GroupInfo, Posts, role_required
+from lumirandom.models import User, Students, Courses, TakenCourses, Professors, TeachingAssistants, Groups, GroupInfo, Forums, ForumInfo, Posts, role_required
 from flask import render_template, url_for, flash, redirect, request, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
 import secrets
 from PIL import Image
 from random import randint
-import datetime, sys
+from datetime import datetime
+import sys
 
 cur_year = '2019/2020'
 cur_sem = 1
 
+# Convert time to time ago from current time
+def time_ago(time=False):
+    from datetime import datetime
+    now = datetime.now()
+    if type(time) is int:
+        diff = now - datetime.fromtimestamp(time)
+    elif isinstance(time,datetime):
+        diff = now - time
+    elif not time:
+        diff = now - now
+    second_diff = diff.seconds
+    day_diff = diff.days
+
+    if day_diff < 0:
+        return ''
+
+    if day_diff == 0:
+        if second_diff < 10:
+            return "just now"
+        if second_diff < 60:
+            return str(second_diff) + " seconds ago"
+        if second_diff < 120:
+            return "a minute ago"
+        if second_diff < 3600:
+            return str(second_diff // 60) + " minutes ago"
+        if second_diff < 7200:
+            return "an hour ago"
+        if second_diff < 86400:
+            return str(second_diff // 3600) + " hours ago"
+    if day_diff == 1:
+        return "Yesterday"
+    if day_diff < 7:
+        return str(day_diff) + " days ago"
+    if day_diff < 14:
+        return "a week ago"
+    if day_diff < 31:
+        return str(day_diff // 7) + " weeks ago"
+    if day_diff < 61:
+        return "a month ago"
+    if day_diff < 365:
+        return str(day_diff // 30) + " months ago"
+    if day_diff < 730:
+        return "a year ago"
+    return str(day_diff // 365) + " years ago"
 
 @app.route("/")
 @app.route("/home")
@@ -371,7 +416,8 @@ def my_groups():
 @app.route("/group/<int:gid>")
 @login_required
 def group(gid):
-    is_student = is_ta = is_prof = False
+    Groups.query.get_or_404(gid)
+    is_student, is_ta, is_prof = (False for i in range(3))
     if Students.query.get(current_user.id):
         is_student = True
     if TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first():
@@ -421,7 +467,6 @@ def create_group():
         db.session.commit()
         flash(f'New group {gname} successfully created!', 'success')
         return redirect(url_for('prof_groups'))
-
     cid = Professors.query.get(current_user.id).cid
     students = TakenCourses.query.join(User, TakenCourses.sid==User.id).filter(TakenCourses.cid==cid, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem).order_by(User.name.asc()).all()
     s1, s2, s3, s4, s5 = ([] for i in range(5))
@@ -440,49 +485,97 @@ def create_group():
     return render_template('create_group.html', title='Create Group', students=students, s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, tas=tas, cid=cid)
 
 
-
-@app.route("/module/<string:cid>/forums/create_post", methods=['GET', 'POST'])
+@app.route("/module/<string:cid>/forum/<int:fid>")
 @login_required
-def createpost(cid):
-    Courses.query.get_or_404(cid)
+def forum(cid, fid):
+    if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid:
+        abort(404)
+    Forums.query.get_or_404(fid)
+    is_student, is_ta, is_prof = (False for i in range(3))
+    if ForumInfo.query.join(GroupInfo, ForumInfo.gid==GroupInfo.gid).filter(GroupInfo.sid==current_user.id).all():
+        is_student = True
+    if ForumInfo.query.join(Groups, ForumInfo.gid==Groups.gid).filter(Groups.sid==current_user.id).first():
+        is_ta = True
+    if Forums.query.get(fid).pid == current_user.id:
+        is_prof = True
+    if is_student or is_ta or is_prof:
+        forum = Forums.query.get(fid)
+        groups = Groups.query.join(ForumInfo, ForumInfo.gid==Groups.gid).filter(ForumInfo.fid==fid).order_by(Groups.gname.asc()).all()
+        size = ForumInfo.query.filter_by(fid=fid).count()
+        posts = Posts.query.filter_by(fid=fid).all()
+        totalpost = Posts.query.filter_by(fid=fid).count()
+        return render_template('forums.html', title='Forums', forum=forum, groups=groups, size=size, posts=posts, totalpost=totalpost, cid=cid, fid=fid, time_ago=time_ago)
+    else:
+        abort(403)
+
+
+@app.route("/forum")
+@login_required
+@role_required(role='Student')
+def student_forums():
+    forums = ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all()
+    user = User()
+    return render_template('student_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo(), user=user, time_ago=time_ago)
+
+
+
+
+@app.route("/prof/forum")
+@login_required
+@role_required(role='Professor')
+def prof_forums():
+    forums = Forums.query.filter_by(pid=current_user.id).all()
+    foruminfo = ForumInfo()
+    cid = Professors.query.get(current_user.id).cid
+    user = User()
+    return render_template('prof_forums.html', title='Forums', forums=forums, foruminfo=foruminfo, user=user, cid=cid, time_ago=time_ago)
+
+
+
+@app.route("/prof/create-forum", methods=['GET', 'POST'])
+@login_required
+@role_required(role='Professor')
+def create_forum():
+    if request.method == 'POST':
+        title = request.form['title']
+        groups = request.form['groups'].split(',')
+        if Forums.query.first() == None:
+            fid = 1
+        else:
+            fid = db.session.query(func.max(Forums.fid)).scalar()+1
+        f = Forums(fid=fid, title=title, pid=current_user.id)
+        db.session.add(f)
+        for group in groups:
+            g = ForumInfo(fid=fid, gid=group)
+            db.session.add(g)
+        db.session.commit()
+        flash(f'New forum {title} has been successfully created!', 'success')
+        return redirect(url_for('prof_forums'))
+    cid = Professors.query.get(current_user.id).cid
+    groups = Groups.query.filter_by(pid=current_user.id).order_by(Groups.gname).all()  
+    return render_template('create_forum.html', title='Create Forum', groups=groups, cid=cid)
+
+
+@app.route("/module/<string:cid>/forum/<int:fid>/create_post", methods=['GET', 'POST'])
+@login_required
+def create_post(cid, fid):
+    if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid:
+        abort(404)
     module = Courses.query.get(cid)
     if request.method == 'POST':
         title = request.form['title']
-        content = request.form['contents']
-        randnumber = randint(0,sys.maxsize)
-        post_num = randint(0,2**31) % randnumber
-        datetime_obj = datetime.datetime.now()
-        #FID is set to 1 temporarily first until fid has been created 
-        fid = 1
-        rating = None
-        if title == '' or content == '':
-            flash(f'Invalid Fields!', 'danger')
-        # elif Courses.query.filter_by(cid = mods).first() == None:
-        #     flash(f'Invalid Module Code!', 'danger')
-        elif Posts.query.filter_by(title = title).first() != None:
-            flash(f'Title already exists', 'danger')
+        content = request.form['content']
+        if Posts.query.filter_by(fid=fid).first() == None:
+            postnum = 1
         else:
-            # print("mods:",mods)
-            # print("title:", title)
-            # print("contents:", content)
-            # print("fid:",fid)
-            # print("datetime:", datetime_obj)
-            # print(current_user.id)
-            if Posts.query.filter_by(fid = fid).first() == None:
-                post_num = 1
-            else:
-                post_num = db.session.query(func.max(Posts.gid)).scalar()+1
-            if Students.query.get(current_user.id):
-                post = Posts(post_num = post_num, fid = fid, pid = None, sid=current_user.id, title = title, content = content, date_posted = datetime_obj, rating = rating)
-                db.session.add(post)
-                db.session.commit()
-            elif Professors.query.get(current_user.id):
-                post = Posts(post_num = post_num, fid = fid, pid=current_user.id, sid = None, title = title, content = content, date_posted = datetime_obj, rating = rating)
-                db.session.add(post)
-                db.session.commit()
-            flash(f'Post created successfully.', 'success')
-            return render_template('create_post.html', title = "Create Post", module = module)
-    return render_template('create_post.html',title = "Create Post", module = module)
+            postnum = db.session.query(func.max(Posts.fid)).filter(Posts.fid==fid).scalar()+1
+        p = Posts(fid=fid, post_num=postnum, title=title, id=current_user.id, content=content)
+        db.session.add(p)
+        db.session.commit()
+        flash(f'Post created successfully.', 'success')
+        return redirect(url_for('forum', cid=cid, fid=fid))
+    forum = Forums.query.get(fid)
+    return render_template('create_post.html',title="Create Post", module=module, forum=forum, cid=cid)
 
 
 @app.errorhandler(404)

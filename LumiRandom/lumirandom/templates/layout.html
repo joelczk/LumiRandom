@@ -19,7 +19,9 @@
 	</head>
 	<style>
 		body, html {
-			height: 100%
+			width: 100%;
+			height: 100%;
+			padding: 0;
 		}
 		.bg {
 			background: url("https://mdbootstrap.com/img/Photos/Horizontal/Nature/full page/img(11).jpg") no-repeat center center fixed;
@@ -51,7 +53,7 @@
 										<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonProf" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 												Professor <i class="fa fa-tasks ml-2"></i>
 										</button>
-										<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButtonStudent", style="width: 20rem;">
+										<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButtonStudent", style="width: 20rem; padding-right: 20px">
 											<div class="container-fluid">
 												<div class="row justify-content-left">
 													<div class="col-sm-4">
@@ -67,6 +69,14 @@
 															<div class="card-body menu-icon">
 																<i class="fa fa-users fa-2x" style="color: #5f788a"></i>
 																<br><h6 class="text-muted"><small><small>Groups</small></small></h6>
+															</div>
+														</a>
+													</div>
+													<div class="col-sm-4">
+														<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('prof_forums') }}">
+															<div class="card-body menu-icon">
+																<i class="fa fa-comment fa-2x" style="color: #5f788a"></i>
+																<br><h6 class="text-muted"><small><small>Forums</small></small></h6>						
 															</div>
 														</a>
 													</div>
@@ -123,7 +133,7 @@
 													</a>
 												</div>
 												<div class="col-sm-4">
-													<a class="card unref bg-paleblue menu-icon-box" href="#">
+													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('student_forums') }}">
 														<div class="card-body menu-icon">
 															<i class="fa fa-comment fa-2x" style="color: #5f788a"></i>
 															<br><h6 class="text-muted"><small><small>Forums</small></small></h6>						
@@ -186,7 +196,7 @@
   
 		<!-- Optional JavaScript -->
 		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
@@ -239,56 +249,135 @@
 			$('.ui.dropdown').dropdown();
 		</script>
 		<script>
+			$('.ui.accordion').accordion();
+		</script>
+		<script>
+			$('.ui.rating').rating();
+		</script>
+		<script>
 			$(document).ready(function(){
-				$('.ui.clear').on('click', function(){
-						$('.ui.form').form('clear');
+				$('.ui.clear').on('click', function() {
+					$('.ui.form').form('clear');
 				});
 			});
 		</script>
-<script>
-	$('.ui.form.group')
-		.form({
-			fields: {
-				gname: {
-					identifier: 'gname',
-					rules: [
-						{
-							type   : 'empty',
-							prompt : 'Please enter your group name'
+		<script>
+			$('.ui.form.group')
+				.form({
+					fields: {
+						gname: {
+							identifier: 'gname',
+							rules: [
+								{
+									type   : 'empty',
+									prompt : 'Please enter a group name'
+								},
+								{
+									type   : 'minLength[6]',
+									prompt : 'Group name must be at least {ruleValue} characters'
+								},
+								{
+									type   : 'maxLength[50]',
+									prompt : 'Group name is limited to {ruleValue} characters'
+								}
+							]
 						},
-						{
-							type   : 'minLength[6]',
-							prompt : 'Group name must be at least {ruleValue} characters'
+						ta: {
+							identifier: 'ta',
+							rules: [
+								{
+									type   : 'empty',
+									prompt : 'Please select either a TA or none'
+								}
+							]
 						},
-						{
-							type   : 'maxLength[50]',
-							prompt : 'Group name must be at most {ruleValue} characters'
+						students: {
+							identifier: 'students',
+							rules: [
+								{
+									type   : 'empty',
+									prompt : 'Please select at least one student'
+								}
+							]
 						}
-					]
-				},
-				ta: {
-					identifier: 'ta',
-					rules: [
-						{
-							type   : 'empty',
-							prompt : 'Please select either a TA or none'
+					},
+				inline : true,
+				on : 'blur'
+			});
+		</script>
+		<script>
+			$('.ui.form.forum')
+				.form({
+					fields: {
+						title: {
+							identifier: 'title',
+							rules: [
+								{
+									type   : 'empty',
+									prompt : 'Please enter a forum title'
+								},
+								{
+									type   : 'minLength[6]',
+									prompt : 'Forum title must be at least {ruleValue} characters'
+								},
+								{
+									type   : 'maxLength[100]',
+									prompt : 'Forum title is limited to {ruleValue} characters'
+								}
+							]
+						},
+						groups: {
+							identifier: 'groups',
+							rules: [
+								{
+									type   : 'empty',
+									prompt : 'Please select at least one group'
+								}
+							]
 						}
-					]
-				},
-				students: {
-					identifier: 'students',
-					rules: [
-						{
-							type   : 'empty',
-							prompt : 'Please select at least one student'
+					},
+				inline : true,
+				on : 'blur'
+			});
+		</script>
+		<script>
+			$('.ui.form.post')
+				.form({
+					fields: {
+						title: {
+							identifier: 'title',
+							rules: [
+								{
+									type   : 'empty',
+									prompt : 'Please enter a post title'
+								},
+								{
+									type   : 'minLength[6]',
+									prompt : 'Post title must be at least {ruleValue} characters'
+								},
+								{
+									type   : 'maxLength[100]',
+									prompt : 'Post title is limited to {ruleValue} characters'
+								}
+							]
+						},
+						groups: {
+							identifier: 'content',
+							rules: [
+								{
+									type   : 'empty',
+									prompt : 'Please enter a comment'
+								},
+								{
+									type   : 'maxLength[5000]',
+									prompt : 'Content is limited to {ruleValue} characters'
+								}
+							]
 						}
-					]
-				}
-			},
-		inline : true,
-		on : 'blur'
-	});
-	</script>
-
+					},
+				inline : true,
+				on : 'blur'
+			});
+		</script>
 	</body>
 </html>
