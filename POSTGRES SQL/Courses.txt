@@ -457,7 +457,7 @@ INSERT INTO Courses VALUES('NB30117','Healthcare Ethics and Law');
 INSERT INTO Courses VALUES('NB30118','Quality Improvement and Patient Safety');
 INSERT INTO Courses VALUES('NB30119','Learning and Teaching for Practice');
 INSERT INTO Courses VALUES('NB30120','Contemporary Practice in Palliative Care');
-INSERT INTO Courses VALUES('NB30121','Managing the Complexities of Older People's Healthcare');
+INSERT INTO Courses VALUES('NB30121','Managing the Complexities of Older People''s Healthcare');
 INSERT INTO Courses VALUES('NB30006','Mentorship Preparation Programme');
 INSERT INTO Courses VALUES('NB30122','Minor Illness Management');
 INSERT INTO Courses VALUES('NB30126','COPD and Spirometry');
