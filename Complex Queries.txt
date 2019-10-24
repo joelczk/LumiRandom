@@ -48,3 +48,24 @@ FROM studentGrades
 GROUP BY cid, year, sem
 
 /* Function: Display the average grade of students under a TA, a performance indicator */
+/* currently no information on tutorial teaching which group */
+
+With studentGrades(sid, cid, year,sem, grade) AS
+(SELECT sid, cid, year, sem, CASE 
+	WHEN grade = 'A+' then 5.0
+	WHEN grade = 'A'  then 5.0
+	WHEN grade = 'A-' then 4.5
+	WHEN grade = 'B+' then 4.0
+	WHEN grade = 'B'  then 3.5
+	WHEN grade = 'B-' then 3.0
+	WHEN grade = 'C+' then 2.5
+	WHEN grade = 'D+' then 1.5
+	WHEN grade = 'D'  then 1.0
+	WHEN grade = 'F'  then 0
+END AS numGrade
+FROM takencourses
+WHERE grade IS NOT '' OR grade IS NOT NULL
+GROUP BY cid, year, sem)
+
+SELECT Managed.sid AS tutor, cid, year, sem, AVG(grade) as averageGrade
+FROM (Managed LEFT JOIN Groups ON  Managed.cid = Groups.cid) LEFT JOIN studentGrades ON studentGrades.sid
