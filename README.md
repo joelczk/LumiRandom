@@ -16,4 +16,10 @@ For Profs: Choose any from P00001 - P00100\
 For All: password\
 **Database**\
 To view database, please download DB browser for SQL Lite\
-Load site.db into DB Browser
+Load site.db into DB Browser\
+**Requirements**\
+1.The total number of entity sets and relationship sets must be at least 15\
+2.There must be at least 1 weak entity set\
+3.There must be at least three non-trivial application constraints that cannot be enforced using column/table\
+constraints and must be enforced using triggers\
+4.There must be at least 3 complex queries on data\
