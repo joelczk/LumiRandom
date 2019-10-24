@@ -20,7 +20,7 @@ CREATE TABLE Students (
 	year		integer
 );
 
-//AY refers to the academic year that the student took the module
+/*AY refers to the academic year that the student took the module*/
 CREATE TABLE TakenCourses (
 	sid 	 	VARCHAR(6) REFERENCES Students(sid),
 	cid	 	VARCHAR(10) REFERENCES Courses(cid),
