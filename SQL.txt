@@ -48,3 +48,27 @@ CREATE TABLE GroupInfo (
 	gid	 	INTEGER REFERENCES Groups(gid) ON DELETE CASCADE,
 	sid	 	VARCHAR(6) REFERENCES Students(sid)
 );
+
+/*TO BE CONFIRMED*/
+CREATE TABLE Forums(
+	fid		INTEGER PRIMARY KEY,
+	title		VARCHAR(100) NOT NULL
+);
+
+/*TO BE CONFIRMED*/
+CREATE TABLE ForumInfo(
+	fid		INTEGER REFERENCES Forums(fid),
+	gid		INTEGER REFERENCES Groups(gid),
+	PRIMARY KEY(fid,gid)
+);
+
+/* TO BE CONFIRMED*/
+CREATE TABLE Posts(
+	post_num 	INTEGER PRIMARY KEY,
+	fid 		INTEGER REFERENCES ForumInfo(fid) ON DELETE CASCADE,
+	sid		VARCHAR(6) NOT NULL REFERENCES Students(sid),
+	pid		VARCHAR(6) NOT NULL REFERENCES Professors(pid),
+	title 		VARCHAR(100) NOT NULL,
+	content		TEXT NOT NULL,
+	date_posted	DATE NOT NULL,
+);
