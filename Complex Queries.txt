@@ -1,0 +1,13 @@
+/* Function: Allow Profs to find out the number of posts that each student makes*/ 
+WITH forumsid AS 
+( 
+       SELECT Forums.fid 
+       FROM   Forums, 
+              Professors 
+       WHERE  Professors.pid = Forums.pid ); 
+SELECT   count(*) 
+FROM     forumsid, 
+         Posts 
+WHERE    forumsid.fid = Posts.fid 
+GROUP BY(posts.sid);
+	
