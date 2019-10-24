@@ -23,4 +23,26 @@ WITH courseid
          FROM   courseid 
          GROUP  BY courseid.grade, 
                    courseid.cid) 
-SELECT * FROM   grade; 
+SELECT * FROM   grade;
+
+/* Function: Display the average grade received by students for a module in a particular semester */ 
+With studentGrades(sid, cid, year,sem, grade) AS
+(SELECT sid, cid, year, sem, CASE 
+	WHEN grade = 'A+' then 5.0
+	WHEN grade = 'A'  then 5.0
+	WHEN grade = 'A-' then 4.5
+	WHEN grade = 'B+' then 4.0
+	WHEN grade = 'B'  then 3.5
+	WHEN grade = 'B-' then 3.0
+	WHEN grade = 'C+' then 2.5
+	WHEN grade = 'D+' then 1.5
+	WHEN grade = 'D'  then 1.0
+	WHEN grade = 'F'  then 0
+END AS numGrade
+FROM takencourses
+WHERE grade IS NOT '' OR grade IS NOT NULL
+GROUP BY cid, year, sem)
+
+SELECT cid, year, sem, AVG(grade) as averageGradge
+FROM studentGrades
+GROUP BY cid, year, sem
