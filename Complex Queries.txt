@@ -10,4 +10,17 @@ FROM     forumsid,
          Posts 
 WHERE    forumsid.fid = Posts.fid 
 GROUP BY(posts.sid);
-	
+
+/*Function: Show the number of students of each grade for each module*/
+WITH courseid 
+     AS (SELECT * 
+         FROM   takencourses AS t 
+         GROUP  BY( t.cid )), 
+     grade 
+     AS (SELECT cid, 
+                grade, 
+                Count(courseid.grade) 
+         FROM   courseid 
+         GROUP  BY courseid.grade, 
+                   courseid.cid) 
+SELECT * FROM   grade; 
