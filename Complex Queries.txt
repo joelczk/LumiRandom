@@ -40,7 +40,7 @@ With studentGrades(sid, cid, year,sem, grade) AS
 	WHEN grade = 'F'  then 0
 END AS numGrade
 FROM takencourses
-WHERE grade IS NOT '' OR grade IS NOT NULL
+WHERE grade IS NOT NULL
 GROUP BY cid, year, sem)
 
 SELECT cid, year, sem, ROUND(AVG(grade),4)
@@ -64,7 +64,7 @@ With studentGrades(sid, cid, year,sem, grade) AS
 	WHEN grade = 'F'  then 0
 END AS numGrade
 FROM takencourses
-WHERE grade IS NOT '' OR grade IS NOT NULL
+WHERE grade IS NOT NULL
 GROUP BY cid, year, sem)
 
 SELECT Managed.sid AS tutor, cid, year, sem, AVG(grade) as averageGrade
