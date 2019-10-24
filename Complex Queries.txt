@@ -43,9 +43,9 @@ FROM takencourses
 WHERE grade IS NOT '' OR grade IS NOT NULL
 GROUP BY cid, year, sem)
 
-SELECT cid, year, sem, AVG(grade) as averageGradge
+SELECT cid, year, sem, ROUND(AVG(grade),4)
 FROM studentGrades
-GROUP BY cid, year, sem
+GROUP BY cid, year, sem;
 
 /* Function: Display the average grade of students under a TA, a performance indicator */
 /* currently no information on tutorial teaching which group */
@@ -68,4 +68,4 @@ WHERE grade IS NOT '' OR grade IS NOT NULL
 GROUP BY cid, year, sem)
 
 SELECT Managed.sid AS tutor, cid, year, sem, AVG(grade) as averageGrade
-FROM (Managed LEFT JOIN Groups ON  Managed.cid = Groups.cid) LEFT JOIN studentGrades ON studentGrades.sid
+FROM (Managed LEFT JOIN Groups ON  Managed.cid = Groups.cid) LEFT JOIN studentGrades ON studentGrades.sid;
