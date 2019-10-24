@@ -46,3 +46,5 @@ GROUP BY cid, year, sem)
 SELECT cid, year, sem, AVG(grade) as averageGradge
 FROM studentGrades
 GROUP BY cid, year, sem
+
+/* Function: Display the average grade of students under a TA, a performance indicator */
