@@ -49,26 +49,42 @@ CREATE TABLE GroupInfo (
 	sid	 	VARCHAR(6) REFERENCES Students(sid)
 );
 
-/*TO BE CONFIRMED*/
-CREATE TABLE Forums(
-	fid		INTEGER PRIMARY KEY,
-	title		VARCHAR(100) NOT NULL
+CREATE TABLE Posts (
+	fid		INTEGER NOT NULL,
+	tid		INTEGER NOT NULL,
+	post_num	INTEGER NOT NULL,
+	id 		VARCHAR(10) NOT NULL,
+	title		VARCHAR(100) NOT NULL,
+	date_posted	DATETIME NOT NULL,
+	rating 		INTEGER NOT NULL DEFAULT '0',
+	pfid		INTEGER,
+	ptid		INTEGER,
+	ppost_num	INTEGER,
+	CHECK(rating >= 0 and rating <= 10)
 );
 
-/*TO BE CONFIRMED*/
-CREATE TABLE ForumInfo(
-	fid		INTEGER REFERENCES Forums(fid),
-	gid		INTEGER REFERENCES Groups(gid),
-	PRIMARY KEY(fid,gid)
-);
-
-/* TO BE CONFIRMED*/
-CREATE TABLE Posts(
-	post_num 	INTEGER PRIMARY KEY,
-	fid 		INTEGER REFERENCES ForumInfo(fid) ON DELETE CASCADE,
-	sid		VARCHAR(6) NOT NULL REFERENCES Students(sid),
-	pid		VARCHAR(6) NOT NULL REFERENCES Professors(pid),
-	title 		VARCHAR(100) NOT NULL,
+CREATE TABLE Threads(
+	fid		INTEGER NOT NULL,
+	tid 		INTEGER NOT NULL,
+	id		VARCHAR(10) NOT NULL,
+	title		VARCHAR(100) NOT NULL,
 	content		TEXT NOT NULL,
-	date_posted	DATE NOT NULL,
+	date_created	TIMESTAMP NOT NULL
 );
+
+<-- Set timezone for the current session to become GMT +8(Singapore/Asia) time -->
+set timezone to 'GMT +8';
+
+CREATE TABLE ForumInfo (
+	fid 		INTEGER NOT NULL,
+	gid		INTEGER NOT NULL
+);	
+
+CREATE TABLE Forums(
+	fid		INTEGER NOT NULL,
+	title		VARCHAR(100) NOT NULL,
+	pid		VARCHAR(10) NOT NULL,
+	date_created	TIMESTAMP NOT NULL
+);
+
+
