@@ -4,27 +4,27 @@ CREATE TABLE Courses (
 );
 
 CREATE TABLE Users (
-	id		VARCHAR(6) PRIMARY KEY UNIQUE,
+	id		VARCHAR(10) PRIMARY KEY UNIQUE,
 	name		VARCHAR(100) NOT NULL UNIQUE,
 	image_file	VARCHAR(100) NOT NULL DEFAULT 'default.jpg',
 	password	VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Professors (
-	pid		VARCHAR(6) PRIMARY KEY REFERENCES Users(id),
-	cname		VARCHAR(100) REFERENCES Courses(cid)
+	pid		VARCHAR(6) PRIMARY KEY,
+	cid		VARCHAR(100)
 );
 
 CREATE TABLE Students (
-	sid		VARCHAR(6) PRIMARY KEY REFERENCES Users(id),
-	year		integer
+	sid		VARCHAR(6) PRIMARY KEY,
+	year		integer,
+	CHECK (year >= 1 and year <= 5)
 );
 
-/*AY refers to the academic year that the student took the module*/
 CREATE TABLE TakenCourses (
-	sid 	 	VARCHAR(6) REFERENCES Students(sid),
-	cid	 	VARCHAR(10) REFERENCES Courses(cid),
-	ay 		VARCHAR(10) NOT NULL,
+	sid 	 	VARCHAR(10),
+	cid	 	VARCHAR(10),
+	year 		VARCHAR(10) NOT NULL,
 	sem	 	INTEGER NOT NULL CHECK (sem = 1 OR sem = 2),
 	grade 		VARCHAR(5) DEFAULT NULL,
 	PRIMARY KEY 	(sid, cid)
@@ -32,21 +32,21 @@ CREATE TABLE TakenCourses (
 
 CREATE TABLE Groups (
 	gid 		integer UNIQUE,
-	gname		varchar(20),
-	pid		varchar(6) REFERENCES Professors(pid),
-	sid 		varchar(6) REFERENCES Students(sid)
+	gname		varchar(50),
+	pid		varchar(10),
+	sid 		varchar(10)
 );
 
-CREATE TABLE TeachingAssistant (
+CREATE TABLE TeachingAssistants (
 	sid	 	VARCHAR(6),
 	cid	 	VARCHAR(10) NOT NULL,
 	is_ta 		BOOLEAN DEFAULT TRUE,
-	FOREIGN KEY 	(sid, cid) REFERENCES TakenCourses(sid, cid)
+	FOREIGN KEY 	(sid, cid)
 );
 
 CREATE TABLE GroupInfo (
-	gid	 	INTEGER REFERENCES Groups(gid) ON DELETE CASCADE,
-	sid	 	VARCHAR(6) REFERENCES Students(sid)
+	gid	 	INTEGER,
+	sid	 	VARCHAR(6)
 );
 
 CREATE TABLE Posts (
