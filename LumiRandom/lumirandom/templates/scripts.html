@@ -1,0 +1,305 @@
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+<script src="http://cdn.jsdelivr.net/jquery.glide/1.0.6/jquery.glide.min.js"></script>
+<script>
+    /* When the user clicks on the button, 
+    toggle between hiding and showing the dropdown content */
+    function clickdrop() {
+        document.getElementById("myDropdown").classList.toggle("show");
+    }
+    
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
+            }
+        }
+    }
+</script>
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();   
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        var readURL = function(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('.profile-pic').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $(".file-upload").on('change', function(){
+            readURL(this);
+        });
+        $(".upload-button").on('click', function() {
+            $(".file-upload").click();
+        });
+    });
+</script>
+<script>$('.ui.dropdown').dropdown();</script>
+<script>$('.ui.accordion').accordion();</script>
+<script>$('.ui.rating').rating();</script>
+<script>$('.ui.modal').modal();</script>
+<script>
+    $('.ui.message .close').on('click', function() {
+        $(this).closest('.message').transition('fade');
+    });
+</script>
+<script>
+    $(document).ready(function(){
+        $('.ui.reset').on('click', function() {
+            $('.ui.form').form('reset');
+        });
+    });
+</script>
+<script>$('.ui.popup').popup();</script>
+<script>
+    $('.popup')
+      .popup({
+        hoverable: true,
+    });
+</script>
+<script>
+    $('.popup2')
+        .popup({
+        hoverable: true,
+        delay: { show: 500, hide: 500 }
+    });
+</script>
+<script>
+    $('.ui.form.login')
+        .form({
+            fields: {
+                accountid: {
+                    identifier: 'accountid',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter your Account ID'
+                        }
+                    ]
+                },
+                password: {
+                    identifier: 'password',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter your password'
+                        }
+                    ]
+                }
+            },
+        inline : true,
+        on : 'blur'
+    });
+</script>
+<script>
+    $('.ui.form.group')
+        .form({
+            fields: {
+                gname: {
+                    identifier: 'gname',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter a group name'
+                        },
+                        {
+                            type   : 'minLength[6]',
+                            prompt : 'Group name must be at least {ruleValue} characters'
+                        },
+                        {
+                            type   : 'maxLength[50]',
+                            prompt : 'Group name is limited to {ruleValue} characters'
+                        }
+                    ]
+                },
+                ta: {
+                    identifier: 'ta',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please select either a TA or none'
+                        }
+                    ]
+                },
+                students: {
+                    identifier: 'students',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please select at least one student'
+                        }
+                    ]
+                }
+            },
+        inline : true,
+        on : 'blur'
+    });
+</script>
+<script>
+    $('.ui.form.forum')
+        .form({
+            fields: {
+                title: {
+                    identifier: 'title',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter a forum title'
+                        },
+                        {
+                            type   : 'minLength[6]',
+                            prompt : 'Forum title must be at least {ruleValue} characters'
+                        },
+                        {
+                            type   : 'maxLength[100]',
+                            prompt : 'Forum title is limited to {ruleValue} characters'
+                        }
+                    ]
+                },
+                groups: {
+                    identifier: 'groups',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please select at least one group'
+                        }
+                    ]
+                }
+            },
+        inline : true,
+        on : 'blur'
+    });
+</script>
+<script>
+    $('.ui.form.thread')
+        .form({
+            fields: {
+                title: {
+                    identifier: 'title',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter a thread title'
+                        },
+                        {
+                            type   : 'minLength[6]',
+                            prompt : 'Thread title must be at least {ruleValue} characters'
+                        },
+                        {
+                            type   : 'maxLength[100]',
+                            prompt : 'Thread title is limited to {ruleValue} characters'
+                        }
+                    ]
+                },
+                content: {
+                    identifier: 'content',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter a comment'
+                        },
+                        {
+                            type   : 'maxLength[5000]',
+                            prompt : 'Content is limited to {ruleValue} characters'
+                        }
+                    ]
+                }
+            },
+        inline : true,
+        on : 'blur'
+    });
+</script>
+<script>
+    $('.ui.form.post')
+        .form({
+            fields: {
+                title: {
+                    identifier: 'title',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter a post title'
+                        },
+                        {
+                            type   : 'minLength[6]',
+                            prompt : 'Post title must be at least {ruleValue} characters'
+                        },
+                        {
+                            type   : 'maxLength[100]',
+                            prompt : 'Post title is limited to {ruleValue} characters'
+                        }
+                    ]
+                },
+                content: {
+                    identifier: 'content',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter a comment'
+                        },
+                        {
+                            type   : 'maxLength[5000]',
+                            prompt : 'Content is limited to {ruleValue} characters'
+                        }
+                    ]
+                }
+            },
+        inline : true,
+        on : 'blur'
+    });
+</script>
+<script>
+    $('.ui.form.comment')
+        .form({
+            fields: {
+                title: {
+                    identifier: 'title',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter a post title'
+                        },
+                        {
+                            type   : 'minLength[6]',
+                            prompt : 'Post title must be at least {ruleValue} characters'
+                        },
+                        {
+                            type   : 'maxLength[100]',
+                            prompt : 'Post title is limited to {ruleValue} characters'
+                        }
+                    ]
+                },
+                content: {
+                    identifier: 'content',
+                    rules: [
+                        {
+                            type   : 'empty',
+                            prompt : 'Please enter a reply'
+                        },
+                        {
+                            type   : 'maxLength[5000]',
+                            prompt : 'Content is limited to {ruleValue} characters'
+                        }
+                    ]
+                }
+            },
+        inline : true,
+        on : 'blur'
+    });
+</script>

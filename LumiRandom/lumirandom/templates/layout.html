@@ -6,9 +6,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 		<!-- Bootstrap CSS -->
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
 		{% if title %}
@@ -21,7 +21,6 @@
 		body, html {
 			width: 100%;
 			height: 100%;
-			padding: 0;
 		}
 		.bg {
 			background: url("https://mdbootstrap.com/img/Photos/Horizontal/Nature/full page/img(11).jpg") no-repeat center center fixed;
@@ -35,7 +34,7 @@
 		<header class="site-header">
 			<nav class="navbar navbar-expand-md navbar-dark bg-steel navbar-1 fixed-top">
 				<div class="container">
-					<a class="navbar-brand mr-4" href="/">LumiRandom</a>
+					<a class="navbar-brand mr-4" href="/home">LumiRandom</a>
 					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
 						<span class="navbar-toggler-icon"></span>
 					</button>
@@ -177,207 +176,25 @@
 			 	</div>
 			</nav>
 		</header>
-		
+		<div style="padding: 2.5rem 0"></div>
 		<main role="main" class="container">
 			<div class="col-md-14">
 				{% with messages = get_flashed_messages(with_categories=true) %}
 					{% if messages %}
 						{% for category, message in messages %}
-							<div class="alert alert-{{ category }}">
+						<div class="ui floating {{ category }} message">
+							<i class="close icon"></i>
+							<div class="header">
 								{{ message }}
 							</div>
+						</div>
 						{% endfor %}
 					{% endif %}
 				{% endwith %}
 				{% block search %}{% endblock %}
 				{% block content %}{% endblock %}
 			</div>
-		</main>
-  
-		<!-- Optional JavaScript -->
-		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
-		<script>
-			/* When the user clicks on the button, 
-			toggle between hiding and showing the dropdown content */
-			function clickdrop() {
-				document.getElementById("myDropdown").classList.toggle("show");
-			}
-			
-			// Close the dropdown if the user clicks outside of it
-			window.onclick = function(event) {
-				if (!event.target.matches('.dropbtn')) {
-					var dropdowns = document.getElementsByClassName("dropdown-content");
-					var i;
-					for (i = 0; i < dropdowns.length; i++) {
-						var openDropdown = dropdowns[i];
-						if (openDropdown.classList.contains('show')) {
-							openDropdown.classList.remove('show');
-						}
-					}
-				}
-			}
-		</script>
-		<script>
-			$(document).ready(function(){
-				$('[data-toggle="tooltip"]').tooltip();   
-			});
-		</script>
-		<script>
-			$(document).ready(function() {
-				var readURL = function(input) {
-					if (input.files && input.files[0]) {
-						var reader = new FileReader();
-						reader.onload = function (e) {
-							$('.profile-pic').attr('src', e.target.result);
-						}
-						reader.readAsDataURL(input.files[0]);
-					}
-				}
-				$(".file-upload").on('change', function(){
-					readURL(this);
-				});
-				$(".upload-button").on('click', function() {
-					$(".file-upload").click();
-				});
-			});
-		</script>
-		<script>
-			$('.ui.dropdown').dropdown();
-		</script>
-		<script>
-			$('.ui.accordion').accordion();
-		</script>
-		<script>
-			$('.ui.rating').rating();
-		</script>
-		<script>
-			$(document).ready(function(){
-				$('.ui.clear').on('click', function() {
-					$('.ui.form').form('clear');
-				});
-			});
-		</script>
-		<script>
-			$('.ui.form.group')
-				.form({
-					fields: {
-						gname: {
-							identifier: 'gname',
-							rules: [
-								{
-									type   : 'empty',
-									prompt : 'Please enter a group name'
-								},
-								{
-									type   : 'minLength[6]',
-									prompt : 'Group name must be at least {ruleValue} characters'
-								},
-								{
-									type   : 'maxLength[50]',
-									prompt : 'Group name is limited to {ruleValue} characters'
-								}
-							]
-						},
-						ta: {
-							identifier: 'ta',
-							rules: [
-								{
-									type   : 'empty',
-									prompt : 'Please select either a TA or none'
-								}
-							]
-						},
-						students: {
-							identifier: 'students',
-							rules: [
-								{
-									type   : 'empty',
-									prompt : 'Please select at least one student'
-								}
-							]
-						}
-					},
-				inline : true,
-				on : 'blur'
-			});
-		</script>
-		<script>
-			$('.ui.form.forum')
-				.form({
-					fields: {
-						title: {
-							identifier: 'title',
-							rules: [
-								{
-									type   : 'empty',
-									prompt : 'Please enter a forum title'
-								},
-								{
-									type   : 'minLength[6]',
-									prompt : 'Forum title must be at least {ruleValue} characters'
-								},
-								{
-									type   : 'maxLength[100]',
-									prompt : 'Forum title is limited to {ruleValue} characters'
-								}
-							]
-						},
-						groups: {
-							identifier: 'groups',
-							rules: [
-								{
-									type   : 'empty',
-									prompt : 'Please select at least one group'
-								}
-							]
-						}
-					},
-				inline : true,
-				on : 'blur'
-			});
-		</script>
-		<script>
-			$('.ui.form.post')
-				.form({
-					fields: {
-						title: {
-							identifier: 'title',
-							rules: [
-								{
-									type   : 'empty',
-									prompt : 'Please enter a post title'
-								},
-								{
-									type   : 'minLength[6]',
-									prompt : 'Post title must be at least {ruleValue} characters'
-								},
-								{
-									type   : 'maxLength[100]',
-									prompt : 'Post title is limited to {ruleValue} characters'
-								}
-							]
-						},
-						groups: {
-							identifier: 'content',
-							rules: [
-								{
-									type   : 'empty',
-									prompt : 'Please enter a comment'
-								},
-								{
-									type   : 'maxLength[5000]',
-									prompt : 'Content is limited to {ruleValue} characters'
-								}
-							]
-						}
-					},
-				inline : true,
-				on : 'blur'
-			});
-		</script>
+		</main> 
+		{% include 'scripts.html' %}
 	</body>
 </html>

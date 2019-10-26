@@ -1,0 +1,265 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+    <div class="container">
+        <h4 class="text-muted", style="text-align:center;">{{ cid }}</h4>
+        <h2 class="border-bottom mb-4", style="text-align:center;">{{ thread.thread.forum.title }}</h2>
+        <div class="ui raised segment">
+            <div class="ui large comments" style="max-width: 75rem;">
+                <div class="comment">
+                    <a class="avatar" href="{{ url_for('profile', id=thread.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + thread.author.image_file) }}" style="height: 65px; width: 65px; border-radius: 8px;"></a>
+                    <div class="content" style="margin-left: 5.2em">
+                        <div class="author"><font size="+2">{{ thread.title }}</font></div>
+                        <a class="author" href="{{ url_for('profile', id=thread.author.id) }}"><small>{{ thread.author.name }}</small></a>
+                        <div class="metadata">
+                            <span class="date popup" data-content="{{ thread.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(thread.date_posted) }}</small></span>
+                        </div>
+                        <div><small>
+                            <div class="ui star rating" data-rating="{{ thread.rating }}" data-max-rating="5"></div></small>
+                        </div>
+                        <div class="mt-1" style="border-bottom: 2px solid; border-color: #b0b9c0;"></div>
+                        <div class="text fluid" style="max-height: 20rem; overflow: auto">
+                            {% for para in thread.content.split('\n') %}
+                                <p style="margin: 0">{{ para }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="actions">
+                            <a class="reply" data-toggle="modal" data-target="#p{{ thread.post_num }}">Reply<i class="icon comment alternate outline ml-2"></i></a>
+                            <div class="modal fade" id="p{{ thread.post_num }}" tabindex="-1" role="dialog" aria-labelledby="{{ thread.post_num }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-center">
+                                            <h4 class="modal-title w-100 font-weight-bold">Post a Reply</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                            </button> 
+                                        </div>
+                                        <div class="modal-body mx-3">
+                                            <form class="ui form post" method='POST'>
+                                                <input type="hidden" id="fid" name="fid" value="{{ thread.fid }}">
+                                                <input type="hidden" id="tid" name="tid" value="{{ thread.tid }}">
+                                                <input type="hidden" id="post_num" name="post_num" value="{{ thread.post_num }}">
+                                                <div class="field">
+                                                    <div class="disabled field">
+                                                        <label>Reply To</label>
+                                                        <input id="reply" name="reply" type="text" placeholder="{{ thread.author.name }}"> 
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Post Title</label>
+                                                    <input id="title" name="title" placeholder="Enter a post title" value="re: {{ thread.title }}">
+                                                </div>
+                                                <div class="ui accordion mb-2">
+                                                    <div class="title">
+                                                        <i class="dropdown icon"></i>
+                                                        Show Post Content
+                                                    </div>
+                                                    <div class="content">
+                                                        <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                            {% for para in thread.content.split('\n') %}
+                                                                <p style="margin: 0">{{ para }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Reply</label>
+                                                    <textarea rows="8" id="content" name="content" placeholder="Enter a reply"></textarea>
+                                                </div>
+                                                <div class="field text-center">
+                                                    <div class="ui teal submit button">Submit</div>
+                                                    <div class="ui reset button">Clear</div>
+                                                    <div class="ui error message"></div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>  
+                        </div>  
+                    </div>
+                </div>   
+            </div>
+        </div>
+        {% if posts %}
+        <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0; margin-top: 3em">Replies</h6>   
+        <div class="ui large comments" style="max-width: 75rem;">                                        
+                {%- for key, value in posts.items() recursive %}
+                {% set post = p.query.get([fid, tid, key]) %}
+                {% if post.ppost_num == 1 %}
+                <div class="ui raised segment">
+                <div class="comment">
+                    <a class="avatar" href="{{ url_for('profile', id=post.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + post.author.image_file) }}" style="height: 65px; width: 65px; border-radius: 8px;"></a>
+                    <div class="content" style="margin-left: 5.2em">
+                        <div class="author"><font size="+2">{{ post.title }}</font></div>
+                        <a class="author" href="{{ url_for('profile', id=post.author.id) }}"><small>{{ post.author.name }}</small></a>
+                        <div class="metadata">
+                            <span class="date popup" data-content="{{ post.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(post.date_posted) }}</small></span>
+                        </div>
+                        <div><small>
+                            <div class="ui star rating" data-rating="{{ p.query.get([fid, tid, post.post_num]).rating }}" data-max-rating="5"></div></small>
+                        </div>
+                        <div class="mt-1" style="border-bottom: 2px solid; border-color: #b0b9c0;"></div>
+                        <div class="text fluid" style="max-height: 20rem; overflow: auto">
+                            {% for para in post.content.split('\n') %}
+                                <p style="margin: 0">{{ para }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="actions">
+                            <a class="reply" data-toggle="modal" data-target="#p{{ post.post_num }}">Reply<i class="icon comment alternate outline ml-2"></i></a>
+                            <div class="modal fade" id="p{{ post.post_num }}" tabindex="-1" role="dialog" aria-labelledby="{{ post.post_num }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-center">
+                                            <h4 class="modal-title w-100 font-weight-bold">Post a Reply</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                            </button> 
+                                        </div>
+                                        <div class="modal-body mx-3">
+                                            <form class="ui form post" method='POST'>
+                                                <input type="hidden" id="fid" name="fid" value="{{ post.fid }}">
+                                                <input type="hidden" id="tid" name="tid" value="{{ post.tid }}">
+                                                <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                                <div class="field">
+                                                    <div class="disabled field">
+                                                        <label>Reply To</label>
+                                                        <input id="reply" name="reply" type="text" placeholder="{{ post.author.name }}"> 
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Post Title</label>
+                                                    <input id="title" name="title" placeholder="Enter a post title" value="re: {{ post.title }}">
+                                                </div>
+                                                <div class="ui accordion mb-2">
+                                                    <div class="title">
+                                                        <i class="dropdown icon"></i>
+                                                        Show Post Content
+                                                    </div>
+                                                    <div class="content">
+                                                        <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                            {% for para in post.content.split('\n') %}
+                                                                <p style="margin: 0">{{ para }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Reply</label>
+                                                    <textarea rows="8" id="content" name="content" placeholder="Enter a reply"></textarea>
+                                                </div>
+                                                <div class="field text-center">
+                                                    <div class="ui teal submit button">Submit</div>
+                                                    <div class="ui reset button">Clear</div>
+                                                    <div class="ui error message"></div>
+                                                </div>
+                                            </form>       
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {%- if value %}
+                        {%- if key == 1 %}
+                            {{ loop(value.items())}}                                                                                   
+                        {%- else %}
+                            <div class="comments">{{ loop(value.items())}}</div>
+                        {%- endif %}                                
+                    {%- endif %}
+                </div>
+                </div>
+                {% else %}
+                <div class="comment">
+                    {% if post.post_num != 1 %}
+                    <a class="avatar" href="{{ url_for('profile', id=post.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + post.author.image_file) }}" style="height: 65px; width: 65px; border-radius: 8px"></a>
+                    <div class="content" style="margin-left: 5.2em">
+                        <div class="author"><font size="+2">{{ post.title }}</font></div>
+                        <a class="author" href="{{ url_for('profile', id=post.author.id) }}"><small>{{ post.author.name }}</small></a>
+                        <div class="metadata">
+                            <span class="date popup" data-content="{{ post.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(post.date_posted) }}</small></span>
+                        </div>
+                        <div><small>
+                            <div class="ui star rating" data-rating="{{ p.query.get([fid, tid, post.post_num]).rating }}" data-max-rating="5"></div></small>
+                        </div>
+                        <div class="mt-1" style="border-bottom: 2px solid; border-color: #b0b9c0;"></div>
+                        <div class="text fluid" style="max-height: 20rem; overflow: auto">
+                            {% for para in post.content.split('\n') %}
+                                <p style="margin: 0">{{ para }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="actions">
+                            <a class="reply" data-toggle="modal" data-target="#p{{ post.post_num }}">Reply<i class="icon comment alternate outline ml-2"></i></a>
+                            <div class="modal fade" id="p{{ post.post_num }}" tabindex="-1" role="dialog" aria-labelledby="{{ post.post_num }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-center">
+                                            <h4 class="modal-title w-100 font-weight-bold">Post a Reply</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                            </button> 
+                                        </div>
+                                        <div class="modal-body mx-3">
+                                            <form class="ui form post" method='POST'>
+                                                <input type="hidden" id="fid" name="fid" value="{{ post.fid }}">
+                                                <input type="hidden" id="tid" name="tid" value="{{ post.tid }}">
+                                                <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                                <div class="field">
+                                                    <div class="disabled field">
+                                                        <label>Reply To</label>
+                                                        <input id="reply" name="reply" type="text" placeholder="{{ post.author.name }}"> 
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Post Title</label>
+                                                    <input id="title" name="title" placeholder="Enter a post title" value="re: {{ post.title }}">
+                                                </div>
+                                                <div class="ui accordion mb-2">
+                                                    <div class="title">
+                                                        <i class="dropdown icon"></i>
+                                                        Show Post Content
+                                                    </div>
+                                                    <div class="content">
+                                                        <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                            {% for para in post.content.split('\n') %}
+                                                                <p style="margin: 0">{{ para }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Reply</label>
+                                                    <textarea rows="8" id="content" name="content" placeholder="Enter a reply"></textarea>
+                                                </div>
+                                                <div class="field text-center">
+                                                    <div class="ui teal submit button">Submit</div>
+                                                    <div class="ui reset button">Clear</div>
+                                                    <div class="ui error message"></div>
+                                                </div>
+                                            </form>       
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {%- if value %}
+                        {%- if key == 1 %}
+                            {{ loop(value.items())}}                                                                                   
+                        {%- else %}
+                            <div class="comments">{{ loop(value.items())}}</div>
+                        {%- endif %}                                
+                    {%- endif %}
+                </div>
+                {% endif %}
+                {%- endfor %}
+            </div>
+        </div>
+        <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0; color: white; margin-bottom: 3em">End of Thread</h6>
+        {% else %}
+            <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">There are no posts in this forum yet!</h6>
+        {% endif %}
+    </div>
+</section>
+{% endblock content %}

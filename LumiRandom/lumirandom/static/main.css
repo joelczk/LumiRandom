@@ -1,7 +1,6 @@
 body {
   background: #fafafa;
   color: #333333;
-  margin-top: 5rem;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -160,11 +159,13 @@ div.unref:link, div.unref:visited, div.unref:hover, div.unref:active
    background-color: #ebeff1;
 }
 
-.unrefany {
-  color: #444444;
+.unrefany:hover {
   text-decoration: none;
 }
 
+.hover-light:hover {
+  color: #e2e9ec;
+}
 
 .nav-img {
   height: 30px;
@@ -254,6 +255,9 @@ div.menu-profile {
   border-radius: 10px;
 }
 
+.modal-backdrop.show {
+  opacity: 0.8;
+}
 
 
 /* .click a {

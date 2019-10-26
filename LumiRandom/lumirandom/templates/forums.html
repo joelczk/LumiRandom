@@ -8,47 +8,117 @@
             <div class="col-xs-12 ">
                 <nav>
                     <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link active" id="post-tab" data-toggle="tab" href="#post" role="tab" aria-controls="post" aria-selected="true" style="width: 555px">Posts</a>
+                        <a class="nav-item nav-link active" id="thread-tab" data-toggle="tab" href="#thread" role="tab" aria-controls="thread" aria-selected="true" style="width: 555px">Threads</a>
                         <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="width: 555px">Forum Details</a>
                     </div>
                 </nav>
                 <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="post" role="tabpanel" aria-labelledby="post-tab">
+                    <div class="tab-pane fade show active" id="thread" role="tabpanel" aria-labelledby="thread-tab">
                         <div class="container-fluid mt-4">
-                            <a href="{{ url_for('create_post', cid=cid, fid=fid) }}"><button class="fluid ui teal button mb-4">New Post</button></a>
-                            <div class="content-section row justify-content-left">
-                                {% if posts %}                  
-                                    <div class="ui large threaded comments" style="max-width: none;">                                        
-                                        {% for post in posts %}
-                                        <div class="comment">
-                                            <a class="avatar" href="{{ url_for('profile', id=post.author.id) }}" style="height: 60px; width: 60px;"><img src="{{ url_for('static', filename='profile_pictures/' + post.author.image_file) }}"></a>
-                                            <div class="content" style="margin-left: 4.5em">
-                                                <div class="author"><font size="+2">{{ post.title }}</font></div>
-                                                <a class="author" href="{{ url_for('profile', id=post.author.id) }}"><small>{{ post.author.name }}</small></a>
-                                                <div class="metadata">
-                                                    <span class="date"><small>{{ time_ago(post.date_posted) }}</small></span>
+                            <a class="unrefany" data-toggle="modal" data-target="#newthread"><button class="fluid ui teal button mb-4">New Thread</button></a>
+                            <div class="modal fade" id="newthread" tabindex="-1" role="dialog" aria-labelledby="newthread" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-center">
+                                            <h4 class="modal-title w-100 font-weight-bold">Start A Thread</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                            </button> 
+                                        </div>
+                                        <div class="modal-body mx-3">
+                                            <form class="ui form thread" method='POST'>
+                                                <div class="fields">
+                                                    <div class="disabled four wide field">
+                                                        <label>Module Code</label>
+                                                        <input id="mods" name="mods" type="text" placeholder="{{ cid }}"> 
+                                                    </div>
+                                                    <div class="disabled twelve wide field">
+                                                        <label>Forum Title</label>
+                                                        <input id="ftitle" name="ftitle" type="text" placeholder="{{ forum.title }}"> 
+                                                    </div>
                                                 </div>
-                                                <div><small>
-                                                   <div class="ui star rating" data-rating="{{ rating }}" data-max-rating="5"></div></small>
+                                                <div class="required field">
+                                                    <label>Thread Title</label>
+                                                    <input id="title" name="title" placeholder="Enter a thread title">
                                                 </div>
-                                                <div class="mt-1" style="border-bottom: 2px solid; border-color: #b0b9c0;"></div>
-                                                <div class="text">
-                                                    {% for para in post.content.split('\n') %}
-                                                        <p>{{ para }}</p>
-                                                    {% endfor %}
+                                                <div class="required field">
+                                                    <label>Message</label>
+                                                    <textarea rows="8" id="content" name="content" placeholder="Enter a thread message"></textarea>
                                                 </div>
-                                                <div class="actions">
-                                                    <a class="reply">Reply<i class="icon comment alternate outline ml-2"></i></a>
+                                                <div class="field text-center">
+                                                        <div class="ui teal submit button">Submit</div>
+                                                    <div class="ui reset button">Clear</div>
+                                                    <div class="ui error message"></div>
+                                                </div>
+                                            </form>         
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if threads %}   
+                                {% for thread in threads %}
+                                    <div class="ui raised segment">
+                                        <div class="ui grid">
+                                            <div class="nine wide column">
+                                                <a href="{{ url_for('profile', id=thread.id) }}" style="float: left; margin-right: 1em">
+                                                    <img src="{{ url_for('static', filename='profile_pictures/' + thread.creator.image_file) }}" style="height: 50px; width: 50px; border-radius: 10px">
+                                                </a>
+                                                <div>
+                                                    {% if thread.title|length > 60 %}
+                                                        <a class="ui header" style="margin-bottom: 0.2em" href="{{ url_for('threads', cid=cid, fid=fid, tid=thread.tid) }}"><div class="popup" data-content="{{thread.title}}" data-variation="inverted flowing" data-position="top center">{{ thread.title[:60] }}...</div></a>
+                                                    {% else %}
+                                                        <a class="ui header" style="margin-bottom: 0.2em" href="{{ url_for('threads', cid=cid, fid=fid, tid=thread.tid) }}">{{ thread.title }}</a>
+                                                    {% endif %}
+                                                    <div>
+                                                    <div class="text-muted row">
+                                                        <div style="margin-right: 1em; float:left">{{ thread.creator.name }}</div>
+                                                        <div class="popup" data-content="{{ thread.date_created.strftime('%d %B %Y %H:%M') }}" data-variation="inverted mini" data-position="top center"> {{ time_ago(thread.date_created) }}</div>    
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
+                                            <div class="two wide column">
+                                                <div style="font-size: 9pt; padding: 1em 0">
+                                                    <i class="icon comments outline"></i>
+                                                    {% set postcount = posts.query.filter_by(fid=fid, tid=thread.tid).count() %}
+                                                    {% if postcount == 1 %}
+                                                        <i style="color: #b0b9c0">No Posts</i>
+                                                    {% elif postcount == 2 %}
+                                                        1 Post
+                                                    {% else %}
+                                                        {{ postcount-1 }} Posts
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="two wide column">
+                                                <div style="font-size: 9pt; padding: 1em 0"><i class="icon eye"></i> Views</div>
+                                            </div>
+                                            <div class="two wide column">
+                                                <div style="font-size: 9pt; padding: .3em 0">
+                                                    Last reply:<br>
+                                                    {% if postcount == 1 %}
+                                                        <i style="color: #b0b9c0">None</i>
+                                                    {% else %}
+                                                        {{ time_ago(posts.query.filter_by(fid=fid, tid=thread.tid).order_by(posts.date_posted.desc()).first().date_posted) }}
+                                                    {% endif %}
                                                 </div>
                                             </div>
                                         </div>
-                                        {% endfor %}
+                                        <div class="ui accordion">
+                                            <div class="title" style="color: #b0b9c0; font-size: 6pt; text-align: right;">
+                                                View Content
+                                            </div>
+                                            <div class="content" style="max-height: 15rem; overflow: auto">
+                                                {% for para in thread.content.split('\n') %}
+                                                    <p style="margin: 0">{{ para }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
                                     </div>
-                                {% else %}
-                                    <h6 class="mt-4" style="border-bottom: 2px solid; border-color: #b0b9c0">There are no posts in this forum yet!</h6>
-                                {% endif %}
-                                      
-                            </div>
+                                {% endfor %}                              
+                            {% else %}
+                                <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">There are no threads in this forum yet!</h6>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
@@ -79,7 +149,7 @@
                                         {% endfor %}
                                     </div>
                                 </div>
-                                <h6 class="mt-1">Total Posts: <b>{{ totalpost }}</b></h6>
+                                <h6 class="mt-1">Total Threads: <b>{{ totalthreads }}</b></h6>
                             </div>
                         </div>   
                     </div>

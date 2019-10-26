@@ -34,6 +34,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(20), nullable=False)
     student = db.relationship('Students', backref='info', lazy=True)
     prof = db.relationship('Professors', backref='info', lazy=True)
+    thread = db.relationship('Threads', backref='creator', lazy=True)
     post = db.relationship('Posts', backref='author', lazy=True)
 
     def roles(self):
@@ -219,7 +220,7 @@ class Forums(db.Model):
     title = db.Column(db.String(100), nullable=False)
     pid = db.Column(db.String(10), db.ForeignKey('professors.pid'), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    posts = db.relationship('Posts', backref='forum', lazy=True)
+    thread = db.relationship('Threads', backref='forum', lazy=True)
     foruminfo = db.relationship('ForumInfo', backref='info', lazy=True)
 
     def __repr__(self):
@@ -228,22 +229,56 @@ class Forums(db.Model):
 
 class ForumInfo(db.Model):
     __tablename__ = "foruminfo"
-    fid = db.Column(db.Integer, db.ForeignKey('forums.fid'), primary_key=True)
+    fid = db.Column(db.Integer, db.ForeignKey('forums.fid', ondelete='CASCADE'), primary_key=True)
     gid = db.Column(db.Integer, db.ForeignKey('groups.gid'), primary_key=True)
 
     def __repr__(self):
-        return f"Forums('{self.gid}', '{self.sid}', '{self.name}')"
+        return f"ForumInfo: fid={self.fid} gid={self.gid}"
+
+class Threads(db.Model):
+    __tablename__ = "threads"
+    fid = db.Column(db.Integer, db.ForeignKey('forums.fid', ondelete='CASCADE'), primary_key=True)
+    tid = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(10), db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    posts = db.relationship('Posts', backref='thread', lazy=True)
+    # threadinfo = db.relationship('ThreadInfo', backref='info', lazy=True)
+
+    def __repr__(self):
+        return f"Threads: fid={self.fid} tid={self.tid} id={self.id} title={self.title} date_created={self.date_created}"
+
+
+# class ThreadInfo(db.Model):
+#     __tablename__ = "threadinfo"
+#     fid = db.Column(db.Integer, db.ForeignKey('forums.fid', ondelete='CASCADE'), primary_key=True)
+#     tid = db.Column(db.Integer, db.ForeignKey('threads.tid', ondelete='CASCADE'), primary_key=True)
+
+#     def __repr__(self):
+#         return f"ThreadInfo: fid={self.fid} tid={self.tid}"
 
 
 class Posts(db.Model):
     __tablename__ = "posts"
+    __table_args__ = (
+        db.ForeignKeyConstraint(['fid', 'tid'], ['threads.fid', 'threads.tid'], ondelete='CASCADE'),
+        db.ForeignKeyConstraint(['pfid', 'ptid', 'ppost_num'], ['posts.fid', 'posts.tid', 'posts.post_num']),
+        db.CheckConstraint('pfid = fid'),
+        db.CheckConstraint('ptid = tid'),
+        db.CheckConstraint('ppost_num IS NULL OR ppost_num <> post_num'),    
+    )
+    fid = db.Column(db.Integer, primary_key=True)
+    tid = db.Column(db.Integer, primary_key=True)
     post_num = db.Column(db.Integer, primary_key=True)
-    fid = db.Column(db.Integer, db.ForeignKey('forums.fid', ondelete='CASCADE'), primary_key=True)
-    id = db.Column(db.String(10), db.ForeignKey('users.id'))
+    id = db.Column(db.String(10), db.ForeignKey('users.id'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now)
     rating = db.Column(db.Integer, db.CheckConstraint('rating >= 0 AND rating <= 10'), nullable=False, server_default='0')
+    pfid = db.Column(db.Integer)
+    ptid = db.Column(db.Integer)
+    ppost_num = db.Column(db.Integer)
 
     def __repr__(self):
-        return f"Posts('{self.sid}', '{self.pid}', '{self.title}', '{self.date_posted}, '{self.rating}'')"
+        return f"Posts: fid={self.fid} tid={self.tid} post_num={self.post_num} pfid={self.pfid}  ptid={self.ptid} ppost_num={self.ppost_num} id={self.id}  title={self.title} date={self.date_posted} rating={self.rating}"

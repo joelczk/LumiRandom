@@ -1,7 +1,7 @@
 import os
 from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm, UpdateAccountForm
-from lumirandom.models import User, Students, Courses, TakenCourses, Professors, TeachingAssistants, Groups, GroupInfo, Forums, ForumInfo, Posts, role_required
+from lumirandom.models import User, Students, Courses, TakenCourses, Professors, TeachingAssistants, Groups, GroupInfo, Forums, ForumInfo, Threads, Posts, role_required
 from flask import render_template, url_for, flash, redirect, request, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
@@ -59,13 +59,54 @@ def time_ago(time=False):
         return "a year ago"
     return str(day_diff // 365) + " years ago"
 
-@app.route("/")
+def sort_posts(posts):
+    child_parent_list = []
+    for post in posts:
+        if post.ppost_num:
+            child_parent_list.append((post.post_num, post.ppost_num))
+    
+    has_parent = set()
+    all_items = {}
+    for child, parent in child_parent_list:
+        if parent not in all_items:
+            all_items[parent] = {}
+        if child not in all_items:
+            all_items[child] = {}
+        all_items[parent][child] = all_items[child]
+        has_parent.add(child)
+
+    result = {}
+    for key, value in all_items.items():
+        if key not in has_parent:
+            result[key] = value
+    return result
+
+@app.route("/", methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+    if request.method == 'POST':
+        accountid = request.form['accountid']
+        password = request.form['password']
+        user = User.query.filter_by(id=accountid).first()
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            next_page = request.args.get('next')
+            flash(f'Welcome {user.name}!', 'success')
+            return redirect(next_page) if next_page else redirect(url_for('home'))
+        else:
+            flash('Invalid ID or Password. Please try again.', 'error')       
+    return render_template('login.html')
+
+
 @app.route("/home")
+@login_required
 def home():
     return render_template('home.html')
 
 
 @app.route("/about")
+@login_required
 def about():
     return render_template('about.html', title='About')
 
@@ -86,7 +127,7 @@ def register():
 
 
 @app.route("/login", methods=['GET', 'POST'])
-def login():
+def signin():
     if current_user.is_authenticated:
         return redirect(url_for('home'))
     form = LoginForm()
@@ -96,9 +137,9 @@ def login():
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             flash(f'Welcome {user.name}!', 'success')
-            return redirect(next_page) if next_page else redirect(url_for('home'))
+            return redirect(next_page) if next_page else redirect(url_for('login'))
         else:
-            flash('Invalid ID or Password. Please try again.', 'danger')
+            flash('Invalid ID or Password. Please try again.', 'error')
     return render_template('login.html', title='Login', form=form)
 
 
@@ -106,8 +147,9 @@ def login():
 def logout():
     if current_user.is_authenticated:
         logout_user()
-        flash(f'Logout Successful! Please Visit Again!', 'success')
-    return redirect(url_for('home'))
+    flash(f'Logout Successful! Please Visit Again!', 'success')
+    return redirect(url_for('login'))
+    
 
 
 @app.route("/profile/<string:id>")
@@ -238,7 +280,7 @@ def module_withdraw(cid):
         db.session.commit()
         flash(f'You have withdrawn from {cid}!', 'warning')
     else:
-        flash(f'You are not enrolled to {cid}!', 'danger')
+        flash(f'You are not enrolled to {cid}!', 'error')
     return redirect(url_for('module', cid=cid))
 
 
@@ -322,7 +364,7 @@ def ta_join(cid):
 def ta_withdraw(cid):
     Courses.query.get_or_404(cid)
     if TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid, is_ta=True).first():
-        flash(f'You are already a Teaching Assistant for {cid} {Courses.query.get(cid).cname} and are not allowed to withdraw anymore.', 'danger')
+        flash(f'You are already a Teaching Assistant for {cid} {Courses.query.get(cid).cname} and are not allowed to withdraw anymore.', 'error')
         return redirect(url_for('ta_signup'))
     mod = TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid).first()
     if mod:
@@ -373,7 +415,7 @@ def my_tas():
 def ta_accept(sid):
     Students.query.get_or_404(sid)
     if TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first() == None:
-        flash(f'Invalid Request!', 'danger')
+        flash(f'Invalid Request!', 'error')
     else:
         othersignups = TeachingAssistants.query.filter_by(sid=sid).all()
         for othersignup in othersignups:
@@ -391,7 +433,7 @@ def ta_accept(sid):
 def ta_reject(sid):
     Students.query.get_or_404(sid)
     if TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first() == None:
-        flash(f'Invalid Request!', 'danger')
+        flash(f'Invalid Request!', 'error')
     elif TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True).first():
         student = TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True).first()
         db.session.delete(student)
@@ -485,12 +527,27 @@ def create_group():
     return render_template('create_group.html', title='Create Group', students=students, s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, tas=tas, cid=cid)
 
 
-@app.route("/module/<string:cid>/forum/<int:fid>")
+@app.route("/module/<string:cid>/forum/<int:fid>", methods=['GET', 'POST'])
 @login_required
 def forum(cid, fid):
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        # fid = p_fid = request.form['fid']
+        # p_postnum = request.form['post_num']
+        if Threads.query.filter_by(fid=fid).first() == None:
+            tid = 1
+        else:
+            tid = db.session.query(func.max(Threads.tid)).filter(Threads.fid==fid).scalar()+1
+        t = Threads(fid=fid, tid=tid, id=current_user.id, title=title, content=content)
+        p = Posts(fid=fid, tid=tid, post_num=1, id=current_user.id, title=title, content=content, pfid=fid, ptid=tid, ppost_num=None)
+        db.session.add(t)
+        db.session.add(p)
+        db.session.commit()
+        flash(f'Thread created successfully.', 'success')
+        return redirect(url_for('forum', cid=cid, fid=fid))
     if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid:
         abort(404)
-    Forums.query.get_or_404(fid)
     is_student, is_ta, is_prof = (False for i in range(3))
     if ForumInfo.query.join(GroupInfo, ForumInfo.gid==GroupInfo.gid).filter(GroupInfo.sid==current_user.id).all():
         is_student = True
@@ -502,9 +559,9 @@ def forum(cid, fid):
         forum = Forums.query.get(fid)
         groups = Groups.query.join(ForumInfo, ForumInfo.gid==Groups.gid).filter(ForumInfo.fid==fid).order_by(Groups.gname.asc()).all()
         size = ForumInfo.query.filter_by(fid=fid).count()
-        posts = Posts.query.filter_by(fid=fid).all()
-        totalpost = Posts.query.filter_by(fid=fid).count()
-        return render_template('forums.html', title='Forums', forum=forum, groups=groups, size=size, posts=posts, totalpost=totalpost, cid=cid, fid=fid, time_ago=time_ago)
+        threads = Threads.query.filter_by(fid=fid).order_by(Threads.date_created.asc()).all()
+        totalthreads = Threads.query.filter_by(fid=fid).count()
+        return render_template('forums.html', title='Forum - ' + forum.title, forum=forum, groups=groups, size=size, threads=threads, totalthreads=totalthreads, posts=Posts, cid=cid, fid=fid, time_ago=time_ago)
     else:
         abort(403)
 
@@ -568,14 +625,49 @@ def create_post(cid, fid):
         if Posts.query.filter_by(fid=fid).first() == None:
             postnum = 1
         else:
-            postnum = db.session.query(func.max(Posts.fid)).filter(Posts.fid==fid).scalar()+1
-        p = Posts(fid=fid, post_num=postnum, title=title, id=current_user.id, content=content)
+            postnum = db.session.query(func.max(Posts.post_num)).filter(Posts.fid==fid).scalar()+1
+        p = Posts(fid=fid, post_num=postnum, title=title, id=current_user.id, content=content, p_fid=fid, p_post_num=None)
         db.session.add(p)
         db.session.commit()
         flash(f'Post created successfully.', 'success')
         return redirect(url_for('forum', cid=cid, fid=fid))
     forum = Forums.query.get(fid)
     return render_template('create_post.html',title="Create Post", module=module, forum=forum, cid=cid)
+
+
+@app.route("/module/<string:cid>/forum/<int:fid>/thread/<int:tid>", methods=['GET', 'POST'])
+@login_required
+def threads(cid, fid, tid):
+    if request.method == 'POST':
+        title = request.form['title']
+        content = request.form['content']
+        pfid = request.form['fid']
+        ptid = request.form['tid']
+        ppostnum = request.form['post_num']
+        postnum = db.session.query(func.max(Posts.post_num)).filter(Posts.fid==fid, Posts.tid==tid).scalar()+1
+        p = Posts(fid=fid, tid=tid, post_num=postnum, id=current_user.id, title=title, content=content, pfid=pfid, ptid=ptid, ppost_num=ppostnum)
+        db.session.add(p)
+        db.session.commit()
+        flash(f'Post created successfully.', 'success')
+        return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
+    if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid or not Threads.query.get([fid, tid]):
+        abort(404)
+    is_student, is_ta, is_prof = (False for i in range(3))
+    if ForumInfo.query.join(GroupInfo, ForumInfo.gid==GroupInfo.gid).filter(GroupInfo.sid==current_user.id).all():
+        is_student = True
+    if ForumInfo.query.join(Groups, ForumInfo.gid==Groups.gid).filter(Groups.sid==current_user.id).first():
+        is_ta = True
+    if Forums.query.get(fid).pid == current_user.id:
+        is_prof = True
+    if is_student or is_ta or is_prof:
+        forum = Forums.query.get(fid)
+        thread = Posts.query.get([fid, tid, 1])
+        posts = Posts.query.filter_by(fid=fid, tid=tid).all()
+        posts = sort_posts(posts)
+        return render_template('threads.html', title='Forum Thread - ' + thread.title, forum=forum, thread=thread, p=Posts(), posts=posts, cid=cid, fid=fid, tid=tid, time_ago=time_ago)
+    else:
+        abort(403)
+
 
 
 @app.errorhandler(404)
