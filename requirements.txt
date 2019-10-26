@@ -162,13 +162,8 @@ python-jwt==2.0.1
 PyTweening==1.0.3
 pytz==2019.2
 PyWavelets==1.0.3
-pywin32==223
-pywinpty==0.5.5
 PyYAML==5.1.1
 pyzmq==18.1.0
-QtAwesome==0.5.7
-qtconsole==4.5.2
-QtPy==1.8.0
 ratelim==0.1.6
 requests==2.22.0
 requests-toolbelt==0.7.0
