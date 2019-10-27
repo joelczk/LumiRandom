@@ -24,7 +24,7 @@ set timezone to 'GMT +8';
 ```
 **Code Requirements**\
 Please refer to requirements.txt for the list of dependencies needed\
-Please refer to runtime.txt for the python version used\
+Please refer to runtime.txt for the python version used
 
 **Requirements**\
 1.The total number of entity sets and relationship sets must be at least 15\
