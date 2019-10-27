@@ -22,6 +22,10 @@ If you are using psql database for testing, please remember to include the follo
 ```
 set timezone to 'GMT +8';
 ```
+**Code Requirements**\
+Please refer to requirements.txt for the list of dependencies needed\
+Please refer to runtime.txt for the python version used\
+
 **Requirements**\
 1.The total number of entity sets and relationship sets must be at least 15\
 2.There must be at least 1 weak entity set\
