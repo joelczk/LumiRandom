@@ -1,15 +1,25 @@
 /* Function: Allow Profs to find out the number of posts that each student makes*/ 
 WITH forumsid AS 
 ( 
-       SELECT Forums.fid 
-       FROM   Forums, 
-              Professors 
-       WHERE  Professors.pid = Forums.pid ); 
-SELECT   count(*) 
+       SELECT forums.fid 
+       FROM   forums, 
+              professors 
+       WHERE  professors.pid = forums.pid 
+), 
+studentid AS 
+( 
+       SELECT sid 
+       FROM   students 
+       EXCEPT 
+       SELECT sid 
+       FROM   teachingassistants 
+) 
+SELECT   Count(*) 
 FROM     forumsid, 
-         Posts 
-WHERE    forumsid.fid = Posts.fid 
-GROUP BY(posts.sid);
+         posts, studentid
+WHERE    forumsid.fid = posts.fid, 
+         forums.id = studentid.sid 
+GROUP BY(posts.id);
 
 /*Function: Show the number of students of each grade for each module*/
 WITH courseid 
