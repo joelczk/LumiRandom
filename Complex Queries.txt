@@ -51,7 +51,7 @@ With studentGrades(sid, cid, year,sem, grade) AS
 END AS numGrade
 FROM takencourses
 WHERE grade IS NOT NULL
-GROUP BY cid, year, sem)
+GROUP BY sid,cid, year, sem)
 
 SELECT cid, year, sem, ROUND(AVG(grade),4)
 FROM studentGrades
