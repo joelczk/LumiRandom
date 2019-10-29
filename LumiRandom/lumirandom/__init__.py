@@ -9,14 +9,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'something only you know'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-# app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-# app.config['MAIL_PORT'] = 465
-# app.config['MAIL_USE_SSL'] = True
-# app.config['MAIL_USE_TLS'] = False
-# app.config['MAIL_USERNAME'] = 'email@example.com'
-# app.config['MAIL_PASSWORD'] = 'password'
-# app.config['MAIL_DEFAULT_SENDER'] = '"MyApp" <noreply@example.com>'
-engine = create_engine('sqlite:///site.db')
 db = SQLAlchemy(app)
 
 # Uncomment this block and comment above two lines to switch from SQLite to PostGreSQL

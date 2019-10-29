@@ -6,21 +6,21 @@
         {% for group in groups %}
             <div class="col-auto mb-3">
                 <div class="card unref2" style="width: 18rem; height: 10rem">
-                        <a class="card-body unref2" href="{{ url_for('group', gid=group.gid) }}">
-                            <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
-                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ group.groupinfo.cid }}</small></h6>
-                            <h6 class="card-title">{{ group.groupinfo.gname }}</h6>
+                    <a class="card-body unref2" href="{{ url_for('group', gid=group.gid) }}">
+                        <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
+                        <h6 class="card-subtitle mb-2 text-muted"><small>{{ group.groupinfo.prof.cid }}</small></h6>
+                        <h6 class="card-title">{{ group.groupinfo.gname }}</h6>
+                    </a>
+                    {% if group.groupinfo.sid %}
+                        <a class="card-footer unref2" style="background-color: #a1b4c2; color: #d3e4f1" href="{{ url_for('profile', id=group.groupinfo.ta.info.id) }}">
+                            <small style="float: left">Teaching Assistant</small>
+                            <small style="float: right">{{ group.groupinfo.ta.info.name }}</small>
                         </a>
-                        {% if group.groupinfo.sid %}
-                            <a class="card-footer unref2" style="background-color: #a1b4c2; color: #e8ebee" href="{{ url_for('profile', id=user.query.get(group.groupinfo.sid).account_id) }}">
-                                <small style="float: left">Teaching Assistant</small>
-                                <small style="float: right">{{ user.query.get(group.groupinfo.sid).name }}</small>
-                            </a>
-                        {% else %}
-                            <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
-                                <small>Unmanaged</small>
-                            </span>
-                        {% endif %}
+                    {% else %}
+                        <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                            <small>Unmanaged</small>
+                        </span>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

@@ -4,7 +4,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.13/js/dataTables.bootstrap4.min.js"></script>
 <script src="http://cdn.jsdelivr.net/jquery.glide/1.0.6/jquery.glide.min.js"></script>
+<script>
+    $('.sidebar-menu').on('click', '.item', function() {
+        if(!$(this).hasClass('dropdown')) {
+            $(this).addClass('active').siblings('.item').removeClass('active');
+        }
+    });
+</script>
 <script>
     /* When the user clicks on the button, 
     toggle between hiding and showing the dropdown content */
@@ -31,6 +40,8 @@
         $('[data-toggle="tooltip"]').tooltip();   
     });
 </script>
+
+<!-- Save image -->
 <script>
     $(document).ready(function() {
         var readURL = function(input) {
@@ -50,9 +61,20 @@
         });
     });
 </script>
-<script>$('.ui.dropdown').dropdown();</script>
+
+<!-- Semantic UI components -->
+<script>$('.ui.dropdown').dropdown({ fullTextSearch: 'exact' });</script>
+<script>$('.ui.dropdown-hov').dropdown({on: 'hover'});</script>
 <script>$('.ui.accordion').accordion();</script>
-<script>$('.ui.rating').rating();</script>
+<script>$('#searchme').search({ fullTextSearch: true})</script>
+<script>$('#searchme').dropdown({ fullTextSearch: true})</script>
+<script>
+    $('.ui.rating').rating('setting', 'onRate', function(value) {
+        id = $(this).data('id');
+        $('#rating-' + id).val(value);
+        $('#rateform-' + id).submit()
+    });
+</script>
 <script>$('.ui.modal').modal();</script>
 <script>
     $('.ui.message .close').on('click', function() {
@@ -71,6 +93,7 @@
     $('.popup')
       .popup({
         hoverable: true,
+        delay: { show: 400, hide: 200 }
     });
 </script>
 <script>
@@ -80,6 +103,161 @@
         delay: { show: 500, hide: 500 }
     });
 </script>
+<script>
+    $('.popup2')
+        .popup({
+        hoverable: true,
+        delay: { show: 500, hide: 500 }
+    });
+</script>
+<script>
+    $('.sidebar-popup').popup({
+		inline   : true,
+		hoverable: true,
+		position : 'bottom left',
+		delay: { show: 200, hide: 300 }
+    });
+ </script>
+<script>
+    (function($) {
+        $.tablesort = function ($table, settings) {
+            var self = this;
+            this.$table = $table;
+            this.$thead = this.$table.find('thead');
+            this.settings = $.extend({}, $.tablesort.defaults, settings);
+            this.$sortCells = this.$thead.length > 0 ? this.$thead.find('th:not(.no-sort)') : this.$table.find('th:not(.no-sort)');
+            this.$sortCells.on('click.tablesort', function() {
+                self.sort($(this));
+            });
+            this.index = null;
+            this.$th = null;
+            this.direction = null;
+        };
+
+        $.tablesort.prototype = {
+
+            sort: function(th, direction) {
+                var start = new Date(),
+                    self = this,
+                    table = this.$table,
+                    rowsContainer = table.find('tbody').length > 0 ? table.find('tbody') : table,
+                    rows = rowsContainer.find('tr').has('td, th'),
+                    cells = rows.find(':nth-child(' + (th.index() + 1) + ')').filter('td, th'),
+                    sortBy = th.data().sortBy,
+                    sortedMap = [];
+
+                var unsortedValues = cells.map(function(idx, cell) {
+                    if (sortBy)
+                        return (typeof sortBy === 'function') ? sortBy($(th), $(cell), self) : sortBy;
+                    return ($(this).data().sortValue != null ? $(this).data().sortValue : $(this).text());
+                });
+                if (unsortedValues.length === 0) return;
+
+                //click on a different column
+                if (this.index !== th.index()) {
+                    this.direction = 'asc';
+                    this.index = th.index();
+                }
+                else if (direction !== 'asc' && direction !== 'desc')
+                    this.direction = this.direction === 'asc' ? 'desc' : 'asc';
+                else
+                    this.direction = direction;
+
+                direction = this.direction == 'asc' ? 1 : -1;
+
+                self.$table.trigger('tablesort:start', [self]);
+                self.log("Sorting by " + this.index + ' ' + this.direction);
+
+                // Try to force a browser redraw
+                self.$table.css("display");
+                // Run sorting asynchronously on a timeout to force browser redraw after
+                // `tablesort:start` callback. Also avoids locking up the browser too much.
+                setTimeout(function() {
+                    self.$sortCells.removeClass(self.settings.asc + ' ' + self.settings.desc);
+                    for (var i = 0, length = unsortedValues.length; i < length; i++)
+                    {
+                        sortedMap.push({
+                            index: i,
+                            cell: cells[i],
+                            row: rows[i],
+                            value: unsortedValues[i]
+                        });
+                    }
+
+                    sortedMap.sort(function(a, b) {
+                        return self.settings.compare(a.value, b.value) * direction;
+                    });
+
+                    $.each(sortedMap, function(i, entry) {
+                        rowsContainer.append(entry.row);
+                    });
+
+                    th.addClass(self.settings[self.direction]);
+
+                    self.log('Sort finished in ' + ((new Date()).getTime() - start.getTime()) + 'ms');
+                    self.$table.trigger('tablesort:complete', [self]);
+                    //Try to force a browser redraw
+                    self.$table.css("display");
+                }, unsortedValues.length > 2000 ? 200 : 10);
+            },
+
+            log: function(msg) {
+                if(($.tablesort.DEBUG || this.settings.debug) && console && console.log) {
+                    console.log('[tablesort] ' + msg);
+                }
+            },
+
+            destroy: function() {
+                this.$sortCells.off('click.tablesort');
+                this.$table.data('tablesort', null);
+                return null;
+            }
+
+        };
+
+        $.tablesort.DEBUG = false;
+
+        $.tablesort.defaults = {
+            debug: $.tablesort.DEBUG,
+            asc: 'sorted ascending',
+            desc: 'sorted descending',
+            compare: function(a, b) {
+                if (a > b) {
+                    return 1;
+                } else if (a < b) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+        };
+
+        $.fn.tablesort = function(settings) {
+            var table, sortable, previous;
+            return this.each(function() {
+                table = $(this);
+                previous = table.data('tablesort');
+                if(previous) {
+                    previous.destroy();
+                }
+                table.data('tablesort', new $.tablesort(table, settings));
+            });
+        };
+
+    })(window.Zepto || window.jQuery);
+</script>
+<script>$('.ui.table-sort').tablesort()</script>
+<script>
+    $(document).ready(function(){
+        $(".table-search").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $(".table-filter tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
+       
 <script>
     $('.ui.form.login')
         .form({
@@ -167,7 +345,7 @@
                             prompt : 'Forum title must be at least {ruleValue} characters'
                         },
                         {
-                            type   : 'maxLength[100]',
+                            type   : 'maxLength[60]',
                             prompt : 'Forum title is limited to {ruleValue} characters'
                         }
                     ]
@@ -202,7 +380,7 @@
                             prompt : 'Thread title must be at least {ruleValue} characters'
                         },
                         {
-                            type   : 'maxLength[100]',
+                            type   : 'maxLength[60]',
                             prompt : 'Thread title is limited to {ruleValue} characters'
                         }
                     ]
@@ -241,7 +419,7 @@
                             prompt : 'Post title must be at least {ruleValue} characters'
                         },
                         {
-                            type   : 'maxLength[100]',
+                            type   : 'maxLength[60]',
                             prompt : 'Post title is limited to {ruleValue} characters'
                         }
                     ]
@@ -280,7 +458,7 @@
                             prompt : 'Post title must be at least {ruleValue} characters'
                         },
                         {
-                            type   : 'maxLength[100]',
+                            type   : 'maxLength[60]',
                             prompt : 'Post title is limited to {ruleValue} characters'
                         }
                     ]
@@ -301,5 +479,34 @@
             },
         inline : true,
         on : 'blur'
+    });
+</script>
+<script>
+    $('.next-page').transition({
+        animation: 'slide down in',
+        duration: '0.8s'
+    });
+</script>
+<script>
+    $('#nav-menu-sidebar').hover( 
+        function() {
+        // $('#nav-sidebar').toggleClass('hidden');
+        $('#nav-sidebar').transition({
+            animation: 'slide down',
+            duration: '0.9s',
+            queue: false
+        });
+    });
+    $('#nav-sidebar').hover(function() {
+        $('#nav-sidebar').css('visibility', 'visible');
+    });
+</script>
+<script>
+    $('.logo-anim').hover(function() {
+        $(this).transition({
+            animation: 'bounce',
+            duration: '1s',
+            queue: false
+        });
     });
 </script>

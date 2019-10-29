@@ -1,0 +1,226 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+<div class="ui container">
+    <div class="row">
+        <div class="col-xs-12 ">
+            <nav>
+                <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true" style="width: 277px">Module Overview</a>
+                    <a class="nav-item nav-link" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="false" style="width: 277px">Module Details</a>
+                    <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="width: 277px">Classmates</a>
+                    <a class="nav-item nav-link" id="group-tab" data-toggle="tab" href="#group" role="tab" aria-controls="group" aria-selected="false" style="width: 277px">Groups</a>
+                </div>
+            </nav>
+            <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                    <div class="ui raised {% if not is_student %} teal {% endif %} segment">
+                        <div>
+                            <h4>{{ mod.cid }}</h4>
+                            <h2>{{ mod.cname }}</h2>
+                            <p class="text-muted">Modular Credit: 4</p>
+                            <p class="text-muted">{{ year }} Semester {{ sem }}&emsp;<a class="unref text-muted" href="{{ url_for('profile', id=prof.pid) }}">{{ prof.info.name }}</a></p>
+                        </div>
+                        <br>
+                        <div class="ui horizontal divider small header">Module Description</div>
+                        <p>The <b>BEST</b> module in the world!</p>
+                    </div>
+                </div>  
+                <div class="tab-pane fade" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                    <div class="ui raised {% if not is_student %} teal {% endif %} segment">
+                        <div class="ui raised segment">
+                            <div class="ui fluid accordion">
+                                <div class="active title">
+                                    <div class="ui horizontal divider header">Learning Outcomes</div>
+                                </div>
+                                <div class="active content">
+                                    <p>{{ mod.cid }} {{ mod.cname }} aims to develop in students a greater understanding and appreciation for this module. At the end of the module, students are expected
+                                        to have a basic understanding of the key concepts of {{ mod.cname }}, and be able to explain its general ideas adequately.
+                                        <br><br><b>Webcasts will be uploaded weekly</b> to facilitate a better and freer learning experience at the students' own pace.
+                                        Moreover, this module will be <b>entirely CA based</b>, thus students need not fret unnecessarily and can enjoy their well-deserved break after Week 13.
+                                        <br><br>However, do note that <b>there are still assignments and projects for this module</b>, so do show at least minimal effort as you breeze through this module.
+                                        More information on this under the workload section.
+                                        <br><br>As a final plus point, this is a <b>CS/CU module</b>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui raised segment">
+                            <div class="ui fluid accordion">
+                                <div class="active title">
+                                    <div class="ui horizontal divider header">Workload</div>
+                                </div>
+                                <div class="content">
+                                    <div class="ui two column grid">
+                                        <div class="column">
+                                            <table class="ui very basic table" id="borderless-table" style="margin-left: 1em;"> 
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="four wide"><b>Lectures</b></td>
+                                                        <td class="three wide"><b>2 hours</b></td>
+                                                        <td class="nine wide"><i class="icon red circle"></i><i class="icon red circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Tutorials</b></td>
+                                                        <td class="three wide"><b>1 hour</b></td>
+                                                        <td class="nine wide"><i class="icon orange circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Laboratory</b></td>
+                                                        <td class="three wide"><b>2 hours</b></td>
+                                                        <td class="nine wide"><i class="icon olive circle"></i><i class="icon olive circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Projects</b></td>
+                                                        <td class="three wide"><b>2 hours</b></td>
+                                                        <td class="nine wide"><i class="icon teal circle"></i><i class="icon teal circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Preparation</b></td>
+                                                        <td class="three wide"><b>1 hour</b></td>
+                                                        <td class="nine wide"><i class="icon brown circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><div style="border-top: 2px solid black"></div></td>
+                                                        <td class="three wide"><div style="border-top: 2px solid black; width: 5.5em"></div></td>
+                                                        <td class="nine wide"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Total</b></td>
+                                                        <td class="three wide"><b>8 hours</b></td>
+                                                        <td class="nine wide"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="column">
+                                            <p>
+                                                Apart from the tutorials, there will be <b>three short assignments</b> for this module.
+                                                Each assignment constitutes <b>10%</b> weightage to the module grade.
+                                                <br>In addition, there will be <b>one mini project</b> released after recess week. 
+                                                The project is to be conducted in groups of four and students are free to choose their own members.
+                                                Any leftovers will be put into groups by the classic <a href="https://www.randomlists.com/team-generator">team randomiser</a>.
+                                                The weightage of the project is <b>30%</b> of the final grade.
+                                                <br>Again, this module is <b>entirely CA based</b> and is <b>CS/CU</b>.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="ui vertical divider" style="margin-top: 1.5em; max-height: 5rem">
+                                        <i class="icon plus"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui raised segment">
+                            <div class="ui fluid accordion">
+                                <div class="active title">
+                                    <div class="ui horizontal divider header">Pre-requsites and Preclusions</div>
+                                </div>
+                                <div class="content">
+                                    <div class="ui grid">
+                                        <div class="two wide column" style="margin-left: 1em">
+                                            <b>Pre-requsites
+                                            <br>Preclusions</b>
+                                        </div>
+                                        <div class="twelve wide column">
+                                            <b><i>None</i>
+                                            <br><i>None</i></b>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui raised segment">
+                            <div class="ui fluid accordion">
+                                <div class="active title">
+                                    <div class="ui horizontal divider header">Extra Information</div>
+                                </div>
+                                <div class="content">
+                                    <div style="margin-left: 1em">
+                                        <p><b>Modular Credits: 4</b>
+                                        <br>This module is <b>entirely CA based</b>.
+                                        <br>This is a <b>CS/CU module</b>.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+  
+                </div>
+                <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
+                    <div class="ui raised fluid {% if not is_student %} teal {% endif %} segment">
+                        <div class="ui search">
+                            <div class="ui icon input" style="width: 20rem">
+                                <input class="prompt table-search" type="text" placeholder="Search Classmate's Name">
+                                <i class="search icon"></i>
+                            </div>
+                            <div class="results"></div>
+                        </div>
+                        <table class="ui sortable padded teal striped selectable table table-sort" style="border-left-color: white; border-right-color: white; table-layout: fixed">
+                            <thead style=" display: block;">
+                                <tr>
+                                    <th class="sorted ascending" style="width: 20rem; text-align: center">Name</th>
+                                    <th style="width: 60rem; text-align: center">Groups</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-filter" style="display: block; width: 100%; max-height: 70vh; overflow: auto; ">
+                                {% for student in students|sort(attribute='student.info.name') %}
+                                    <tr style=" display: block; position: relative;">
+                                        <td class="selectable" style="font-weight: 500; width: 19.9rem;">
+                                            <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left; margin: 0.8em 2em" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
+                                            <a class="unrefany" href="{{ url_for('profile', id=student.sid) }}" style="margin-top: 0.6em">{{ student.student.info.name }}</a>
+                                        </td>
+                                        {% set modulegroups = groupinfo.query.join(Groups, Groups.gid==groupinfo.gid).filter(Groups.pid==prof.pid, groupinfo.sid==student.student.sid).all() %}
+                                        {% if modulegroups %}
+                                        <td class="selectable" style="font-weight: 500; width: 59rem; padding-top: 1.5em; overflow: auto; text-align: center">
+                                            {% for group in modulegroups|sort(attribute='groupinfo.gname') %}
+                                                {{ group.groupinfo.gname }}&nbsp; 
+                                                {% if not loop.last %}
+                                                    <i class="icon circle outline small" style="color: black"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        {% else %}
+                                            <td class="selectable error" style="font-weight: 500; width: 59rem; padding-top: 1.5em; text-align: center">
+                                                <i class="icon times" style="color: black"></i>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="group" role="tabpanel" aria-labelledby="group-tab">
+                    {% for group in groups|sort(attribute='gname') %}
+                        {% if groupinfo.query.filter_by(gid=group.gid, sid=current_user.id).first() or group.pid == current_user.id or group.sid == current_user.id %}
+                        <div class="ui raised {% if not is_student %} teal {% endif %} segment unref2" style="height: 8rem; background-color: #d3e4f1"><a class="unrefany" href="{{ url_for('group', gid=group.gid) }}">
+                        {% else %}
+                        <div class="ui raised segment" style="height: 8rem">
+                        {% endif %}
+                            <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
+                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ group.prof.cid }}</small></h6>
+                            <h6 class="card-title">{{ group.gname }}</h6>
+                            <div class="ui bottom attached label" style="background-color: #a1b4c2;">
+                                {% if group.sid %}
+                                    <a href="{{ url_for('profile', id=group.ta.info.id) }}" style="color:white">
+                                        <div style="float: right">Teaching Assistant</div>
+                                        <div style="float: left">{{ group.ta.info.name }}</div>
+                                    </a>
+                                {% else %}
+                                    <div style="color: #d8d7d7">Unmanaged</div>
+                                {% endif %}
+                            </div>
+                        {% if groupinfo.query.filter_by(gid=group.gid, sid=current_user.id).first() or group.pid == current_user.id or group.sid == current_user.id %}
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock content %}

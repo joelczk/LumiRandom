@@ -92,16 +92,6 @@
         </div>
         {% include 'scripts.html' %}
         <script>
-				$('.teal.button')
-					.popup({
-					  on: 'click'
-					});
-				  $('input')
-					.popup({
-					  on: 'focus'
-					});
-			  </script>
-        <script>
             $('.start-anim').transition({
                 animation: 'scale in',
                 duration: '1s'
@@ -119,7 +109,7 @@
                     animation: 'jiggle',
                     queue: false
                 });
-            }, function(){});
+            });
         </script>
         <script>
             $('.intro-anim2').transition({

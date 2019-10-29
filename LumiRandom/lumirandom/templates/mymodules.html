@@ -14,7 +14,7 @@
                     <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
                         <div class="tab-pane fade show active" id="enrolled" role="tabpanel" aria-labelledby="enrolled-tab">
                             <div class="container-fluid mt-4">
-                                {% if takingmods.first() %}
+                                {% if takingmods %}
                                     <div class="row justify-content-left">
                                         {% for takingmod in takingmods %}
                                             <div class="col-auto mb-3">
@@ -39,8 +39,8 @@
                         </div>
                         <div class="tab-pane fade" id="taken" role="tabpanel" aria-labelledby="taken-tab">
                             <div class="tab-pane fade show active" id="enrolled" role="tabpanel" aria-labelledby="enrolled-tab">
-                                <div class="container-fluid mt-4">
-                                    {% if takenmods.first() %}
+                                <div class="container-fluid mt-4" style="height: 75vmin; overflow: auto">
+                                    {% if takenmods %}
                                         <div class="row justify-content-left">
                                             {% for takenmod in takenmods %}
                                                 <div class="col-auto mb-3">

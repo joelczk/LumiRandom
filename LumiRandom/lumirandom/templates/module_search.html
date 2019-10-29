@@ -1,77 +1,43 @@
 {% extends "layout.html" %}
-{% block search %}
-    <form method = "POST" action = "">
-        <div>
-            <table>
-                <td><input type = "text" name = "search" id = "search" placeholder = "Search for Module Codes" class = "form-control left rounded" style = "margin-bottom:3%; width:150%"></td>
-                <td><button type = "submit" class = "btn btn-outline-info" style = "display:inline; margin-left:150%">Submit</button></table></td>
-            </table>
-        </div>
-    </form>
-{% endblock search %}
 {% block content %}
-    <div class="content-section">
-        <legend class="border-bottom mb-4", style="text-align:center;">Available Modules</legend>
-        {% if courses.pages %}
-            <table class="table table-hover border-bottom pt-1 mb-4">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Module Code</th>
-                        <th scope="col">Module Name</th>
-                        <th scope="col">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for module in courses.items %}
-                        <tr>
-                            <th scope="row">{{ loop.index }}</th>
-                            <td style="width: 15%"><a class="unref" href="{{ url_for('module', cid=module.cid) }}">{{ module.cid }}</a></td>
-                            <td style="width: 72%"><a class="unref" href="{{ url_for('module', cid=module.cid) }}">{{ module.cname }}</a></td>
-                            <td style="width: 15%">
-                                {% if taken.query.filter_by(sid=current_user.id, cid=module.cid).filter(taken.year!=cur_year or (taken.year==cur_year and taken.sem<cur_sem)).first() %}
-                                    <b class="text-muted">Taken</b>
-                                {% elif taken.query.filter_by(sid=current_user.id, cid=module.cid, year=cur_year, sem=cur_sem).first() %}
-                                    <b>Enrolled</b>
-                                {% elif prof.query.filter_by(cid=module.cid).first() == none %}
-                                    <b class="text-muted">Unavailable</b>
-                                {% else %}
-                                    <b style="color: #1fb126">Available</b>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% if courses.pages > 1 %}
-                <div style="text-align:center;">
-                    {% if courses.page == 1 %}
-                        <a class="btn btn-outline-info mb-4 disabled" href="{{ url_for('module_search', query=query, page=1) }}">&#8810;</a>
-                        <a class="btn btn-outline-info mb-4 disabled" href="{{ url_for('module_search', page=courses.prev_num) }}">&lt;</a>
-                    {% else %}
-                        <a class="btn btn-outline-info mb-4" href="{{ url_for('module_search', query=query,  page=1) }}">&#8810;</a>
-                        <a class="btn btn-outline-info mb-4" href="{{ url_for('module_search', query=query,  page=courses.prev_num) }}">&lt;</a>
-                    {% endif %}
-                    {% for page_num in courses.iter_pages(left_edge=0, right_edge=0, left_current=1, right_current=2) %}
-                        {% if page_num %}                   
-                            {% if courses.page == page_num %}
-                                <a class="btn btn-info mb-4">{{ page_num }}</a>
-                            {% else %}
-                                <a class="btn btn-outline-info mb-4" href="{{ url_for('module_search', query=query,  page=page_num) }}">{{ page_num }}</a>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                    {% if courses.page == courses.pages %}
-                        <a class="btn btn-outline-info mb-4 disabled" href="{{ url_for('module_search', query=query,  page=courses.next_num) }}">&gt;</a>
-                        <a class="btn btn-outline-info mb-4 disabled" href="{{ url_for('module_search', query=query,  page=courses.pages) }}">&#8811;</a>
-                    {% else %}
-                        <a class="btn btn-outline-info mb-4" href="{{ url_for('module_search', query=query,  page=courses.next_num) }}">&gt;</a>
-                        <a class="btn btn-outline-info mb-4" href="{{ url_for('module_search', query=query,  page=courses.pages) }}">&#8811;</a>
-                    {% endif %}
+    <div class="ui raised segment" style="margin-bottom: 2em">
+        <div class="ui stackable grid">
+            <div class="six wide column">
+                <div class="ui search">
+                    <div class="ui icon input" style="width: 20rem">
+                        <input class="prompt table-search" type="text" placeholder="Search Module Code and Name">
+                        <i class="search icon"></i>
+                    </div>
+                    <div class="results"></div>
                 </div>
-            {% endif %}
-        {% else %}
-            <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">Module does not exist!</h6>
-        {% endif %}
+            </div>
+            <div class="four wide center aligned column"><legend>All Modules</legend></div>
+        </div>
+        <table class="ui sortable padded teal striped selectable table table-sort" style="border-left-color: white; border-right-color: white; table-layout: fixed">
+            <thead style=" display: block;">
+                <tr>
+                    <th class="sorted ascending" style="width: 10rem">Module Code</th>
+                    <th style="width: 58rem">Module Title</th>
+                    <th style="width: 10rem">Status</th>
+                </tr>
+            </thead>
+            <tbody class="table-filter" style="display: block; width: 100%; max-height: 50rem; overflow: auto; ">
+                {% for module in courses %}
+                    <tr style=" display: block; position: relative;">
+                        <td class="selectable" style="font-weight: 500; width: 10rem"><a class="unrefany" href="{{ url_for('module', cid=module.cid) }}">{{ module.cid }}</a></td>
+                        <td class="selectable" style="width: 57rem"><a class="unrefany" href="{{ url_for('module', cid=module.cid) }}">{{ module.cname }}</a></td>
+                        {% if taken.query.filter_by(sid=current_user.id, cid=module.cid).filter(taken.year!=cur_year or (taken.year==cur_year and taken.sem<cur_sem)).first() %}
+                            <td class="text-muted" style="font-weight: 700; width: 9rem">Taken</td>
+                        {% elif taken.query.filter_by(sid=current_user.id, cid=module.cid, year=cur_year, sem=cur_sem).first() %}
+                            <td style="font-weight: 700; width: 9rem">Enrolled</td>
+                        {% elif prof.query.filter_by(cid=module.cid).first() == none %}
+                            <td class="text-muted" style="font-weight: 700; width: 9rem">Unavailable</td>
+                        {% else %}
+                            <td style="font-weight: 700; color: #1fb126; width: 9rem">Available</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock content %}

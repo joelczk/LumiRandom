@@ -6,9 +6,9 @@
             {% if forums %}
                 {% for forum in forums %}
                     <div class="ui fluid card mt-4">
-                        <a class="card-body unref2" href="{{ url_for('forum', cid=forum.info.creator.cid, fid=forum.info.fid) }}">
+                        <a class="card-body unref2" href="{{ url_for('forum', cid=forum.info.prof.cid, fid=forum.info.fid) }}">
                             <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ foruminfo.query.filter_by(fid=forum.fid).count() }}</small><i class="users icon ml-1"></i></h6>
-                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ forum.info.creator.cid }}</small></h6>
+                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ forum.info.prof.cid }}</small></h6>
                             <h6 class="card-title">{{ forum.info.title }}</h6>
                         </a>
                         <div class="card-footer unref2" style="background-color: #a1b4c2; color: #e8ebee;">
@@ -17,7 +17,7 @@
                 </div>
                 {% endfor %}
             {% else %}
-                <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You are not in any forums.</h6>
+                <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You are not in any forum.</h6>
             {% endif %}
         </div>
     </div>

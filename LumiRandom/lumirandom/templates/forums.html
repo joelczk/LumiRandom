@@ -2,7 +2,7 @@
 {% block content %}
 <section id="tabs">
     <div class="container">
-        <h4 class="text-muted", style="text-align:center;">{{ forum.creator.cid }}</h4>
+        <h4 class="text-muted", style="text-align:center;">{{ forum.prof.cid }}</h4>
         <h2 class="border-bottom mb-4", style="text-align:center;">{{ forum.title }}</h2>
         <div class="row">
             <div class="col-xs-12 ">
@@ -42,11 +42,11 @@
                                                     <input id="title" name="title" placeholder="Enter a thread title">
                                                 </div>
                                                 <div class="required field">
-                                                    <label>Message</label>
+                                                    <label>Thread Content</label>
                                                     <textarea rows="8" id="content" name="content" placeholder="Enter a thread message"></textarea>
                                                 </div>
                                                 <div class="field text-center">
-                                                        <div class="ui teal submit button">Submit</div>
+                                                        <input class="ui teal submit button" type="submit" name="btn" value="Create">
                                                     <div class="ui reset button">Clear</div>
                                                     <div class="ui error message"></div>
                                                 </div>
@@ -59,6 +59,59 @@
                                 {% for thread in threads %}
                                     <div class="ui raised segment">
                                         <div class="ui grid">
+                                            {% if is_prof %}
+                                                <a class="ui mini secondary right corner label" data-toggle="modal" data-target="#d{{ thread.tid }}">
+                                                    <i class="icon trash alternate outline popup" data-content="Delete" data-variation="inverted mini" data-position="top center"></i>
+                                                </a>
+                                                <div class="modal fade" id="d{{ thread.tid }}" tabindex="-1" role="dialog" aria-labelledby="d{{ thread.tid }}" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header text-center">
+                                                                <h4 class="modal-title w-100 font-weight-bold">Are you sure you want to delete this thread?</h4>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true" style="float: right">&times;</span>
+                                                                </button> 
+                                                            </div>
+                                                            <div class="modal-body mx-3">
+                                                                <form class="ui form" method='POST'>
+                                                                    <input type="hidden" id="tid" name="tid" value="{{ thread.tid }}">
+                                                                    <div class="field">
+                                                                        <div class="disabled field">
+                                                                            <label>Author</label>
+                                                                            <input type="text" placeholder="{{ thread.creator.name }}"> 
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="disabled field">
+                                                                        <label>Thread Title</label>
+                                                                        <input placeholder="{{ thread.title }}">
+                                                                    </div>
+                                                                    <div class="disabled field">
+                                                                        <label>Thread Content</label>
+                                                                    </div>
+                                                                    <div class="ui segment fluid" style="max-height: 20rem; overflow: auto; color: #b0b9c0;">
+                                                                        {% for para in thread.content.split('\n') %}
+                                                                            <p style="margin: 0">{{ para }}</p>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                    <div style="color: #b0b9c0; font-size: 9pt; font-weight: 600">
+                                                                        Number of Posts: 
+                                                                        {% set postcount = posts.query.filter_by(fid=fid, tid=thread.tid).count() %}
+                                                                        {% if postcount == 1 %}
+                                                                            <i>None</i>
+                                                                        {% else %}
+                                                                            {{ postcount-1 }}
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    <div class="field text-center">
+                                                                        <input class="ui red submit button" type="submit" name="btn" value="Delete">
+                                                                        <div class="ui button" data-dismiss="modal">Close</div>
+                                                                    </div>
+                                                                </form>       
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
                                             <div class="nine wide column">
                                                 <a href="{{ url_for('profile', id=thread.id) }}" style="float: left; margin-right: 1em">
                                                     <img src="{{ url_for('static', filename='profile_pictures/' + thread.creator.image_file) }}" style="height: 50px; width: 50px; border-radius: 10px">
@@ -78,7 +131,7 @@
                                                 </div>
                                             </div>
                                             <div class="two wide column">
-                                                <div style="font-size: 9pt; padding: 1em 0">
+                                                <div style="font-size: 9pt; padding-top: 1.5em">
                                                     <i class="icon comments outline"></i>
                                                     {% set postcount = posts.query.filter_by(fid=fid, tid=thread.tid).count() %}
                                                     {% if postcount == 1 %}
@@ -91,15 +144,16 @@
                                                 </div>
                                             </div>
                                             <div class="two wide column">
-                                                <div style="font-size: 9pt; padding: 1em 0"><i class="icon eye"></i> Views</div>
+                                                <div style="font-size: 9pt; padding-top: 1.5em"><i class="icon eye"></i> Views</div>
                                             </div>
                                             <div class="two wide column">
-                                                <div style="font-size: 9pt; padding: .3em 0">
+                                                <div style="font-size: 9pt; padding-top: 1em">
                                                     Last reply:<br>
                                                     {% if postcount == 1 %}
                                                         <i style="color: #b0b9c0">None</i>
                                                     {% else %}
-                                                        {{ time_ago(posts.query.filter_by(fid=fid, tid=thread.tid).order_by(posts.date_posted.desc()).first().date_posted) }}
+                                                        {% set timing = posts.query.filter_by(fid=fid, tid=thread.tid).order_by(posts.date_posted.desc()).first().date_posted %}
+                                                        <div class="popup" data-content="{{ timing.strftime('%d %B %Y %H:%M') }}" data-variation="inverted mini" data-position="top center">{{ time_ago(timing) }}</div>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -124,9 +178,9 @@
                     <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
                         <div class="container-fluid mt-4">
                             <div class="content-section">
-                                <h6 class="text-muted">{{ forum.creator.cid }}</h6>
+                                <h6 class="text-muted">{{ forum.prof.cid }}</h6>
                                 <h4>{{ forum.title }}</h4>
-                                <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=forum.creator.pid) }}">{{ forum.creator.info.name }}</a></h6>
+                                <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=forum.prof.pid) }}">{{ forum.prof.info.name }}</a></h6>
                                 <div class="ui accordion">
                                     <div class="title">
                                       <i class="dropdown icon"></i>

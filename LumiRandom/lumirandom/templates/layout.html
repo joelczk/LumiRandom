@@ -9,6 +9,7 @@
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap4.min.css" rel="stylesheet"/>
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
 		{% if title %}
@@ -28,156 +29,271 @@
 			-moz-background-size: cover;
 			-o-background-size: cover;
 			background-size : cover
-		}
+        }
 	</style>
-	<body class = "bg">
+	<body class="bg">
 		<header class="site-header">
-			<nav class="navbar navbar-expand-md navbar-dark bg-steel navbar-1 fixed-top">
-				<div class="container">
-					<a class="navbar-brand mr-4" href="/home">LumiRandom</a>
-					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
-						<span class="navbar-toggler-icon"></span>
-					</button>
-					<div class="collapse navbar-collapse" id="navbarToggle">
-						<div class="navbar-nav mr-auto">
-							<a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
-						</div>
-
-						<!-- Navbar Right Side -->
-						<div class="navbar-nav">
-							{% if current_user.is_authenticated %}
-								{% for role in current_user.roles() %}
-								{% if role == 'Professor' %}
-									<div class="dropdown">
-										<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonProf" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-												Professor <i class="fa fa-tasks ml-2"></i>
-										</button>
-										<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButtonStudent", style="width: 20rem; padding-right: 20px">
-											<div class="container-fluid">
-												<div class="row justify-content-left">
-													<div class="col-sm-4">
-														<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('my_tas')}}">
-															<div class="card-body menu-icon">
-																<i class="fa fa-child fa-2x" style="color: #5f788a"></i>
-																<br><h6 class="text-muted"><small><small>My TAs</small></small></h6>
-															</div>
-														</a>
-													</div>
-													<div class="col-sm-4">
-														<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('prof_groups')}}">
-															<div class="card-body menu-icon">
-																<i class="fa fa-users fa-2x" style="color: #5f788a"></i>
-																<br><h6 class="text-muted"><small><small>Groups</small></small></h6>
-															</div>
-														</a>
-													</div>
-													<div class="col-sm-4">
-														<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('prof_forums') }}">
-															<div class="card-body menu-icon">
-																<i class="fa fa-comment fa-2x" style="color: #5f788a"></i>
-																<br><h6 class="text-muted"><small><small>Forums</small></small></h6>						
-															</div>
-														</a>
-													</div>
-												</div>
-											</div>
-										</div>
-									</div>	
-								{% elif role == 'Student' %}
-								<div class="dropdown">
-									<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStudent" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											Student <i class="fa fa-tasks ml-2"></i>
-									</button>
-									<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButtonStudent", style="width: 20rem; padding-right: 20px">
-										<div class="container-fluid">
-											<div class="row justify-content-left">
-												<div class="col-sm-4">
-													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('modules')}}">
-														<div class="card-body menu-icon">
-															<i class="fa fa-book fa-2x" style="color: #5f788a"></i>
-															<br><h6 class="text-muted"><small><small>My Modules</small></small></h6>
-														</div>
-													</a>
-												</div>
-												<div class="col-sm-4">
-													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('module_search')}}">
-														<div class="card-body menu-icon">
-															<i class="fa fa-search fa-2x" style="color: #5f788a"></i>
-															<br><h6 class="text-muted"><small><small>Module Search</small></small></h6>
-														</div>
-													</a>
-												</div>
-												<div class="col-sm-4">
-													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('my_groups')}}">
-														<div class="card-body menu-icon">
-															<i class="fa fa-users fa-2x" style="color: #5f788a"></i>
-															<br><h6 class="text-muted"><small><small>Groups</small></small></h6>
-														</div>
-													</a>
-												</div>
-												<div class="col-sm-4">
-													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('student_list', query=None) }}">
-														<div class="card-body menu-icon">
-															<i class="fa fa-address-book-o fa-2x" style="color: #5f788a"></i>
-															<br><h6 class="text-muted"><small><small>Student List</small></small></h6>
-														</div>
-													</a>
-												</div>
-												<div class="col-sm-4">
-													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('prof_list') }}">
-														<div class="card-body menu-icon">
-															<i class="fa fa-address-book fa-2x" style="color: #5f788a"></i>
-															<br><h6 class="text-muted"><small><small>Professor List</small></small></h6>
-														</div>
-													</a>
-												</div>
-												<div class="col-sm-4">
-													<a class="card unref bg-paleblue menu-icon-box" href="{{ url_for('student_forums') }}">
-														<div class="card-body menu-icon">
-															<i class="fa fa-comment fa-2x" style="color: #5f788a"></i>
-															<br><h6 class="text-muted"><small><small>Forums</small></small></h6>						
-														</div>
-													</a>
-												</div>
-											</div>	
-										</div>
-									</div>
-								</div>
-								{% endif %}
-								{% endfor %}
-								<div class="dropdown">
-									<button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											<img class="rounded-circle nav-img" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}">
-									</button>
-									<div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButton" style="width: 20rem">
-										<div>
-											<div style="display: inline-block">
-												<a class="container" href="{{ url_for('profile', id=current_user.id) }}">
-													<img class="rounded-circle menu-img fadeimage" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}">
-												</a>
-											</div>
-											<div class="menu-profile">
-												<div class="text-muted" ><b><small>{{ current_user.id }}</small></b></div>
-												<div>{{ current_user.name }}</div>
-											</div>
-										</div>
-										<div class="menu-footer">
-											<a class="btn btn-info btn-sm mt-1 mr-2" style="float: right;" href="{{ url_for('logout') }}">Logout</a>
-										</div>
-										
-									</div>
-								</div>
-							{% else %}
-								<a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
-								<a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>
-							{% endif %}
-				  		</div>
-					</div>
-			 	</div>
-			</nav>
-		</header>
-		<div style="padding: 2.5rem 0"></div>
-		<main role="main" class="container">
+            <nav class="navbar navbar-expand-md navbar-dark bg-steel navbar-1 fixed-top">
+                <div class="container lumirandom ml-4" style="width: 15rem;"> 
+                    <a class="navbar-brand mr-4" href="/home" style="text-transform: uppercase; letter-spacing: 2px;">
+                        <div id="nav-menu-sidebar"><i class="icon cube big" style="color: white; margin: 0px"></i>
+                        <font size="+2">L</font>umi<font size="+2">R</font>andom</div> 
+                    </a>
+                </div>
+                    <div class="ui button basic navbar-toggler" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false">
+                        <i class="icon bars" style="color: #cbd5db"></i>
+                    </div>
+                    <div class="collapse navbar-collapse" id="navbarToggle">
+                        <div class="navbar-nav mr-auto">
+                            <a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
+                        </div>
+                        <!-- Navbar Right Side -->
+                        <div class="navbar-nav">
+                            <div class="dropdown mr-4">
+                                <button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <img class="rounded-circle nav-img" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}">
+                                </button>
+                                <div class="bg-paleblue dropdown-menu dropdown-menu-right menu-content" aria-labelledby="dropdownMenuButton" style="width: 20rem">
+                                    <div>
+                                        <div style="display: inline-block">
+                                            <a class="container" href="{{ url_for('profile', id=current_user.id) }}">
+                                                <img class="rounded-circle menu-img fadeimage" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}">
+                                            </a>
+                                        </div>
+                                        <div class="menu-profile">
+                                            <div class="text-muted" ><b><small>{{ current_user.id }}</small></b></div>
+                                            <div>{{ current_user.name }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="menu-footer">
+                                        <a class="btn btn-info btn-sm mt-1 mr-2" style="float: right;" href="{{ url_for('logout') }}">Logout</a>
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>   
+        </header>
+        <div class="ui left fixed secondary vertical pointing inverted menu nav-sidebar hidden-sidebar sidebar-menu" id="nav-sidebar" style="min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5);">   
+            <div class="border-bottom" style="text-align: center; text-transform: uppercase; letter-spacing: 2px; color: white; padding: 1em">
+                <a class="unrefany" href="{{ url_for('home') }}" style="color: white">
+                    <i class="icon cube huge logo-anim" style="color: white"></i>
+                    <br><font size="+2">L</font>umi<font size="+2">R</font>andom
+                </a>
+            </div>
+            {% set roles = current_user.roles() %}
+                <div class="item border-bottom" style="letter-spacing: 1px;">
+                    <div class="ui accordion">
+                        <div class="active title" style="color: white"><b>GENERAL</b><i class="dropdown icon" style="float: right; color: white"></i></div>
+                        <div class="active content">
+                            <div class="menu">
+                                <a class="item">Announcements</a>
+                                {% if 'Professor' in roles %}
+                                    <a class="item" href="{{ url_for('prof_module_search') }}">Module Search</a>
+                                {% else %}
+                                    <a class="item" href="{{ url_for('module_search') }}">Module Search</a>
+                                {% endif %}
+                                <a class="item" href="{{ url_for('student_list') }}">Student List</a>
+                                <a class="item" href="{{ url_for('prof_list') }}">Professor List</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="item border-bottom" style="letter-spacing: 1px;">
+                    <div class="ui accordion">
+                        <div class="active title" style="color: white"><b>ESSENTIALS</b><i class="dropdown icon" style="float: right; color: white"></i></div>
+                        <div class="active content">
+                            <div class="menu">
+                                {% if 'Professor' in roles %}
+                                    <a class="item" href="{{ url_for('module_take') }}">My Module</a>
+                                    <a class="item" href="{{ url_for('my_tas') }}">My Teaching Assistants</a>
+                                    <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;" id="dropdown-filter">
+                                        <i class="icon caret right" style="color: #d7dadd;"></i>
+                                        <a class="unrefany" href="{{ url_for('prof_groups') }}"><div class="menu-dropdown-item">Groups</div></a>
+                                        <div class="menu" style="margin-left: 1.8em; background-color: black; background:rgba(0, 0, 0, 0.5);">
+                                            {% if pgroups %}
+                                            <div class="ui icon search input" id="searchme">
+                                                <i class="search icon" style="color: white"></i>
+                                                <input type="text" style="background-color: transparent; color: white; border: none; border-bottom: 1px solid white;" placeholder="Search Groups...">
+                                            </div>
+                                            <div class="divider" style=" min-width: 20rem;"></div>
+                                            <div class="scrolling menu" style="background-color: transparent;">
+                                                {% for group in pgroups|sort(attribute='gname') %}
+                                                    <a class="item" style="min-width: 20rem;" href="{{ url_for('group', gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.gname }}</div></a>
+                                                {% endfor %}
+                                            </div>
+                                            {% else %}
+                                                <a class="item" style="min-width: 20rem;"><i>None</i></a> 
+                                            {% endif %}
+                                        </div>
+                                    </div> 
+                                    <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;" id="dropdown-filter">
+                                        <i class="icon caret right" style="color: #d7dadd;"></i>
+                                        <a class="unrefany" href="{{ url_for('prof_forums') }}"><div class="menu-dropdown-item">Forums</div></a>
+                                        <div class="menu" style="margin-left: 1.8em; background-color: black; background:rgba(0, 0, 0, 0.5);">
+                                            {% if pforums %}
+                                            <div class="ui icon search input">
+                                                <i class="search icon" style="color: white"></i>
+                                                <input type="text" style="background-color: transparent; color: white; border: none; border-bottom: 1px solid white;" placeholder="Search Forums...">
+                                            </div>
+                                            <div class="divider" style=" min-width: 20rem;"></div>
+                                            <div class="scrolling menu" style="background-color: transparent;">
+                                                {% for forum in pforums|sort(attribute='title') %}
+                                                    <a class="item" style="min-width: 20rem;" href="{{ url_for('forum', cid=forum.prof.cid, fid=forum.fid) }}"><div class="menu-dropdown-item">{{ forum.title }}</div></a>
+                                                {% endfor %}
+                                            </div>
+                                            {% else %}
+                                                <a class="item" style="min-width: 20rem;"><i>None</i></a> 
+                                            {% endif %}
+                                        </div>
+                                    </div> 
+                                {% else %}
+                                    <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;">
+                                        <i class="icon caret right" style="color: #d7dadd;"></i>
+                                        <a class="unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item">My Modules</div></a>
+                                        <div class="menu" style="margin-left: 1.8em; background-color: black; background:rgba(0, 0, 0, 0.5);">
+                                            {% for mod in scourses|sort(attribute='cid') %}
+                                                <a class="item" style="min-width: 20rem;" href="{{ url_for('module_take', cid=mod.cid) }}">
+                                                    <div class="menu-dropdown-item"><div style="color: white; font-size: 9.5pt">{{ mod.cid }}</div><br>{{ mod.courseinfo.cname }}</div>
+                                                </a>
+                                            {% endfor %}
+                                        </div>
+                                    </div> 
+                                    <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;" id="dropdown-filter">
+                                        <i class="icon caret right" style="color: #d7dadd;"></i>
+                                        <a class="unrefany" href="{{ url_for('my_groups') }}"><div class="menu-dropdown-item">Groups</div></a>
+                                        <div class="menu" style="margin-left: 1.8em; background-color: black; background:rgba(0, 0, 0, 0.5);">
+                                            {% if sgroups %}
+                                            <div class="ui icon search input">
+                                                <i class="search icon" style="color: white"></i>
+                                                <input type="text" style="background-color: transparent; color: white; border: none; border-bottom: 1px solid white;" placeholder="Search Groups...">
+                                            </div>
+                                            <div class="divider" style=" min-width: 20rem;"></div>
+                                            <div class="scrolling menu" style="background-color: transparent;">
+                                                {% for mod in sgroups|sort %}
+                                                    <div class="header"><a class="unrefany" href="{{ url_for('module_take', cid=mod) }}">
+                                                        <div style="font-size: 10pt; letter-spacing: 2px; color: white">{{ mod }}</div>
+                                                    </a></div>
+                                                    <div class="inverted divider" style="background-color:#d7dadd"></div>
+                                                    {% for group in sgroups[mod]|sort(attribute='groupinfo.gname') %}
+                                                        <a class="item" style="min-width: 20rem;" href="{{ url_for('group', gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.groupinfo.gname }}</div></a>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </div>
+                                            {% else %}
+                                                <a class="item" style="min-width: 20rem;"><i>None</i></a> 
+                                            {% endif %}
+                                        </div>
+                                    </div> 
+                                    <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;">
+                                        <i class="icon caret right" style="color: #d7dadd;"></i>
+                                        <a class="unrefany" href="{{ url_for('student_forums') }}"><div class="menu-dropdown-item">Forums</div></a>
+                                        <div class="menu" style="margin-left: 1.8em; background-color: black; background:rgba(0, 0, 0, 0.5);">
+                                        {% if sforums %}
+                                            <div class="ui icon search input">
+                                                <i class="search icon" style="color: white"></i>
+                                                <input type="text" style="background-color: transparent; color: white; border: none; border-bottom: 1px solid white;" placeholder="Search Forums...">
+                                            </div>
+                                            <div class="divider" style=" min-width: 20rem;"></div>
+                                            <div class="scrolling menu" style="background-color: transparent;">
+                                                {% for mod in sforums|sort %}
+                                                    <div class="header"><a class="unrefany" href="{{ url_for('module_take', cid=mod) }}">
+                                                        <div style="font-size: 10pt; letter-spacing: 2px; color: white">{{ mod }}</div>
+                                                    </a></div>
+                                                    <div class="inverted divider" style="background-color:#d7dadd"></div>
+                                                    {% for forum in sforums[mod]|sort(attribute='info.title') %}
+                                                        <a class="item" style="min-width: 20rem;" href="{{ url_for('forum', cid=mod, fid=forum.fid) }}"><div class="menu-dropdown-item">{{ forum.info.title }}</div></a>
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </div>
+                                            {% else %}
+                                                <a class="item" style="min-width: 20rem;"><div style="font-style: italic; color:#d7dadd">None</div></a>                                         
+                                            {% endif %}
+                                        </div>
+                                    </div> 
+                                {% endif %} 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if 'TA' in roles %}
+                <div class="item border-bottom" style="letter-spacing: 1px;">
+                    <div class="ui accordion">
+                        <div class="active title" style="color: white"><b>TA STUFF</b><i class="dropdown icon" style="float: right; color: white"></i></div>
+                        <div class="active content">
+                            <div class="menu">
+                                <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;" id="dropdown-filter">
+                                    <i class="icon caret right" style="color: #d7dadd;"></i>
+                                    <a class="unrefany" href="{{ url_for('ta_groups') }}"><div class="menu-dropdown-item">Groups</div></a>
+                                    <div class="menu" style="margin-left: 1.8em; background-color: black; background:rgba(0, 0, 0, 0.5);">
+                                        {% if tagroups %}
+                                        <div class="ui icon search input">
+                                            <i class="search icon" style="color: white"></i>
+                                            <input type="text" style="background-color: transparent; color: white; border: none; border-bottom: 1px solid white;" placeholder="Search Groups...">
+                                        </div>
+                                        <div class="divider" style=" min-width: 20rem;"></div>
+                                        <div class="scrolling menu" style="background-color: transparent;">
+                                            <div class="header"><a class="unrefany" href="{{ url_for('module_take', cid=tagroups[0].prof.cid) }}">
+                                                <div style="font-size: 10pt; letter-spacing: 2px; color: white">{{ tagroups[0].prof.cid }}</div>
+                                            </a></div>
+                                            <div class="inverted divider" style="background-color:#d7dadd"></div>
+                                            {% for group in tagroups|sort(attribute='gname') %}
+                                                <a class="item" style="min-width: 20rem;" href="{{ url_for('group', gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.gname }}</div></a>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                            <a class="item" style="min-width: 20rem;"><i>None</i></a> 
+                                        {% endif %}
+                                    </div>
+                                </div> 
+                                <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;">
+                                    <i class="icon caret right" style="color: #d7dadd;"></i>
+                                    <a class="unrefany" href="{{ url_for('ta_forums') }}"><div class="menu-dropdown-item">Forums</div></a>
+                                    <div class="menu" style="margin-left: 1.8em; background-color: black; background:rgba(0, 0, 0, 0.5);">
+                                    {% if taforums %}
+                                        <div class="ui icon search input">
+                                            <i class="search icon" style="color: white"></i>
+                                            <input type="text" style="background-color: transparent; color: white; border: none; border-bottom: 1px solid white;" placeholder="Search Forums...">
+                                        </div>
+                                        <div class="divider" style=" min-width: 20rem;"></div>
+                                        <div class="scrolling menu" style="background-color: transparent;">
+                                            <div class="header"><a class="unrefany" href="{{ url_for('module_take', cid=taforums[0].info.prof.cid) }}">
+                                                <div style="font-size: 10pt; letter-spacing: 2px; color: white">{{ taforums[0].info.prof.cid }}</div>
+                                            </a></div>
+                                            <div class="inverted divider" style="background-color:#d7dadd"></div>
+                                            {% for forum in taforums|sort(attribute='info.title') %}
+                                                <a class="item" style="min-width: 20rem;" href="{{ url_for('forum', cid=taforums[0].info.prof.cid, fid=forum.fid) }}"><div class="menu-dropdown-item">{{ forum.info.title }}</div></a>
+                                            {% endfor %}
+                                        </div>
+                                        {% else %}
+                                            <a class="item" style="min-width: 20rem;"><div style="font-style: italic; color:#d7dadd">None</div></a>                                         
+                                        {% endif %}
+                                    </div>
+                                </div> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="item border-bottom" style="letter-spacing: 1px;">
+                <div class="ui accordion">
+                    <div class="title" style="color: white"><b>EXTRAS</b><i class="dropdown icon" style="float: right; color: white"></i></div>
+                    <div class="content">
+                        <div class="menu">
+                            <a class="item">What's New?</a>
+                            <a class="item">Calendar</a>
+                            {% if 'Professor' not in roles %}
+                                <a class="item">Get A For CS2102!!</a>
+                                <a class="item" href="{{ url_for('ta_signup') }}">Teaching Assistant Signup!</a>
+                            {% endif %}                               
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 2.5rem 0;"></div>
+		<main role="main" class="container next-page">
 			<div class="col-md-14">
 				{% with messages = get_flashed_messages(with_categories=true) %}
 					{% if messages %}
@@ -193,8 +309,8 @@
 				{% endwith %}
 				{% block search %}{% endblock %}
 				{% block content %}{% endblock %}
-			</div>
+            </div>
 		</main> 
-		{% include 'scripts.html' %}
+        {% include 'scripts.html' %}
 	</body>
 </html>

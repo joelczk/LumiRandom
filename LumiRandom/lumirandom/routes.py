@@ -1,8 +1,8 @@
 import os
 from lumirandom import app, db, bcrypt
 from lumirandom.forms import RegistrationForm, LoginForm, UpdateAccountForm
-from lumirandom.models import User, Students, Courses, TakenCourses, Professors, TeachingAssistants, Groups, GroupInfo, Forums, ForumInfo, Threads, Posts, role_required
-from flask import render_template, url_for, flash, redirect, request, abort
+from lumirandom.models import User, Students, Courses, TakenCourses, Professors, TeachingAssistants, Groups, GroupInfo, Forums, ForumInfo, Threads, Posts, Ratings, role_required
+from flask import render_template, url_for, flash, redirect, request, abort, g
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import func
 import secrets
@@ -14,6 +14,7 @@ import psycopg2
 
 cur_year = '2019/2020'
 cur_sem = 1
+
 
 # Convert time to time ago from current time
 def time_ago(time=False):
@@ -60,6 +61,22 @@ def time_ago(time=False):
         return "a year ago"
     return str(day_diff // 365) + " years ago"
 
+def forums_sort_cid(X):
+    result = {}
+    for x in X:
+        if x.info.prof.cid not in result:
+            result[x.info.prof.cid] = []
+        result[x.info.prof.cid].append(x)
+    return result
+
+def groups_sort_cid(X):
+    result = {}
+    for x in X:
+        if x.groupinfo.prof.cid not in result:
+            result[x.groupinfo.prof.cid] = []
+        result[x.groupinfo.prof.cid].append(x)
+    return result
+
 def sort_posts(posts):
     child_parent_list = []
     for post in posts:
@@ -81,6 +98,33 @@ def sort_posts(posts):
         if key not in has_parent:
             result[key] = value
     return result
+
+def find_rating(ratings):
+    if not ratings:
+        return 0
+    count = 0
+    sum = 0
+    for rating in ratings:
+        sum += rating.rating
+        count += 1
+    return format(sum/count, '.2f')
+
+@app.context_processor
+def inject_info():
+    if current_user.is_authenticated:
+        return dict(scourses=TakenCourses.query.filter(TakenCourses.sid==current_user.id, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem).order_by(TakenCourses.cid.asc()).all(), \
+            sgroups=groups_sort_cid(GroupInfo.query.filter_by(sid=current_user.id).all()), \
+                sforums=forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all()), \
+                    pgroups=Groups.query.filter_by(pid=current_user.id).all(), pforums=Forums.query.filter_by(pid=current_user.id).all(), \
+                        tagroups=Groups.query.filter_by(sid=current_user.id).all(), taforums=ForumInfo.query.join(Groups, ForumInfo.gid==Groups.gid).filter(Groups.sid==current_user.id).all())
+    else:
+         return dict()
+
+
+@app.route("/temp")
+def temp():
+    return render_template('layout2.html')
+
 
 @app.route("/", methods=['GET', 'POST'])
 def login():
@@ -206,66 +250,60 @@ def update_profile():
 @login_required
 @role_required(role='Student')
 def modules():
-    takingmods = TakenCourses.query.filter(TakenCourses.sid==current_user.id, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem)
-    takenmods = TakenCourses.query.filter(TakenCourses.sid==current_user.id, TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).order_by(TakenCourses.year.desc(), TakenCourses.sem.desc())
+    takingmods = TakenCourses.query.filter(TakenCourses.sid==current_user.id, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem).all()
+    takenmods = TakenCourses.query.filter(TakenCourses.sid==current_user.id, TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).order_by(TakenCourses.year.desc(), TakenCourses.sem.desc()).all()
     mods = Courses()
     profs = Professors()
     return render_template('mymodules.html', title='My Modules', takingmods=takingmods, takenmods=takenmods, mods=mods, profs=profs, cur_year=cur_year, cur_sem=cur_sem)
 
 
-@app.route("/module-search", methods=['GET', 'POST'])
-@app.route("/module-search/search/<string:query>", methods=['GET', 'POST'])
+@app.route("/module-search")
 @login_required
-def module_search(query=None):
-    prof = Professors()
-    if request.method == "POST":
-        cid = request.form['search']
-        if len(cid) <= 1:
-            flash(f'Please enter more than 1 character!','warning')
-        else:
-            return redirect(url_for('module_search', query=cid))
-    if query:
-        querystr = '%' + query + '%'
-        page = request.args.get('page', 1, type=int)
-        courses = Courses.query.filter(Courses.cid.like(querystr)).order_by(Courses.cid.asc()).paginate(page=page, per_page=15)
-        return render_template('module_search.html', title='Module Search', courses=courses, taken=TakenCourses(), prof=prof, query=query, cur_year=cur_year, cur_sem=cur_sem)
-    page = request.args.get('page', 1, type=int)
-    courses = Courses.query.order_by(Courses.cid.asc()).paginate(page=page, per_page=15)
-    return render_template('module_search.html', title='Module Search', courses=courses, taken=TakenCourses(), prof=prof, query=query, cur_year=cur_year, cur_sem=cur_sem)
+@role_required(role='Student')
+def module_search():
+    courses = Courses.query.order_by(Courses.cid.asc()).all()
+    return render_template('module_search.html', title='Module Search', courses=courses, taken=TakenCourses, prof=Professors, cur_year=cur_year, cur_sem=cur_sem)
+
+@app.route("/prof/module-search")
+@login_required
+@role_required(role='Professor')
+def prof_module_search():
+    courses = Courses.query.order_by(Courses.cid.asc()).all()
+    return render_template('prof_module_search.html', title='Module Search', courses=courses, prof=Professors)
 
 
-@app.route("/module/<string:cid>", methods=['GET', 'POST'])
+@app.route("/module-info/<string:cid>", methods=['GET', 'POST'])
 @login_required
 def module(cid):
     Courses.query.get_or_404(cid)
     module = Courses.query.filter_by(cid=cid).first()
-    connection = psycopg2.connect(user = "postgres", password = "Jczk1241", host = "localhost", port = "5432", database = "postgres")
-    print('psql connected')
-    cursor = connection.cursor()
-    query = ("With studentGrades(sid, cid, year,sem, grade) AS\
-                (SELECT sid, cid, year, sem, CASE\
-	                WHEN grade = 'A+' then 5.0\
-                	WHEN grade = 'A'  then 5.0\
-                	WHEN grade = 'A-' then 4.5\
-	                WHEN grade = 'B+' then 4.0\
-	                WHEN grade = 'B'  then 3.5\
-	                WHEN grade = 'B-' then 3.0\
-	                WHEN grade = 'C+' then 2.5\
-	                WHEN grade = 'D+' then 1.5\
-	                WHEN grade = 'D'  then 1.0\
-	                WHEN grade = 'F'  then 0\
-                END AS numGrade\
-                FROM takencourses\
-                WHERE grade IS NOT NULL\
-                GROUP BY sid ,cid, year, sem),\
-                AverageGPA as (\
-                    SELECT cid,year,sem,ROUND(AVG(grade),2) AS GPA\
-                        FROM studentGrades\
-                        WHERE cid = '" + str(cid) + "'\
-                        GROUP BY cid, year,sem)\
-                SELECT year,sem,coalesce(GPA,0.00) as GPA from AverageGPA;")
-    cursor.execute(query)
-    results = cursor.fetchall()
+    # connection = psycopg2.connect(user = "postgres", password = "Jczk1241", host = "localhost", port = "5432", database = "postgres")
+    # # print('psql connected')
+    # cursor = connection.cursor()
+    # query = ("With studentGrades(sid, cid, year,sem, grade) AS\
+    #             (SELECT sid, cid, year, sem, CASE\
+	#                 WHEN grade = 'A+' then 5.0\
+    #             	WHEN grade = 'A'  then 5.0\
+    #             	WHEN grade = 'A-' then 4.5\
+	#                 WHEN grade = 'B+' then 4.0\
+	#                 WHEN grade = 'B'  then 3.5\
+	#                 WHEN grade = 'B-' then 3.0\
+	#                 WHEN grade = 'C+' then 2.5\
+	#                 WHEN grade = 'D+' then 1.5\
+	#                 WHEN grade = 'D'  then 1.0\
+	#                 WHEN grade = 'F'  then 0\
+    #             END AS numGrade\
+    #             FROM takencourses\
+    #             WHERE grade IS NOT NULL\
+    #             GROUP BY sid ,cid, year, sem),\
+    #             AverageGPA as (\
+    #                 SELECT cid,year,sem,ROUND(AVG(grade),2) AS GPA\
+    #                     FROM studentGrades\
+    #                     WHERE cid = '" + str(cid) + "'\
+    #                     GROUP BY cid, year,sem)\
+    #             SELECT year,sem,coalesce(GPA,0.00) as GPA from AverageGPA;")
+    # cursor.execute(query)
+    # results = cursor.fetchall()
     # print(results)
     if TakenCourses.query.filter_by(sid=current_user.id, cid=cid).filter(TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).first():
         status = "taken"
@@ -275,7 +313,9 @@ def module(cid):
         status = "unavailable"
     else:
         status = "nil"
-    return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, results = results)
+    prof = Professors.query.filter_by(cid=cid).first()
+    return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, prof=prof)
+    # return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, prof=prof, results=results)
 
 
 @app.route("/module/<string:cid>/enrol", methods=['GET', 'POST'])
@@ -313,6 +353,24 @@ def module_withdraw(cid):
     return redirect(url_for('module', cid=cid))
 
 
+@app.route("/module")
+@app.route("/module/<string:cid>")
+@login_required
+def module_take(cid=None):
+    if cid == None:
+        if Professors.query.get(current_user.id):
+            cid = Professors.query.get(current_user.id).cid
+        else:
+            abort(404)
+    mod = Courses.query.get_or_404(cid)
+    students = TakenCourses.query.filter_by(cid=cid, year=cur_year, sem=cur_sem).all()
+    prof = Professors.query.filter_by(cid=cid).first()
+    groups = Groups.query.filter_by(pid=prof.pid).all()
+    is_student = TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem).first()
+    return render_template('module_take.html', title=cid + ' ' +  mod.cname, mod=mod, students=students, groups=groups, Groups=Groups, groupinfo=GroupInfo, prof=prof, is_student=is_student, year=cur_year, sem=cur_sem)
+
+
+
 @app.route("/student_list/", methods=['GET', 'POST'])
 @app.route("/student_list/search/<string:query>", methods=['GET', 'POST'])
 @login_required
@@ -331,12 +389,6 @@ def student_list(query=None):
     page = request.args.get('page', 1, type=int)
     students = Students.query.join(User, Students.sid==User.id).order_by(Students.year.asc(), User.name.asc()).paginate(page=page, per_page=15)
     return render_template('student_list.html', title='Student List', students=students, query=query)
-
-
-@app.route("/tutors")
-@login_required
-def staff():
-    return render_template("staff.html", title='Tutors')
 
 
 @app.route("/ta/signup", methods=['GET', 'POST'])
@@ -406,24 +458,11 @@ def ta_withdraw(cid):
   
 
 
-@app.route("/prof_list", methods=['GET', 'POST'])
-@app.route("/prof_list/search/<string:query>", methods=['GET', 'POST'])
+@app.route("/prof_list")
 @login_required
-def prof_list(query=None):
-    if request.method == "POST":
-        p_name = request.form['search']
-        if len(p_name) <= 1:
-            flash(f'Please enter more than 1 character!','warning')
-        else:
-            return redirect(url_for('prof_list', query=p_name))
-    if query:
-        querystr = '%' + query + '%'
-        page = request.args.get('page', 1, type=int)
-        profs = Professors.query.join(User, Professors.pid==User.id).filter(User.name.like(querystr)).order_by(User.name.asc()).paginate(page=page, per_page=15)
-        return render_template('prof_list.html', title='Professor List', profs=profs, query=query)
-    page = request.args.get('page', 1, type=int)
-    profs = Professors.query.join(User, Professors.pid==User.id).order_by(User.name.asc()).paginate(page=page, per_page=15)
-    return render_template('prof_list.html', title='Professor List', profs=profs, query=query)
+def prof_list():
+    profs = Professors.query.join(User, Professors.pid==User.id).order_by(User.name.asc()).all()
+    return render_template('prof_list.html', title='Professor List', profs=profs)
 
 
 @app.route("/prof/mytas")
@@ -484,6 +523,7 @@ def my_groups():
     user = User()
     return render_template('my_groups.html', title='Groups', groups=groups, groupinfo=GroupInfo(), user=user)
 
+
 @app.route("/group/<int:gid>")
 @login_required
 def group(gid):
@@ -503,6 +543,15 @@ def group(gid):
         return render_template('group.html', title='Group', group=group, students=students, size=size, user=User())
     else:
         abort(403)
+
+
+@app.route("/ta/groups")
+@login_required
+@role_required(role='TA')
+def ta_groups():
+    groups = Groups.query.filter_by(sid=current_user.id).all()
+    groupinfo = GroupInfo()
+    return render_template('ta_groups.html', title='TA Groups', groups=groups, groupinfo=groupinfo)
 
 
 @app.route("/prof/groups")
@@ -560,21 +609,27 @@ def create_group():
 @login_required
 def forum(cid, fid):
     if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        # fid = p_fid = request.form['fid']
-        # p_postnum = request.form['post_num']
-        if Threads.query.filter_by(fid=fid).first() == None:
-            tid = 1
-        else:
-            tid = db.session.query(func.max(Threads.tid)).filter(Threads.fid==fid).scalar()+1
-        t = Threads(fid=fid, tid=tid, id=current_user.id, title=title, content=content)
-        p = Posts(fid=fid, tid=tid, post_num=1, id=current_user.id, title=title, content=content, pfid=fid, ptid=tid, ppost_num=None)
-        db.session.add(t)
-        db.session.add(p)
-        db.session.commit()
-        flash(f'Thread created successfully.', 'success')
-        return redirect(url_for('forum', cid=cid, fid=fid))
+        if request.form['btn'] == 'Create':
+            title = request.form['title']
+            content = request.form['content']
+            if Threads.query.filter_by(fid=fid).first() == None:
+                tid = 1
+            else:
+                tid = db.session.query(func.max(Threads.tid)).filter(Threads.fid==fid).scalar()+1
+            t = Threads(fid=fid, tid=tid, id=current_user.id, title=title, content=content)
+            p = Posts(fid=fid, tid=tid, post_num=1, id=current_user.id, title=title, content=content, pfid=fid, ptid=tid, ppost_num=None)
+            db.session.add(t)
+            db.session.add(p)
+            db.session.commit()
+            flash(f'Thread created successfully.', 'success')
+            return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
+        elif request.form['btn'] == 'Delete':
+            tid = request.form['tid']
+            t = Threads.query.get([fid, tid])
+            db.session.delete(t)
+            db.session.commit()
+            flash(f'Thread has been deleted.', 'info')
+            return redirect(url_for('forum', cid=cid, fid=fid))
     if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid:
         abort(404)
     is_student, is_ta, is_prof = (False for i in range(3))
@@ -590,7 +645,7 @@ def forum(cid, fid):
         size = ForumInfo.query.filter_by(fid=fid).count()
         threads = Threads.query.filter_by(fid=fid).order_by(Threads.date_created.asc()).all()
         totalthreads = Threads.query.filter_by(fid=fid).count()
-        return render_template('forums.html', title='Forum - ' + forum.title, forum=forum, groups=groups, size=size, threads=threads, totalthreads=totalthreads, posts=Posts, cid=cid, fid=fid, time_ago=time_ago)
+        return render_template('forums.html', title='Forum - ' + forum.title, forum=forum, groups=groups, size=size, threads=threads, totalthreads=totalthreads, posts=Posts, cid=cid, fid=fid, time_ago=time_ago, is_prof=is_prof)
     else:
         abort(403)
 
@@ -604,8 +659,6 @@ def student_forums():
     return render_template('student_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo(), user=user, time_ago=time_ago)
 
 
-
-
 @app.route("/prof/forum")
 @login_required
 @role_required(role='Professor')
@@ -616,6 +669,13 @@ def prof_forums():
     user = User()
     return render_template('prof_forums.html', title='Forums', forums=forums, foruminfo=foruminfo, user=user, cid=cid, time_ago=time_ago)
 
+
+@app.route("/ta/forum")
+@login_required
+@role_required(role='TA')
+def ta_forums():
+    forums = ForumInfo.query.join(Groups, Groups.gid==ForumInfo.gid).filter(Groups.sid==current_user.id).all()
+    return render_template('ta_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, time_ago=time_ago)
 
 
 @app.route("/prof/create-forum", methods=['GET', 'POST'])
@@ -668,17 +728,50 @@ def create_post(cid, fid):
 @login_required
 def threads(cid, fid, tid):
     if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        pfid = request.form['fid']
-        ptid = request.form['tid']
-        ppostnum = request.form['post_num']
-        postnum = db.session.query(func.max(Posts.post_num)).filter(Posts.fid==fid, Posts.tid==tid).scalar()+1
-        p = Posts(fid=fid, tid=tid, post_num=postnum, id=current_user.id, title=title, content=content, pfid=pfid, ptid=ptid, ppost_num=ppostnum)
-        db.session.add(p)
-        db.session.commit()
-        flash(f'Post created successfully.', 'success')
-        return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
+        if request.form['btn'] == 'Submit':
+            title = request.form['title']
+            content = request.form['content']
+            pfid = fid
+            ptid = tid
+            ppostnum = request.form['post_num']
+            postnum = db.session.query(func.max(Posts.post_num)).filter(Posts.fid==fid, Posts.tid==tid).scalar()+1
+            p = Posts(fid=fid, tid=tid, post_num=postnum, id=current_user.id, title=title, content=content, pfid=pfid, ptid=ptid, ppost_num=ppostnum)
+            db.session.add(p)
+            db.session.commit()
+            flash(f'Post created successfully.', 'success')
+            return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
+        elif request.form['btn'] == 'Delete':
+            postnum = request.form['post_num']
+            p = Posts.query.get([fid, tid, postnum])
+            db.session.delete(p)
+            db.session.commit()
+            flash(f'Post has been deleted.', 'info')
+            return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
+        elif request.form['btn'] == 'Save':
+            postnum = request.form['post_num']
+            title = request.form['title']
+            content = request.form['content']
+            dateedited = datetime.now()
+            Posts.query.get([fid, tid, postnum]).title = title
+            Posts.query.get([fid, tid, postnum]).content = content
+            Posts.query.get([fid, tid, postnum]).date_edited = dateedited
+            if postnum == '1':
+                Threads.query.get([fid, tid]).title = title
+                Threads.query.get([fid, tid]).content = content
+            db.session.commit()
+            flash(f'Post edited successfully.', 'success')
+            return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
+        elif request.form['btn'] == 'Rate':
+            postnum = request.form['post_num']
+            rating = request.form['rating']
+            Posts.query.get([fid, tid, postnum]).rating = rating
+            if Ratings.query.get([fid, tid, postnum, current_user.id]):
+                Ratings.query.get([fid, tid, postnum, current_user.id]).rating = rating
+            else:
+                r = Ratings(fid=fid, tid=tid, post_num=postnum, id=current_user.id, rating=rating)
+                db.session.add(r)
+            db.session.commit()
+            return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
     if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid or not Threads.query.get([fid, tid]):
         abort(404)
     is_student, is_ta, is_prof = (False for i in range(3))
@@ -693,9 +786,11 @@ def threads(cid, fid, tid):
         thread = Posts.query.get([fid, tid, 1])
         posts = Posts.query.filter_by(fid=fid, tid=tid).all()
         posts = sort_posts(posts)
-        return render_template('threads.html', title='Forum Thread - ' + thread.title, forum=forum, thread=thread, p=Posts(), posts=posts, cid=cid, fid=fid, tid=tid, time_ago=time_ago)
+        return render_template('threads.html', title='Forum Thread - ' + thread.title, forum=forum, thread=thread, p=Posts, finfo=ForumInfo, ginfo=GroupInfo, \
+            posts=posts, cid=cid, fid=fid, tid=tid, time_ago=time_ago, is_ta=is_ta, is_prof=is_prof, ratings=Ratings, find_rating=find_rating)
     else:
         abort(403)
+
 
 # @app.route("/test", methods = ['GET', 'POST'])
 # @login_required
@@ -711,6 +806,8 @@ def threads(cid, fid, tid):
 #     for i in results:
 #         print(i[0])
 #     return render_template("test.html", title = "test")
+
+
 
 @app.errorhandler(404)
 def Error404(error):

@@ -139,13 +139,13 @@ a.unref:hover {
   background-color: #d1d8db;
 }
 
-a.unref2:link, a.unref2:visited, a.unref2:active
+.unref2:link, a.unref2:visited, a.unref2:active
 {
   color: #000000;
   text-decoration: none;
 }
 
-a.unref2:hover {
+.unref2:hover {
   background-color: #ebeff1;
 }
 
@@ -162,6 +162,7 @@ div.unref:link, div.unref:visited, div.unref:hover, div.unref:active
 .unrefany:hover {
   text-decoration: none;
 }
+
 
 .hover-light:hover {
   color: #e2e9ec;
@@ -259,12 +260,38 @@ div.menu-profile {
   opacity: 0.8;
 }
 
+.hidden-sidebar {
+  visibility: hidden
+}
+
+.menu-dropdown-item {
+  color: #d7dadd
+}
+.menu-dropdown-item:hover {
+  color: #f4f6f7
+}
+
+.lumirandom {
+  border-radius: 5px
+}
+
+.lumirandom:hover {
+  background-color: #b1bbc7;
+}
+
+#borderless-table tr td {
+  border: 0px !important;
+  padding: 0px;
+}
+
+
 .table-hover tbody tr:hover,
 .table-hover tbody tr:hover td,
 .table-hover tbody tr:hover th{
     background:#22313F !important;
     color:#fff !important;
 }
+
 
 /* .click a {
   display: block

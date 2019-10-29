@@ -17,7 +17,7 @@ def role_required(role='all'):
                 return fn(*args, **kwargs)
             if role == 'Student' and Students.query.get(current_user.id):
                 return fn(*args, **kwargs)
-            elif role == 'TA' and TeachingAssistants.query.filter_by(sid=current_user.id, is_ta='t').first():
+            elif role == 'TA' and TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first():
                 return fn(*args, **kwargs)
             elif role == 'Professor' and Professors.query.get(current_user.id):
                 return fn(*args, **kwargs)
@@ -31,7 +31,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.String(10), primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     image_file = db.Column(db.String(100), nullable=False, server_default='default.jpg')
-    password = db.Column(db.String(20), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
     student = db.relationship('Students', backref='info', lazy=True)
     prof = db.relationship('Professors', backref='info', lazy=True)
     thread = db.relationship('Threads', backref='creator', lazy=True)
@@ -41,7 +41,7 @@ class User(db.Model, UserMixin):
         role = []
         if Students.query.get(self.id):
             role.append("Student")
-        if TeachingAssistants.query.filter_by(sid=self.id, is_ta='t').first():
+        if TeachingAssistants.query.filter_by(sid=self.id, is_ta=True).first():
             role.append("TA")
         if Professors.query.get(self.id):
             role.append("Professor")
@@ -54,26 +54,6 @@ class User(db.Model, UserMixin):
         return f"User('{self.id}',  {self.name}', '{self.image_file}')"
 
 
-# class Roles(db.Model):
-#     __tablename__ = 'roles'
-#     id = db.Column(db.Integer(), primary_key=True)
-#     name = db.Column(db.String(50), unique=True)
-#     user_role = db.relationship('UserRoles', backref='role', lazy=True)
-
-#     def __repr__(self):
-#         return f"Roles('{self.name}')"
-
-
-# class UserRoles(db.Model):
-#     __tablename__ = 'userroles'
-#     id = db.Column(db.Integer(), primary_key=True)
-#     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-#     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'), nullable=False)
-
-#     def __repr__(self):
-#         return f"UserRoles('{self.user_id}', '{self.role.name}')"
-
-
 class Students(db.Model):
     __tablename__ = "students"
     sid = db.Column(db.String(10), db.ForeignKey('users.id'), primary_key=True)
@@ -84,24 +64,6 @@ class Students(db.Model):
 
     def __repr__(self):
         return f"Students('{self.sid}', '{self.year}')"
-
-
-# class SAccount(db.Model, UserMixin):
-#     __tablename__ = "saccount"
-#     __table_args__ = (
-#         db.ForeignKeyConstraint(['sid', 'name'], ['students.sid', 'students.name']),
-#     )
-#     sid = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(100), nullable=False)
-#     account_id = db.Column(db.String(10), unique=True, nullable=False)
-#     password = db.Column(db.String(60), nullable=False)
-#     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-
-#     def get_id(self):
-#         return (self.sid)
-
-#     def __repr__(self):
-#         return f"SAccount('{self.sid}', '{self.name}', '{self.account_id}', '{self.image_file}'"
 
 
 class Courses(db.Model):
@@ -119,7 +81,7 @@ class TakenCourses(db.Model):
     __tablename__ = "takencourses"
     sid = db.Column(db.String(10), db.ForeignKey('students.sid'), primary_key=True)
     cid = db.Column(db.String(10), db.ForeignKey('courses.cid'), primary_key=True)
-    year = db.Column(db.Integer, nullable=False)
+    year = db.Column(db.String(10), nullable=False)
     sem = db.Column(db.Integer, db.CheckConstraint('sem = 1 OR sem = 2'), nullable=False)
     grade = db.Column(db.String(5), server_default='')
     ta = db.relationship('TeachingAssistants', backref='courseinfo', lazy=True)
@@ -127,56 +89,15 @@ class TakenCourses(db.Model):
     def __repr__(self):
         return f"TakenCourses('{self.sid}', '{self.cid}', '{self.year}', '{self.sem}', '{self.grade}')"
 
-
-# class TakingCourses(db.Model):
-#     __tablename__ = "takingcourses"
-#     sid = db.Column(db.Integer, db.ForeignKey('students.sid'), primary_key=True)
-#     cid = db.Column(db.String(10), db.ForeignKey('courses.cid'), primary_key=True)
-
-#     def __repr__(self):
-#         return f"TakingCourses('{self.sid}', '{self.cid}')"
-
-
 class Professors(db.Model):
     __tablename__ = "professors"
     pid = db.Column(db.String(10), db.ForeignKey('users.id'), primary_key=True)
     cid = db.Column(db.String(10), db.ForeignKey('courses.cid'), unique=True, nullable=False)
     group = db.relationship('Groups', backref='prof', lazy=True)
-    forum = db.relationship('Forums', backref='creator', lazy=True)
+    forum = db.relationship('Forums', backref='prof', lazy=True)
 
     def __repr__(self):
         return f"Professors('{self.pid}', '{self.name}', '{self.cid}')"
-
-
-# class PAccount(db.Model, UserMixin):
-#     __tablename__ = "paccount"
-#     __table_args__ = (
-#         db.ForeignKeyConstraint(['pid', 'name'], ['professors.pid', 'professors.name']),
-#     )
-#     pid = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(100), nullable=False)
-#     account_id = db.Column(db.String(10), unique=True, nullable=False)
-#     password = db.Column(db.String(60), nullable=False)
-#     image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
-
-#     def get_id(self):
-#         return (self.sid)
-
-#     def __repr__(self):
-#         return f"PAccount('{self.pid}', '{self.name}', '{self.account_id}', '{self.image_file}'"
-
-
-# class PossibleTA(db.Model):
-#     __tablename__ = "possibleta"
-#     __table_args__ = (
-#         db.ForeignKeyConstraint(['sid', 'cid'], ['takencourses.sid', 'takencourses.cid']),
-#     )
-#     sid = db.Column(db.Integer, primary_key=True)
-#     cid = db.Column(db.String(10), primary_key=True)
-#     ta = db.relationship('TeachingAssistants', backref='talist', lazy=True)
-
-#     def __repr__(self):
-#         return f"PossibleTA('{self.sid}', '{self.cid}')"
 
 
 class TeachingAssistants(db.Model):
@@ -211,17 +132,18 @@ class GroupInfo(db.Model):
     sid = db.Column(db.Integer, db.ForeignKey('students.sid'), primary_key=True)
 
     def __repr__(self):
-        return f"GroupInfo('{self.gid}', '{self.sid}', '{self.name}')"
+        return f"GroupInfo('{self.gid}', '{self.sid}')"
 
 
 class Forums(db.Model):
     __tablename__ = "forums"
     fid = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(60), nullable=False)
     pid = db.Column(db.String(10), db.ForeignKey('professors.pid'), nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now)
     thread = db.relationship('Threads', backref='forum', lazy=True)
     foruminfo = db.relationship('ForumInfo', backref='info', lazy=True)
+    threadcascade = db.relationship('Threads', cascade='all, delete-orphan', backref='parent')
 
     def __repr__(self):
         return f"Forums('{self.gid}', '{self.sid}', '{self.name}')"
@@ -240,10 +162,11 @@ class Threads(db.Model):
     fid = db.Column(db.Integer, db.ForeignKey('forums.fid', ondelete='CASCADE'), primary_key=True)
     tid = db.Column(db.Integer, primary_key=True)
     id = db.Column(db.String(10), db.ForeignKey('users.id'), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(60), nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.now)
     posts = db.relationship('Posts', backref='thread', lazy=True)
+    postcascade = db.relationship('Posts', cascade='all, delete-orphan', backref='parent')
     # threadinfo = db.relationship('ThreadInfo', backref='info', lazy=True)
 
     def __repr__(self):
@@ -263,7 +186,7 @@ class Posts(db.Model):
     __tablename__ = "posts"
     __table_args__ = (
         db.ForeignKeyConstraint(['fid', 'tid'], ['threads.fid', 'threads.tid'], ondelete='CASCADE'),
-        db.ForeignKeyConstraint(['pfid', 'ptid', 'ppost_num'], ['posts.fid', 'posts.tid', 'posts.post_num']),
+        db.ForeignKeyConstraint(['pfid', 'ptid', 'ppost_num'], ['posts.fid', 'posts.tid', 'posts.post_num'], ondelete='CASCADE'),
         db.CheckConstraint('pfid = fid'),
         db.CheckConstraint('ptid = tid'),
         db.CheckConstraint('ppost_num IS NULL OR ppost_num <> post_num'),    
@@ -272,13 +195,30 @@ class Posts(db.Model):
     tid = db.Column(db.Integer, primary_key=True)
     post_num = db.Column(db.Integer, primary_key=True)
     id = db.Column(db.String(10), db.ForeignKey('users.id'), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(60), nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    rating = db.Column(db.Integer, db.CheckConstraint('rating >= 0 AND rating <= 10'), nullable=False, server_default='0')
+    date_edited = db.Column(db.DateTime, nullable=True)
     pfid = db.Column(db.Integer)
     ptid = db.Column(db.Integer)
     ppost_num = db.Column(db.Integer)
+    postcascade = db.relationship('Posts', cascade='all, delete-orphan')
+    ratingcascade = db.relationship('Ratings', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"Posts: fid={self.fid} tid={self.tid} post_num={self.post_num} pfid={self.pfid}  ptid={self.ptid} ppost_num={self.ppost_num} id={self.id}  title={self.title} date={self.date_posted} rating={self.rating}"
+
+
+class Ratings(db.Model):
+    __tablename__ = "ratings"
+    __table_args__ = (
+        db.ForeignKeyConstraint(['fid', 'tid', 'post_num'], ['posts.fid', 'posts.tid', 'posts.post_num'], ondelete='CASCADE'),
+    )
+    fid = db.Column(db.Integer, primary_key=True)
+    tid = db.Column(db.Integer, primary_key=True)
+    post_num = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(10), db.ForeignKey('users.id'), primary_key=True)
+    rating = db.Column(db.Integer, db.CheckConstraint('rating >= 0 AND rating <= 5'), nullable=False)
+
+    def __repr__(self):
+        return f"Ratings: fid={self.fid} tid={self.tid} post_num={self.post_num} id={self.id}  rating={self.rating}"
