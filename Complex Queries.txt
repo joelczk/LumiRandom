@@ -48,14 +48,19 @@ With studentGrades(sid, cid, year,sem, grade) AS
 	WHEN grade = 'D+' then 1.5
 	WHEN grade = 'D'  then 1.0
 	WHEN grade = 'F'  then 0
+    
 END AS numGrade
 FROM takencourses
 WHERE grade IS NOT NULL
-GROUP BY sid,cid, year, sem)
+GROUP BY sid,cid, year, sem),
 
-SELECT cid, year, sem, ROUND(AVG(grade),4)
-FROM studentGrades
-GROUP BY cid, year, sem;
+AverageGPA as (
+	SELECT cid, year, sem, ROUND(AVG(grade),4) as GPA
+	FROM studentGrades
+	WHERE cid = 'BU41007'
+	GROUP BY cid, year, sem
+)
+select cid,year,sem, coalesce(GPA,0.0) as GPA from AverageGPA;
 
 /* Function: Display the average grade of students under a TA, a performance indicator */
 /* currently no information on tutorial teaching which group */
