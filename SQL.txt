@@ -1,15 +1,14 @@
 CREATE TABLE Users (
-	id		VARCHAR(10) PRIMARY KEY,
-	name		VARCHAR(100) NOT NULL,
-	image_file	VARCHAR(100) NOT NULL DEFAULT 'default.jpg',
-	password	VARCHAR(20) NOT NULL
+	id 		VARCHAR(10) PRIMARY KEY,
+	name	 	VARCHAR(100) NOT NULL,
+	image_file 	VARCHAR(100) NOT NULL DEFAULT 'default.jpg',
+	password 	VARCHAR(100) NOT NULL
 );
 
 
 CREATE TABLE Students (
-	sid		VARCHAR(10) PRIMARY KEY REFERENCES Users.id,
-	year		INTEGER NOT NULL CHECK (year >= 1 and year <= 5)
-	
+	sid	 	VARCHAR(10) PRIMARY KEY REFERENCES Users.id,
+	year	 	INTEGER NOT NULL CHECK (year >= 1 and year <= 5)	
 );
 
 
