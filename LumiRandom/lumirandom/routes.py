@@ -10,6 +10,7 @@ from PIL import Image
 from random import randint
 from datetime import datetime
 import sys
+import psycopg2
 
 cur_year = '2019/2020'
 cur_sem = 1
@@ -238,6 +239,34 @@ def module_search(query=None):
 def module(cid):
     Courses.query.get_or_404(cid)
     module = Courses.query.filter_by(cid=cid).first()
+    connection = psycopg2.connect(user = "postgres", password = "Jczk1241", host = "localhost", port = "5432", database = "postgres")
+    print('psql connected')
+    cursor = connection.cursor()
+    query = ("With studentGrades(sid, cid, year,sem, grade) AS\
+                (SELECT sid, cid, year, sem, CASE\
+	                WHEN grade = 'A+' then 5.0\
+                	WHEN grade = 'A'  then 5.0\
+                	WHEN grade = 'A-' then 4.5\
+	                WHEN grade = 'B+' then 4.0\
+	                WHEN grade = 'B'  then 3.5\
+	                WHEN grade = 'B-' then 3.0\
+	                WHEN grade = 'C+' then 2.5\
+	                WHEN grade = 'D+' then 1.5\
+	                WHEN grade = 'D'  then 1.0\
+	                WHEN grade = 'F'  then 0\
+                END AS numGrade\
+                FROM takencourses\
+                WHERE grade IS NOT NULL\
+                GROUP BY sid ,cid, year, sem),\
+                AverageGPA as (\
+                    SELECT cid,year,sem,ROUND(AVG(grade),2) AS GPA\
+                        FROM studentGrades\
+                        WHERE cid = '" + str(cid) + "'\
+                        GROUP BY cid, year,sem)\
+                SELECT year,sem,coalesce(GPA,0.00) as GPA from AverageGPA;")
+    cursor.execute(query)
+    results = cursor.fetchall()
+    # print(results)
     if TakenCourses.query.filter_by(sid=current_user.id, cid=cid).filter(TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).first():
         status = "taken"
     elif TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, cid=cid).first():
@@ -246,7 +275,7 @@ def module(cid):
         status = "unavailable"
     else:
         status = "nil"
-    return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem)
+    return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, results = results)
 
 
 @app.route("/module/<string:cid>/enrol", methods=['GET', 'POST'])
@@ -668,7 +697,20 @@ def threads(cid, fid, tid):
     else:
         abort(403)
 
-
+# @app.route("/test", methods = ['GET', 'POST'])
+# @login_required
+# def test():
+#     connection = psycopg2.connect(user = "postgres", password = "Jczk1241", host = "localhost", port = "5432", database = "postgres")
+#     print('psql connected')
+#     cursor = connection.cursor()
+#     user = current_user.id
+#     query = "SELECT * from forums"
+#     cursor.execute(query)
+#     # cursor.execute("SELECT * from forums;")
+#     results = cursor.fetchall()
+#     for i in results:
+#         print(i[0])
+#     return render_template("test.html", title = "test")
 
 @app.errorhandler(404)
 def Error404(error):
