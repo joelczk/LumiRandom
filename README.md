@@ -1,5 +1,5 @@
 # ER Diagram
-![ER Diagram](https://github.com/joelczk/CS2102-Project/blob/v1.1/ER%20Diagram.jpg)
+![ER Diagram](https://github.com/joelczk/CS2102-Project/blob/v1.2/ER%20Diagram.jpg)
 
 # Setup
 
