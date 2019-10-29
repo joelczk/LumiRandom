@@ -259,6 +259,12 @@ div.menu-profile {
   opacity: 0.8;
 }
 
+.table-hover tbody tr:hover,
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th{
+    background:#22313F !important;
+    color:#fff !important;
+}
 
 /* .click a {
   display: block
