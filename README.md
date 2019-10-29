@@ -15,6 +15,7 @@ For Profs: Choose any from P00001 - P00100\
 **Password**\
 For All: password\
 **SQLite Database**\
+NOTE: Some of the complex queries cannot work using SQLITE Database\
 To view database, please download DB browser for SQL Lite\
 Load site.db into DB Browser\
 **PSQL Database**\
