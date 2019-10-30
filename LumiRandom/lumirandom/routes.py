@@ -117,7 +117,7 @@ def inject_info():
                 sforums=forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all()), \
                     pgroups=Groups.query.filter_by(pid=current_user.id).all(), pforums=Forums.query.filter_by(pid=current_user.id).all(), \
                         tagroups=Groups.query.filter_by(sid=current_user.id).all(), taforums=ForumInfo.query.join(Groups, ForumInfo.gid==Groups.gid).filter(Groups.sid==current_user.id).all(), \
-                            tacid=TeachingAssistants.query.filter_by(sid=current_user.id).first().cid)
+                            tacid=TeachingAssistants.query.filter_by(sid=current_user.id).first())
     else:
          return dict()
 
