@@ -92,6 +92,7 @@ CREATE TABLE Posts (
 	post_num 	INTEGER,
 	id 		VARCHAR(10) NOT NULL,
 	title	 	VARCHAR(60) NOT NULL,
+	content 	TEXT NOT NULL,
 	date_posted 	TIMESTAMP NOT NULL,
 	date_edited 	TIMESTAMP,
 	pfid	 	INTEGER,
