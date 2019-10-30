@@ -195,7 +195,7 @@
                 <div class="tab-pane fade" id="group" role="tabpanel" aria-labelledby="group-tab">
                     {% for group in groups|sort(attribute='gname') %}
                         {% if groupinfo.query.filter_by(gid=group.gid, sid=current_user.id).first() or group.pid == current_user.id or group.sid == current_user.id %}
-                        <div class="ui raised {% if not is_student %} teal {% endif %} segment unref2" style="height: 8rem; background-color: #d3e4f1"><a class="unrefany" href="{{ url_for('group', gid=group.gid) }}">
+                        <div class="ui raised {% if not is_student %} teal {% endif %} segment unref2" style="height: 8rem; background-color: #d3e4f1"><a class="unrefany" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
                         {% else %}
                         <div class="ui raised segment" style="height: 8rem">
                         {% endif %}
@@ -205,11 +205,11 @@
                             <div class="ui bottom attached label" style="background-color: #a1b4c2;">
                                 {% if group.sid %}
                                     <a href="{{ url_for('profile', id=group.ta.info.id) }}" style="color:white">
-                                        <div style="float: right">Teaching Assistant</div>
-                                        <div style="float: left">{{ group.ta.info.name }}</div>
+                                        <div style="float: right; padding: 0.3em">Teaching Assistant</div>
+                                        <div style="float: left; padding: 0.3em">{{ group.ta.info.name }}</div>
                                     </a>
                                 {% else %}
-                                    <div style="color: #d8d7d7">Unmanaged</div>
+                                    <div style="color: #d8d7d7; padding: 0.3em">Unmanaged</div>
                                 {% endif %}
                             </div>
                         {% if groupinfo.query.filter_by(gid=group.gid, sid=current_user.id).first() or group.pid == current_user.id or group.sid == current_user.id %}
@@ -224,3 +224,17 @@
 </div>
 </section>
 {% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        {% if is_student %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        <a class="section unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item bread-header">My Modules</div></a>
+        {% endif %}
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">{% if is_prof %}My module: {% elif is_ta %}TA Module: {% endif %}{{ mod.cid }}</div>
+	</div>
+</div>
+{% endblock bread %}

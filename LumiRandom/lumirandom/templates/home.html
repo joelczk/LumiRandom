@@ -1,11 +1,18 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container">
-
-		<div>
-			<h1 style="text-align:center;">Welcome to LumiRandom!</h1>
-
-		</div>
-
+<div class="ui container">
+	<div>
+		<h1 style="text-align:center;">Welcome to LumiRandom!</h1>
 	</div>
+</div>
+
+
 {% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5);">
+	<div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+	<div class="ui breadcrumb" style="background-color: transparent;">
+		<div class="active section bread-header" style="color: white">Home</div>
+	</div>
+</div>
+{% endblock bread %}

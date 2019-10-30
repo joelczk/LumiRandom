@@ -153,7 +153,7 @@
                                                         <i style="color: #b0b9c0">None</i>
                                                     {% else %}
                                                         {% set timing = posts.query.filter_by(fid=fid, tid=thread.tid).order_by(posts.date_posted.desc()).first().date_posted %}
-                                                        <div class="popup" data-content="{{ timing.strftime('%d %B %Y %H:%M') }}" data-variation="inverted mini" data-position="top center">{{ time_ago(timing) }}</div>
+                                                        <div class="popup" data-content="{{ timing.strftime('%d %B %Y %H:%M') }}" data-variation="inverted mini" data-position="top left">{{ time_ago(timing) }}</div>
                                                     {% endif %}
                                                 </div>
                                             </div>
@@ -189,7 +189,7 @@
                                     <div class="content">
                                         {% for group in groups %}
                                             <div class="col-auto mb-3">
-                                                <a class="card unref2" style="width: 40rem; height: 4rem" href="{{ url_for('group', gid=group.gid) }}">
+                                                <a class="card unref2" style="width: 40rem; height: 4rem" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
                                                     <div class="card-body">
                                                         <h6 class="card-title" style="float: left">{{ group.gname }}</h6>
                                                         {% if group.sid %}
@@ -213,3 +213,31 @@
     </div>
 </section>
 {% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu show-bread-bar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        {% if is_student %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        <a class="section unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item bread-header">My Modules</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        {% if is_student %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=forum.prof.cid) }}"><div class="menu-dropdown-item bread-header">{{ forum.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('mod_forums', cid=forum.prof.cid) }}"><div class="menu-dropdown-item bread-header">Forums</div></a>
+        {% elif is_prof %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take') }}"><div class="menu-dropdown-item bread-header">My Module: {{ forum.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('prof_forums') }}"><div class="menu-dropdown-item bread-header">Forums</div></a>
+        {% elif is_ta %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=forum.prof.cid) }}"><div class="menu-dropdown-item bread-header">TA Module: {{ forum.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('ta_forums') }}"><div class="menu-dropdown-item bread-header">TA Forums</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">{{ forum.title }}</div>
+	</div>
+</div>
+{% endblock bread %}

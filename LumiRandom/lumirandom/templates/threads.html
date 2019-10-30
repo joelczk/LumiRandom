@@ -538,3 +538,33 @@
     </div>
 </section>
 {% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu show-bread-bar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        {% if is_student %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        <a class="section unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item bread-header">My Modules</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        {% if is_student %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=cid) }}"><div class="menu-dropdown-item bread-header">{{ cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('mod_forums', cid=cid) }}"><div class="menu-dropdown-item bread-header">Forums</div></a>
+        {% elif is_prof %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take') }}"><div class="menu-dropdown-item bread-header">My Module: {{ cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('prof_forums') }}"><div class="menu-dropdown-item bread-header">Forums</div></a>
+        {% elif is_ta %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=cid) }}"><div class="menu-dropdown-item bread-header">TA Module: {{ cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('ta_forums') }}"><div class="menu-dropdown-item bread-header">TA Forums</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        <br><br><a class="section unrefany" href="{{ url_for('forum', cid=cid, fid=thread.fid) }}"><div class="menu-dropdown-item bread-header">{{ thread.thread.forum.title }}</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">{{ thread.title }}</div>
+	</div>
+</div>
+{% endblock bread %}

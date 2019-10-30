@@ -73,7 +73,7 @@
         <h5>Module Description</h5>
         <p>The BEST module in the world! Enrol today!</p>
     </div>
-    <!-- <div style="border-top: 2px solid; border-color: #b0b9c0; padding: 10px">
+    <div style="border-top: 2px solid; border-color: #b0b9c0; padding: 10px">
         <h5>Module Statistics</h5>
         <table class="table table-bordered table-hover table-striped">
             <thead class = "thead-dark">
@@ -88,11 +88,27 @@
                 <tr>
                     <th>{{ results[0] }}</th>
                     <th> {{ results[1] }}</th>
-                    <th> {{ results[2] }} </th>
+                    <th>{% if results[2] == 0 %}NIL{% else %}{{ results[2] }}{% endif %} </th>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div> -->
+    </div>
 </div>
 {% endblock %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        {% if 'Professor' not in current_user.roles() %}
+        <a class="section unrefany" href="{{ url_for('module_search') }}"><div class="menu-dropdown-item bread-header">Module Search</div></a>
+        {% else %}
+        <a class="section unrefany" href="{{ url_for('prof_module_search') }}"><div class="menu-dropdown-item bread-header">Module Search</div></a>
+        {% endif %}
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Module: {{ module.cid }}</div>
+	</div>
+</div>
+{% endblock bread %}

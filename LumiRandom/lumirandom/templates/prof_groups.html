@@ -12,7 +12,7 @@
                 {% for group in groups %}
                     <div class="col-auto mb-3">
                         <div class="card unref2" style="height: 9rem; width: 60rem; justify-content: center;" >
-                            <a class="card-body unref2" href="{{ url_for('group', gid=group.gid) }}">
+                            <a class="card-body unref2" href="{{ url_for('group', cid=cid, gid=group.gid) }}">
                                 <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
                                 <h6 class="card-subtitle mb-2 text-muted"><small>{{ cid }}</small></h6>
                                 <h6 class="card-title">{{ group.gname }}</h6>
@@ -36,3 +36,15 @@
         </div>
     </div>
 {% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+        <a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><a class="section unrefany" href="{{ url_for('module_take') }}"><div class="menu-dropdown-item bread-header">My Module: {{ cid }}</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Groups</div>
+	</div>
+</div>
+{% endblock bread %}

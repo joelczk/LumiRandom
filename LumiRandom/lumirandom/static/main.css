@@ -284,6 +284,11 @@ div.menu-profile {
   padding: 0px;
 }
 
+.bread-header {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
 
 .table-hover tbody tr:hover,
 .table-hover tbody tr:hover td,

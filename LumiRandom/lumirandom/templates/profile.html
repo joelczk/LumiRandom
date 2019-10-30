@@ -34,15 +34,23 @@
 			{% endif %}
 			<h4 class="text-muted" style="margin-top: 5px">{{ user.id }}</h4>
 			<h2 style="margin-top: 0px">{{ user.name }}</h2>
-			{% for role in roles %}
-				{% if role == 'Student' %}
-					<h6 class="text-muted">{{ role }}<br>Year {{ student.query.get(user.id).year }}</h6>
-				{% endif %}
-				{% if role == 'Professor' %}
-					<h6 class="text-muted">{{ role }}<br> {{ prof.query.get(user.id).cid }}</h6>
-				{% endif %}
-			{% endfor %}
+			{% if 'Student' in user.roles() %}
+				<h6 class="text-muted">Student<br>Year {{ student.query.get(user.id).year }}</h6>
+			{% endif %}
+			{% if 'Professor' in user.roles() %}
+				<h6 class="text-muted">Professor<br> {{ prof.query.get(user.id).cid }}</h6>
+			{% endif %}
 		</div>
 	</div>
 </div> 
-{% endblock content %}	
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+	<div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+	<div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">{% if user.id == current_user.id %}My Profile{% else %}Profile: {{ user.name }}{% endif %}</div>
+	</div>
+</div>
+{% endblock bread %}

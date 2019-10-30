@@ -49,6 +49,10 @@
                         </div>
                         <!-- Navbar Right Side -->
                         <div class="navbar-nav">
+                            <div class="container lumirandom" style="width: 3.5rem; margin-right: 1em; padding: 0; cursor: pointer;">
+                                <div id="menu-bread-bar" style="text-align: center;"><i class="icon compass outline big mt-2 ml-1" style="color: white;"></i>
+                                </div>
+                            </div>
                             <div class="dropdown mr-4">
                                 <button class="nav-item nav-link match btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <img class="rounded-circle nav-img" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}">
@@ -120,7 +124,7 @@
                                             <div class="divider" style=" min-width: 20rem;"></div>
                                             <div class="scrolling menu" style="background-color: transparent;">
                                                 {% for group in pgroups|sort(attribute='gname') %}
-                                                    <a class="item" style="min-width: 20rem;" href="{{ url_for('group', gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.gname }}</div></a>
+                                                    <a class="item" style="min-width: 20rem;" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.gname }}</div></a>
                                                 {% endfor %}
                                             </div>
                                             {% else %}
@@ -172,12 +176,12 @@
                                             <div class="divider" style=" min-width: 20rem;"></div>
                                             <div class="scrolling menu" style="background-color: transparent;">
                                                 {% for mod in sgroups|sort %}
-                                                    <div class="header"><a class="unrefany" href="{{ url_for('module_take', cid=mod) }}">
+                                                    <div class="header"><a class="unrefany" href="{{ url_for('mod_groups', cid=mod) }}">
                                                         <div style="font-size: 10pt; letter-spacing: 2px; color: white">{{ mod }}</div>
                                                     </a></div>
                                                     <div class="inverted divider" style="background-color:#d7dadd"></div>
                                                     {% for group in sgroups[mod]|sort(attribute='groupinfo.gname') %}
-                                                        <a class="item" style="min-width: 20rem;" href="{{ url_for('group', gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.groupinfo.gname }}</div></a>
+                                                        <a class="item" style="min-width: 20rem;" href="{{ url_for('group', cid=group.groupinfo.prof.cid, gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.groupinfo.gname }}</div></a>
                                                     {% endfor %}
                                                 {% endfor %}
                                             </div>
@@ -198,7 +202,7 @@
                                             <div class="divider" style=" min-width: 20rem;"></div>
                                             <div class="scrolling menu" style="background-color: transparent;">
                                                 {% for mod in sforums|sort %}
-                                                    <div class="header"><a class="unrefany" href="{{ url_for('module_take', cid=mod) }}">
+                                                    <div class="header"><a class="unrefany" href="{{ url_for('mod_forums', cid=mod) }}">
                                                         <div style="font-size: 10pt; letter-spacing: 2px; color: white">{{ mod }}</div>
                                                     </a></div>
                                                     <div class="inverted divider" style="background-color:#d7dadd"></div>
@@ -223,6 +227,7 @@
                         <div class="active title" style="color: white"><b>TA STUFF</b><i class="dropdown icon" style="float: right; color: white"></i></div>
                         <div class="active content">
                             <div class="menu">
+                                <a class="item" href="{{ url_for('module_take', cid=tacid) }}">Module</a>
                                 <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;" id="dropdown-filter">
                                     <i class="icon caret right" style="color: #d7dadd;"></i>
                                     <a class="unrefany" href="{{ url_for('ta_groups') }}"><div class="menu-dropdown-item">Groups</div></a>
@@ -234,12 +239,12 @@
                                         </div>
                                         <div class="divider" style=" min-width: 20rem;"></div>
                                         <div class="scrolling menu" style="background-color: transparent;">
-                                            <div class="header"><a class="unrefany" href="{{ url_for('module_take', cid=tagroups[0].prof.cid) }}">
+                                            <div class="header"><a class="unrefany" href="{{ url_for('ta_groups') }}">
                                                 <div style="font-size: 10pt; letter-spacing: 2px; color: white">{{ tagroups[0].prof.cid }}</div>
                                             </a></div>
                                             <div class="inverted divider" style="background-color:#d7dadd"></div>
                                             {% for group in tagroups|sort(attribute='gname') %}
-                                                <a class="item" style="min-width: 20rem;" href="{{ url_for('group', gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.gname }}</div></a>
+                                                <a class="item" style="min-width: 20rem;" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}"><div class="menu-dropdown-item">{{ group.gname }}</div></a>
                                             {% endfor %}
                                         </div>
                                         {% else %}
@@ -258,7 +263,7 @@
                                         </div>
                                         <div class="divider" style=" min-width: 20rem;"></div>
                                         <div class="scrolling menu" style="background-color: transparent;">
-                                            <div class="header"><a class="unrefany" href="{{ url_for('module_take', cid=taforums[0].info.prof.cid) }}">
+                                            <div class="header"><a class="unrefany" href="{{ url_for('ta_forums') }}">
                                                 <div style="font-size: 10pt; letter-spacing: 2px; color: white">{{ taforums[0].info.prof.cid }}</div>
                                             </a></div>
                                             <div class="inverted divider" style="background-color:#d7dadd"></div>
@@ -292,6 +297,7 @@
                 </div>
             </div>
         </div>
+        {% block bread %}{% endblock %}
         <div style="padding: 2.5rem 0;"></div>
 		<main role="main" class="container next-page">
 			<div class="col-md-14">

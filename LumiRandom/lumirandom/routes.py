@@ -116,7 +116,8 @@ def inject_info():
             sgroups=groups_sort_cid(GroupInfo.query.filter_by(sid=current_user.id).all()), \
                 sforums=forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all()), \
                     pgroups=Groups.query.filter_by(pid=current_user.id).all(), pforums=Forums.query.filter_by(pid=current_user.id).all(), \
-                        tagroups=Groups.query.filter_by(sid=current_user.id).all(), taforums=ForumInfo.query.join(Groups, ForumInfo.gid==Groups.gid).filter(Groups.sid==current_user.id).all())
+                        tagroups=Groups.query.filter_by(sid=current_user.id).all(), taforums=ForumInfo.query.join(Groups, ForumInfo.gid==Groups.gid).filter(Groups.sid==current_user.id).all(), \
+                            tacid=TeachingAssistants.query.filter_by(sid=current_user.id).first().cid)
     else:
          return dict()
 
@@ -264,6 +265,7 @@ def module_search():
     courses = Courses.query.order_by(Courses.cid.asc()).all()
     return render_template('module_search.html', title='Module Search', courses=courses, taken=TakenCourses, prof=Professors, cur_year=cur_year, cur_sem=cur_sem)
 
+
 @app.route("/prof/module-search")
 @login_required
 @role_required(role='Professor')
@@ -277,34 +279,34 @@ def prof_module_search():
 def module(cid):
     Courses.query.get_or_404(cid)
     module = Courses.query.filter_by(cid=cid).first()
-    # connection = psycopg2.connect(user = "postgres", password = "Jczk1241", host = "localhost", port = "5432", database = "postgres")
-    # # print('psql connected')
-    # cursor = connection.cursor()
-    # query = ("With studentGrades(sid, cid, year,sem, grade) AS\
-    #             (SELECT sid, cid, year, sem, CASE\
-	#                 WHEN grade = 'A+' then 5.0\
-    #             	WHEN grade = 'A'  then 5.0\
-    #             	WHEN grade = 'A-' then 4.5\
-	#                 WHEN grade = 'B+' then 4.0\
-	#                 WHEN grade = 'B'  then 3.5\
-	#                 WHEN grade = 'B-' then 3.0\
-	#                 WHEN grade = 'C+' then 2.5\
-	#                 WHEN grade = 'D+' then 1.5\
-	#                 WHEN grade = 'D'  then 1.0\
-	#                 WHEN grade = 'F'  then 0\
-    #             END AS numGrade\
-    #             FROM takencourses\
-    #             WHERE grade IS NOT NULL\
-    #             GROUP BY sid ,cid, year, sem),\
-    #             AverageGPA as (\
-    #                 SELECT cid,year,sem,ROUND(AVG(grade),2) AS GPA\
-    #                     FROM studentGrades\
-    #                     WHERE cid = '" + str(cid) + "'\
-    #                     GROUP BY cid, year,sem)\
-    #             SELECT year,sem,coalesce(GPA,0.00) as GPA from AverageGPA;")
-    # cursor.execute(query)
-    # results = cursor.fetchall()
-    # print(results)
+    connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port="5432", database="postgre")
+    # print('psql connected')
+    cursor = connection.cursor()
+    query = ("With studentGrades(sid, cid, year,sem, grade) AS\
+                (SELECT sid, cid, year, sem, CASE\
+	                WHEN grade = 'A+' then 5.0\
+                	WHEN grade = 'A'  then 5.0\
+                	WHEN grade = 'A-' then 4.5\
+	                WHEN grade = 'B+' then 4.0\
+	                WHEN grade = 'B'  then 3.5\
+	                WHEN grade = 'B-' then 3.0\
+	                WHEN grade = 'C+' then 2.5\
+	                WHEN grade = 'D+' then 1.5\
+	                WHEN grade = 'D'  then 1.0\
+	                WHEN grade = 'F'  then 0\
+                END AS numGrade\
+                FROM takencourses\
+                WHERE grade IS NOT NULL\
+                GROUP BY sid ,cid, year, sem),\
+                AverageGPA as (\
+                    SELECT cid,year,sem,ROUND(AVG(grade),2) AS GPA\
+                        FROM studentGrades\
+                        WHERE cid = '" + str(cid) + "'\
+                        GROUP BY cid, year,sem)\
+                SELECT year,sem,coalesce(GPA,0.00) as GPA from AverageGPA;")
+    cursor.execute(query)
+    results = cursor.fetchall()
+    print(results)
     if TakenCourses.query.filter_by(sid=current_user.id, cid=cid).filter(TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).first():
         status = "taken"
     elif TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, cid=cid).first():
@@ -314,12 +316,13 @@ def module(cid):
     else:
         status = "nil"
     prof = Professors.query.filter_by(cid=cid).first()
-    return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, prof=prof)
-    # return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, prof=prof, results=results)
+    # return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, prof=prof)
+    return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, prof=prof, results=results)
 
 
 @app.route("/module/<string:cid>/enrol", methods=['GET', 'POST'])
 @login_required
+@role_required(role='Student')
 def module_enrol(cid):
     Courses.query.get_or_404(cid)
     if TakenCourses.query.filter_by(sid=current_user.id, cid=cid).filter(TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).first():
@@ -341,6 +344,7 @@ def module_enrol(cid):
 
 @app.route("/module/<string:cid>/withdraw", methods=['GET', 'POST'])
 @login_required
+@role_required(role='Student')
 def module_withdraw(cid):
     Courses.query.get_or_404(cid)
     course = TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, cid=cid).first()
@@ -363,12 +367,22 @@ def module_take(cid=None):
         else:
             abort(404)
     mod = Courses.query.get_or_404(cid)
-    students = TakenCourses.query.filter_by(cid=cid, year=cur_year, sem=cur_sem).all()
-    prof = Professors.query.filter_by(cid=cid).first()
-    groups = Groups.query.filter_by(pid=prof.pid).all()
-    is_student = TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem).first()
-    return render_template('module_take.html', title=cid + ' ' +  mod.cname, mod=mod, students=students, groups=groups, Groups=Groups, groupinfo=GroupInfo, prof=prof, is_student=is_student, year=cur_year, sem=cur_sem)
-
+    if not Professors.query.filter_by(cid=cid).first():
+        abort(404)
+    is_student, is_ta, is_prof = (False for i in range(3))
+    if (TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem).first()):
+        is_student = True
+    if 'Professor' in current_user.roles() and Professors.query.get(current_user.id).cid==cid:
+        is_prof = True
+    if 'TA' in current_user.roles() and TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first().cid==cid:
+        is_ta = True
+    if is_student or is_prof or is_ta:
+        prof = Professors.query.filter_by(cid=cid).first()
+        groups = Groups.query.filter_by(pid=prof.pid).all()
+        students = TakenCourses.query.filter_by(cid=cid, year=cur_year, sem=cur_sem).all()
+        return render_template('module_take.html', title=cid + ' ' +  mod.cname, mod=mod, students=students, groups=groups, Groups=Groups, groupinfo=GroupInfo, prof=prof, is_student=is_student, is_ta=is_ta, is_prof=is_prof, year=cur_year, sem=cur_sem)
+    else:
+        abort(403)
 
 
 @app.route("/student_list/", methods=['GET', 'POST'])
@@ -519,28 +533,38 @@ def ta_reject(sid):
 @login_required
 @role_required(role='Student')
 def my_groups():
-    groups = GroupInfo.query.filter_by(sid=current_user.id).all()
+    groups = groups_sort_cid(GroupInfo.query.filter_by(sid=current_user.id).all())
     user = User()
-    return render_template('my_groups.html', title='Groups', groups=groups, groupinfo=GroupInfo(), user=user)
+    return render_template('my_groups.html', title='Groups', groups=groups, groupinfo=GroupInfo, user=user)
 
 
-@app.route("/group/<int:gid>")
+@app.route("/module/<string:cid>/groups")
 @login_required
-def group(gid):
+@role_required(role='Student')
+def mod_groups(cid):
+    mod = Courses.query.get_or_404(cid)
+    if not TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem).first():
+        abort(403)
+    groups = Groups.query.join(GroupInfo, GroupInfo.gid==Groups.gid).join(Professors, Professors.pid==Groups.pid).filter(GroupInfo.sid==current_user.id, Professors.cid==cid).all()
+    return render_template('mod_groups.html', title=cid + ' Groups', groups=groups, groupinfo=GroupInfo, mod=mod)
+
+
+@app.route("/module/<string:cid>/group/<int:gid>")
+@login_required
+def group(cid, gid):
     Groups.query.get_or_404(gid)
     is_student, is_ta, is_prof = (False for i in range(3))
-    if Students.query.get(current_user.id):
+    if Students.query.get(current_user.id) and GroupInfo.query.filter(GroupInfo.gid==gid, GroupInfo.sid==current_user.id).first():
         is_student = True
-    if TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first():
+    if current_user.id==Groups.query.get(gid).sid:
         is_ta = True
-    if Professors.query.get(current_user.id):
+    if current_user.id==Groups.query.get(gid).pid:
         is_prof = True
-    if (is_student and GroupInfo.query.filter(GroupInfo.gid==gid, GroupInfo.sid==current_user.id).first()) or (is_ta and current_user.id==Groups.query.get(gid).sid) \
-        or (is_prof and current_user.id==Groups.query.get(gid).pid):
+    if is_student or is_ta or is_prof:
         group = Groups.query.get(gid)
         students = GroupInfo.query.join(User, GroupInfo.sid==User.id).filter(GroupInfo.gid==gid).order_by(User.name.asc()).all()
         size = GroupInfo.query.filter_by(gid=group.gid).count()
-        return render_template('group.html', title='Group', group=group, students=students, size=size, user=User())
+        return render_template('group.html', title='Group', group=group, students=students, size=size, user=User, is_student=is_student, is_ta=is_ta, is_prof=is_prof)
     else:
         abort(403)
 
@@ -551,7 +575,8 @@ def group(gid):
 def ta_groups():
     groups = Groups.query.filter_by(sid=current_user.id).all()
     groupinfo = GroupInfo()
-    return render_template('ta_groups.html', title='TA Groups', groups=groups, groupinfo=groupinfo)
+    cid = TeachingAssistants.query.filter_by(sid=current_user.id).first().cid
+    return render_template('ta_groups.html', title='TA Groups', groups=groups, groupinfo=groupinfo, cid=cid)
 
 
 @app.route("/prof/groups")
@@ -645,18 +670,30 @@ def forum(cid, fid):
         size = ForumInfo.query.filter_by(fid=fid).count()
         threads = Threads.query.filter_by(fid=fid).order_by(Threads.date_created.asc()).all()
         totalthreads = Threads.query.filter_by(fid=fid).count()
-        return render_template('forums.html', title='Forum - ' + forum.title, forum=forum, groups=groups, size=size, threads=threads, totalthreads=totalthreads, posts=Posts, cid=cid, fid=fid, time_ago=time_ago, is_prof=is_prof)
+        return render_template('forums.html', title='Forum - ' + forum.title, forum=forum, groups=groups, size=size, threads=threads, totalthreads=totalthreads, \
+            posts=Posts, cid=cid, fid=fid, time_ago=time_ago, is_student=is_student, is_ta=is_ta, is_prof=is_prof)
     else:
         abort(403)
 
 
-@app.route("/forum")
+@app.route("/forums")
 @login_required
 @role_required(role='Student')
 def student_forums():
-    forums = ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all()
-    user = User()
-    return render_template('student_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo(), user=user, time_ago=time_ago)
+    forums = forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all())
+    return render_template('student_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, time_ago=time_ago)
+
+
+@app.route("/<string:cid>/forums")
+@login_required
+@role_required(role='Student')
+def mod_forums(cid):
+    mod = Courses.query.get_or_404(cid)
+    if not TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem).first():
+        abort(403)
+    forums = ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).join(Forums, Forums.fid==ForumInfo.fid).join(Professors, Professors.pid==Forums.pid)\
+        .filter(GroupInfo.sid==current_user.id, Professors.cid==cid).all()
+    return render_template('mod_forums.html', title=cid + ' Forums', forums=forums, foruminfo=ForumInfo, mod=mod, time_ago=time_ago)
 
 
 @app.route("/prof/forum")
@@ -675,7 +712,8 @@ def prof_forums():
 @role_required(role='TA')
 def ta_forums():
     forums = ForumInfo.query.join(Groups, Groups.gid==ForumInfo.gid).filter(Groups.sid==current_user.id).all()
-    return render_template('ta_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, time_ago=time_ago)
+    cid = TeachingAssistants.query.filter_by(sid=current_user.id).first().cid
+    return render_template('ta_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, cid=cid, time_ago=time_ago)
 
 
 @app.route("/prof/create-forum", methods=['GET', 'POST'])
@@ -787,7 +825,7 @@ def threads(cid, fid, tid):
         posts = Posts.query.filter_by(fid=fid, tid=tid).all()
         posts = sort_posts(posts)
         return render_template('threads.html', title='Forum Thread - ' + thread.title, forum=forum, thread=thread, p=Posts, finfo=ForumInfo, ginfo=GroupInfo, \
-            posts=posts, cid=cid, fid=fid, tid=tid, time_ago=time_ago, is_ta=is_ta, is_prof=is_prof, ratings=Ratings, find_rating=find_rating)
+            posts=posts, cid=cid, fid=fid, tid=tid, time_ago=time_ago, is_student=is_student, is_ta=is_ta, is_prof=is_prof, ratings=Ratings, find_rating=find_rating)
     else:
         abort(403)
 

@@ -18,7 +18,7 @@
                                     <div class="row justify-content-left">
                                         {% for takingmod in takingmods %}
                                             <div class="col-auto mb-3">
-                                                <a class="card unref2" href="{{ url_for('module', cid=takingmod.cid) }}" style="width: 15rem; height: 15rem">
+                                                <a class="card unref2" href="{{ url_for('module_take', cid=takingmod.cid) }}" style="width: 15rem; height: 15rem">
                                                         <div class="card-body">
                                                             <h6 class="card-subtitle mb-2 text-muted"><small>{{ takingmod.cid }}</small></h6>
                                                             <h6 class="card-title">{{ mods.query.filter_by(cid=takingmod.cid).first().cname }}</h6>
@@ -68,3 +68,13 @@
         </div>
     </section>  
 {% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+	<div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+	<div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">My Modules</div>
+	</div>
+</div>
+{% endblock bread %}

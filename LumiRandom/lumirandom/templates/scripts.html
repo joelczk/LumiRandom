@@ -490,7 +490,6 @@
 <script>
     $('#nav-menu-sidebar').hover( 
         function() {
-        // $('#nav-sidebar').toggleClass('hidden');
         $('#nav-sidebar').transition({
             animation: 'slide down',
             duration: '0.9s',
@@ -507,6 +506,23 @@
             animation: 'bounce',
             duration: '1s',
             queue: false
+        });
+    });
+</script>
+<script>
+    $('.show-bread-bar').transition({
+        animation: 'slide down in',
+        duration: '0.9s',
+        queue: false,
+    });
+</script>
+<script>
+    $('#menu-bread-bar').hover( 
+        function() {
+        $('#bread-bar').transition({
+            animation: 'slide down',
+            duration: '0.9s',
+            queue: false,
         });
     });
 </script>
