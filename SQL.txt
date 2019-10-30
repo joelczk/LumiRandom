@@ -7,7 +7,7 @@ CREATE TABLE Users (
 
 
 CREATE TABLE Students (
-	sid	 	VARCHAR(10) PRIMARY KEY REFERENCES Users.id,
+	sid	 	VARCHAR(10) PRIMARY KEY REFERENCES Users(id),
 	year	 	INTEGER NOT NULL CHECK (year >= 1 and year <= 5)	
 );
 
