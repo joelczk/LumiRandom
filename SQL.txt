@@ -25,6 +25,7 @@ CREATE TABLE TakenCourses (
 	sem	 	INTEGER NOT NULL CHECK (sem = 1 OR sem = 2),
 	grade 		VARCHAR(5) DEFAULT NULL,
 	is_rated	BOOLEAN NOT NULL DEFAULT FALSE,
+	is_pending 	BOOLEAN NOT NULL DEFAULT FALSE,
 	PRIMARY KEY 	(sid, cid)
 );
 
