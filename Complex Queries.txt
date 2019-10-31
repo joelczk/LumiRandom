@@ -89,7 +89,7 @@ FROM (TeachingAssistants AS TA LEFT JOIN Groups ON  TA.gid = Groups.gid) LEFT JO
 With courseRating(cid, year, sem, rating) AS (
 SELECT cid, year, sem, SUM(rating) / count(rating) AS rating
 FROM takencourses
-WHERE is_rated = 0
+WHERE is_rated = 1
 GROUP BY cid, year, sem
 )
 
