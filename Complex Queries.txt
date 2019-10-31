@@ -63,8 +63,7 @@ AverageGPA as (
 select cid,year,sem, coalesce(GPA,0.0) as GPA from AverageGPA;
 
 /* Function: Display the average grade of students under a TA, a performance indicator */
-/* currently no information on tutorial teaching which group */
-
+/* there is no information on tutor teaching teach group */
 With studentGrades(sid, cid, year,sem, grade) AS
 (SELECT sid, cid, year, sem, CASE 
 	WHEN grade = 'A+' then 5.0
@@ -82,5 +81,17 @@ FROM takencourses
 WHERE grade IS NOT NULL
 GROUP BY cid, year, sem)
 
-SELECT Managed.sid AS tutor, cid, year, sem, AVG(grade) as averageGrade
-FROM (Managed LEFT JOIN Groups ON  Managed.cid = Groups.cid) LEFT JOIN studentGrades ON studentGrades.sid;
+SELECT TA.sid AS tutor, TA.gid, year, sem, AVG(grade) as averageGrade
+FROM (TeachingAssistants AS TA LEFT JOIN Groups ON  TA.gid = Groups.gid) LEFT JOIN studentGrades ON studentGrades.sid;
+
+
+/* Function: Check ratings given by the student on a course taught by particular professor */
+With courseRating(cid, year, sem, rating) AS (
+SELECT cid, year, sem, SUM(rating) / count(rating) AS rating
+FROM takencourses
+WHERE is_rated = 0
+GROUP BY cid, year, sem
+)
+
+SELECT P.pid, P.cid, CR.year, CR.sem, CR.rating
+FROM professors AS P NATURAL JOIN courseRating as CR
