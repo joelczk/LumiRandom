@@ -40,7 +40,6 @@ CREATE TABLE Professors (
 CREATE TABLE TeachingAssistants (
 	sid	 	VARCHAR(10),
 	cid	 	VARCHAR(10),
-	/*gid 	INTEGER NOT NULL REFERENCES Groups*/
 	is_ta 		BOOLEAN NOT NULL DEFAULT FALSE,
 	PRIMARY KEY 	(sid, cid),
 	FOREIGN KEY 	(sid, cid) REFERENCES TakenCourses(sid, cid)
