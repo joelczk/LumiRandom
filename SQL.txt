@@ -49,7 +49,10 @@ CREATE TABLE Groups (
 	gid 		INTEGER PRIMARY KEY,
 	gname	 	VARCHAR(50) NOT NULL,
 	pid	 	VARCHAR(10) NOT NULL REFERENCES Professors,
-	sid 	 	VARCHAR(10) REFERENCES Students
+	sid 	 	VARCHAR(10),
+	cid 		VARCHAR(10),
+	FOREIGN KEY 	(sid, cid) REFERENCES TeachingAssistants(sid, cid),
+	CHECK ((sid NOT NULL AND cid NOT NULL) OR (sid IS NULL AND cid IS NULL))
 );
 
 
