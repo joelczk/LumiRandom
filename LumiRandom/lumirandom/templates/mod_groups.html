@@ -11,9 +11,9 @@
                 <h6 class="card-title">{{ group.gname }}</h6>
                 <div class="ui bottom attached label" style="background-color: #a1b4c2;">
                     {% if group.sid %}
-                        <a href="{{ url_for('profile', id=group.ta.info.id) }}" style="color:white;">
+                        <a href="{{ url_for('profile', id=group.ta.courseinfo.student.info.id) }}" style="color:white;">
                             <div style="float: right; padding: 0.3em">Teaching Assistant</div>
-                            <div style="float: left; padding: 0.3em">{{ group.ta.info.name }}</div>
+                            <div style="float: left; padding: 0.3em">{{ group.ta.courseinfo.student.info.name }}</div>
                         </a>
                     {% else %}
                         <div style="color: #d8d7d7; padding: 0.3em">Unmanaged</div>

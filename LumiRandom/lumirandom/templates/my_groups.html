@@ -19,9 +19,9 @@
                                     <h6 class="card-title">{{ group.groupinfo.gname }}</h6>
                                 </a>
                                 {% if group.groupinfo.sid %}
-                                    <a class="card-footer unref2" style="background-color: #a1b4c2; color: #d3e4f1" href="{{ url_for('profile', id=group.groupinfo.ta.info.id) }}">
+                                    <a class="card-footer unref2" style="background-color: #a1b4c2; color: #d3e4f1" href="{{ url_for('profile', id=group.groupinfo.ta.courseinfo.student.info.id) }}">
                                         <small style="float: left">Teaching Assistant</small>
-                                        <small style="float: right">{{ group.groupinfo.ta.info.name }}</small>
+                                        <small style="float: right">{{ group.groupinfo.ta.courseinfo.student.info.name }}</small>
                                     </a>
                                 {% else %}
                                     <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">

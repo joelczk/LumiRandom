@@ -10,7 +10,6 @@ from PIL import Image
 from random import randint
 from datetime import datetime
 import sys
-import psycopg2
 
 cur_year = '2019/2020'
 cur_sem = 1
@@ -109,15 +108,18 @@ def find_rating(ratings):
         count += 1
     return format(sum/count, '.2f')
 
+
 @app.context_processor
 def inject_info():
     if current_user.is_authenticated:
-        return dict(scourses=TakenCourses.query.filter(TakenCourses.sid==current_user.id, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem).order_by(TakenCourses.cid.asc()).all(), \
+        return dict(scourses=TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, is_pending=False).order_by(TakenCourses.cid.asc()).all(), \
             sgroups=groups_sort_cid(GroupInfo.query.filter_by(sid=current_user.id).all()), \
                 sforums=forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all()), \
                     pgroups=Groups.query.filter_by(pid=current_user.id).all(), pforums=Forums.query.filter_by(pid=current_user.id).all(), \
                         tagroups=Groups.query.filter_by(sid=current_user.id).all(), taforums=ForumInfo.query.join(Groups, ForumInfo.gid==Groups.gid).filter(Groups.sid==current_user.id).all(), \
-                            tacid=TeachingAssistants.query.filter_by(sid=current_user.id).first())
+                            tacid=TeachingAssistants.query.filter_by(sid=current_user.id).first(), \
+                                tacount=TeachingAssistants.query.join(Professors, Professors.cid==TeachingAssistants.cid).filter(Professors.pid==current_user.id, TeachingAssistants.is_ta==False).count(),\
+                                    reqcount=TakenCourses.query.filter_by(year=cur_year, sem=cur_sem, is_pending=True).join(Professors, Professors.cid==TakenCourses.cid).filter(Professors.pid==current_user.id).count())
     else:
          return dict()
 
@@ -196,14 +198,15 @@ def logout():
     flash(f'Logout Successful! Please Visit Again!', 'success')
     return redirect(url_for('login'))
     
+
+
 @app.route("/profile/<string:id>")
 @login_required
 def profile(id):
     User.query.get_or_404(id)
     user = User.query.get(id)
-    roles = user.roles()
-    student = Students()
-    prof = Professors()
+    student = Students
+    prof = Professors
     #change accordingly
     print('psql connected')
     cursor = connection.cursor()
@@ -221,6 +224,7 @@ def profile(id):
                 SELECT * from prof_avg;"
     cursor.execute(query)
     results = cursor.fetchall()
+    rating = 0
     for i in results:
         if i[0] == id:
             rating = round(i[1],2)
@@ -232,11 +236,12 @@ def profile(id):
     elif Students.query.filter_by(sid = current_user.id).first() is None:
         val = "noshow"
     else:
-        if TakenCourses.query.filter_by(sid = current_user.id, cid = check.cid, is_rated = '0').first() == None:
+        if TakenCourses.query.filter_by(sid=current_user.id, cid=check.cid, year=cur_year, sem=cur_sem, is_rated=False, is_pending=False).first() == None:
             val = "noshow"
-        else:
+        elif TakenCourses.query.filter_by(sid=current_user.id, cid=check.cid, year=cur_year, sem=cur_sem, is_rated=False, is_pending=False).first():
             val = "show"
-    return render_template('profile.html', title='Profile ' + id, user=user, roles=roles, student=student, prof=prof, val=val, check = check, rating = rating)
+    return render_template('profile.html', title='Profile ' + id, user=user, student=student, prof=prof, val=val, check=check, rating=rating)
+
 
 @app.route("/profile/<string:id>/rating", methods = ['GET' , 'POST'])
 @login_required
@@ -252,13 +257,13 @@ def prof_ratings(id):
         else:
             number_digit = float(number)
             update_query = "UPDATE TakenCourses SET rating = " + str(number_digit) + "  WHERE sid = '" + str(current_user.id) + "' AND cid = '" + str(profs.cid) + "';"
-            connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port=5432, database="postgres")
             print('sql connected')
             cursor = connection.cursor()
             cursor.execute(update_query)
             connection.commit()
 
     return redirect(url_for('profile', id = id))
+
 
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
@@ -302,8 +307,8 @@ def update_profile():
 @login_required
 @role_required(role='Student')
 def modules():
-    takingmods = TakenCourses.query.filter(TakenCourses.sid==current_user.id, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem).all()
-    takenmods = TakenCourses.query.filter(TakenCourses.sid==current_user.id, TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).order_by(TakenCourses.year.desc(), TakenCourses.sem.desc()).all()
+    takingmods = TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, is_pending=False).all()
+    takenmods = TakenCourses.query.filter_by(sid=current_user.id).filter(TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).order_by(TakenCourses.year.desc(), TakenCourses.sem.desc()).all()
     mods = Courses()
     profs = Professors()
     return render_template('mymodules.html', title='My Modules', takingmods=takingmods, takenmods=takenmods, mods=mods, profs=profs, cur_year=cur_year, cur_sem=cur_sem)
@@ -328,13 +333,26 @@ def prof_module_search():
 @app.route("/module-info/<string:cid>", methods=['GET', 'POST'])
 @login_required
 def module(cid):
+    if request.method == 'POST':
+        if request.form['btn'] == 'Enrol':
+            if TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem).count() >= 6:
+                flash(f'Sorry! You are already enrolled in the maximum number of modules for this semester!', 'warning')
+                return redirect(url_for('module', cid=cid))
+            course = TakenCourses(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem, is_pending=True)
+            db.session.add(course)
+            db.session.commit()
+            flash(f'Thank you for requesting to enrol in {cid} {Courses.query.get(cid).cname}! Awaiting confirmation from Professor.', 'success')
+        elif request.form['btn'] == 'Withdraw':
+            course = TakenCourses.query.get([current_user.id, cid])
+            db.session.delete(course)
+            db.session.commit()
+            flash(f'You have withdrawn your request to enrol in {cid} {Courses.query.get(cid).cname}.', 'warning')
+        return redirect(url_for('module', cid=cid))
     Courses.query.get_or_404(cid)
     module = Courses.query.filter_by(cid=cid).first()
-    #change the user,password,host,port and database accordingly
-    # connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port="5432", database="postgres")
     # print('psql connected')
     cursor = connection.cursor()
-    query = ("With studentGrades(sid, cid, year,sem, grade) AS\
+    query = ("WITH studentGrades(sid, cid, year,sem, grade) AS\
                 (SELECT sid, cid, year, sem, CASE\
 	                WHEN grade = 'A+' then 5.0\
                 	WHEN grade = 'A'  then 5.0\
@@ -348,69 +366,69 @@ def module(cid):
 	                WHEN grade = 'F'  then 0\
                 END AS numGrade\
                 FROM takencourses\
-                WHERE grade IS NOT NULL\
+                WHERE grade IS NOT NULL AND NOT is_pending\
                 GROUP BY sid ,cid, year, sem),\
                 AverageGPA as (\
                     SELECT cid,year,sem,ROUND(AVG(grade),2) AS GPA\
                         FROM studentGrades\
-                        WHERE cid = '" + str(cid) + "'\
+                        WHERE cid = '" + cid + "'\
                         GROUP BY cid, year,sem)\
                 SELECT year,sem,coalesce(GPA,0.00) as GPA from AverageGPA;")
     cursor.execute(query)
     results = cursor.fetchall()
-    print(results)
-    if TakenCourses.query.filter_by(sid=current_user.id, cid=cid).filter(TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).first():
-        status = "taken"
-    elif TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, cid=cid).first():
-        status = "taking"
-    elif Professors.query.filter_by(cid=cid).first() == None:
-        status = "unavailable"
-    else:
+    # print(results)
+    mod = TakenCourses.query.get([current_user.id, cid])
+    if not mod:
         status = "nil"
+    elif mod.year != cur_year or (mod.year==cur_year and mod.sem < cur_sem):
+        status = "taken"
+    elif mod.is_pending:
+        status = "pending"
+    else:
+        status = "taking"
     prof = Professors.query.filter_by(cid=cid).first()
-    # return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, prof=prof)
-    return render_template('module.html', title=cid, module=module, status=status, cur_year=cur_year, cur_sem=cur_sem, prof=prof, results=results)
+    return render_template('module.html', title=cid, module=module, status=status, prof=prof, cur_year=cur_year, cur_sem=cur_sem, results=results)
 
 
-@app.route("/module/<string:cid>/enrol", methods=['GET', 'POST'])
-@login_required
-@role_required(role='Student')
-def module_enrol(cid):
-    Courses.query.get_or_404(cid)
-    if TakenCourses.query.filter_by(sid=current_user.id, cid=cid).filter(TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).first():
-        flash(f'You have already taken {cid} {Courses.query.get(cid).cname} before.', 'warning')
-    elif Professors.query.filter_by(cid=cid).first() == None:
-        flash(f'Sorry! {cid} {Courses.query.get(cid).cname} is not available this semester!', 'warning')
-    elif TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, cid=cid).first():
-        flash(f'You are already enrolled to {cid} {Courses.query.get(cid).cname}!', 'warning')
-    else:
-        if TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem).count() >= 6:
-            flash(f'Sorry! You have already enrolled to the maximum number of modules for this semester!', 'warning')
-        else:
-            course = TakenCourses(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem)
-            db.session.add(course)
-            db.session.commit()
-            flash(f'You have enrolled to {cid} {Courses.query.get(cid).cname}!', 'success')  
-    return redirect(url_for('module', cid=cid))
+# @app.route("/module/<string:cid>/enrol", methods=['GET', 'POST'])
+# @login_required
+# @role_required(role='Student')
+# def module_enrol(cid):
+#     Courses.query.get_or_404(cid)
+#     if TakenCourses.query.filter_by(sid=current_user.id, cid=cid).filter(TakenCourses.year!=cur_year or (TakenCourses.year==cur_year and TakenCourses.sem<cur_sem)).first():
+#         flash(f'You have already taken {cid} {Courses.query.get(cid).cname} before.', 'warning')
+#     elif Professors.query.filter_by(cid=cid).first() == None:
+#         flash(f'Sorry! {cid} {Courses.query.get(cid).cname} is not available this semester!', 'warning')
+#     elif TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, cid=cid).first():
+#         flash(f'You are already enrolled to {cid} {Courses.query.get(cid).cname}!', 'warning')
+#     else:
+#         if TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem).count() >= 6:
+#             flash(f'Sorry! You have already enrolled to the maximum number of modules for this semester!', 'warning')
+#         else:
+#             course = TakenCourses(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem)
+#             db.session.add(course)
+#             db.session.commit()
+#             flash(f'You have enrolled to {cid} {Courses.query.get(cid).cname}!', 'success')  
+#     return redirect(url_for('module', cid=cid))
 
 
-@app.route("/module/<string:cid>/withdraw", methods=['GET', 'POST'])
-@login_required
-@role_required(role='Student')
-def module_withdraw(cid):
-    Courses.query.get_or_404(cid)
-    course = TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, cid=cid).first()
-    if course:
-        db.session.delete(course)
-        db.session.commit()
-        flash(f'You have withdrawn from {cid}!', 'warning')
-    else:
-        flash(f'You are not enrolled to {cid}!', 'error')
-    return redirect(url_for('module', cid=cid))
+# @app.route("/module/<string:cid>/withdraw", methods=['GET', 'POST'])
+# @login_required
+# @role_required(role='Student')
+# def module_withdraw(cid):
+#     Courses.query.get_or_404(cid)
+#     course = TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, cid=cid).first()
+#     if course:
+#         db.session.delete(course)
+#         db.session.commit()
+#         flash(f'You have withdrawn from {cid}!', 'warning')
+#     else:
+#         flash(f'You are not enrolled to {cid}!', 'error')
+#     return redirect(url_for('module', cid=cid))
 
 
-@app.route("/module")
-@app.route("/module/<string:cid>")
+@app.route("/module", methods=['GET', 'POST'])
+@app.route("/module/<string:cid>", methods=['GET', 'POST'])
 @login_required
 def module_take(cid=None):
     if cid == None:
@@ -419,10 +437,24 @@ def module_take(cid=None):
         else:
             abort(404)
     mod = Courses.query.get_or_404(cid)
+    if request.method == 'POST':
+        if request.form['btn'] == 'Accept':
+            sid = request.form['sid']
+            student = TakenCourses.query.get([sid, cid])
+            student.is_pending = False
+            db.session.commit()
+            flash(f'{Students.query.get(sid).info.name} is now enrolled into {mod.cid} {mod.cname}!', 'success')
+        elif request.form['btn'] == 'Reject':
+            sid = request.form['sid']
+            student = TakenCourses.query.get([sid, cid])
+            db.session.delete(student)
+            db.session.commit()
+            flash(f'{Students.query.get(sid).info.name} is rejected from {mod.cid} {mod.cname}!', 'warning')
+        return redirect(url_for('module_take', cid=cid))
     if not Professors.query.filter_by(cid=cid).first():
         abort(404)
     is_student, is_ta, is_prof = (False for i in range(3))
-    if (TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem).first()):
+    if (TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem, is_pending=False).first()):
         is_student = True
     if 'Professor' in current_user.roles() and Professors.query.get(current_user.id).cid==cid:
         is_prof = True
@@ -431,8 +463,10 @@ def module_take(cid=None):
     if is_student or is_prof or is_ta:
         prof = Professors.query.filter_by(cid=cid).first()
         groups = Groups.query.filter_by(pid=prof.pid).all()
-        students = TakenCourses.query.filter_by(cid=cid, year=cur_year, sem=cur_sem).all()
-        return render_template('module_take.html', title=cid + ' ' +  mod.cname, mod=mod, students=students, groups=groups, Groups=Groups, groupinfo=GroupInfo, prof=prof, is_student=is_student, is_ta=is_ta, is_prof=is_prof, year=cur_year, sem=cur_sem)
+        students = TakenCourses.query.filter_by(cid=cid, year=cur_year, sem=cur_sem, is_pending=False).all()
+        requests = TakenCourses.query.filter_by(cid=cid, year=cur_year, sem=cur_sem, is_pending=True).all()
+        return render_template('module_take.html', title=cid + ' ' +  mod.cname, mod=mod, students=students, groups=groups, Groups=Groups, \
+            groupinfo=GroupInfo, prof=prof, requests=requests, is_student=is_student, is_ta=is_ta, is_prof=is_prof, year=cur_year, sem=cur_sem)
     else:
         abort(403)
 
@@ -461,66 +495,82 @@ def student_list(query=None):
 @login_required
 @role_required(role='Student')
 def ta_signup():
+    if request.method == 'POST':
+        if request.form['btn'] == 'Apply':
+            cid = request.form['cid']
+            ta = TeachingAssistants(sid=current_user.id, cid=cid, is_ta=False)
+            db.session.add(ta)
+            db.session.commit()
+            flash(f'Thank you for requesting to be a Teaching Assistant for {cid} {Courses.query.get(cid).cname}! Awaiting confirmation from Professor.', 'success')
+        elif request.form['btn'] == 'Withdraw':
+            cid = request.form['cid']
+            mod = TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid, is_ta=False).first()
+            if mod:
+                db.session.delete(mod)
+                db.session.commit()
+                flash(f'You have withdrawn your application as a Teaching Assistant for {cid} {Courses.query.get(cid).cname}.', 'warning')
+            else:
+                abort(403)
+        return redirect(url_for('ta_signup'))
     requested = TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=False).all()
     if Students.query.filter(Students.sid==current_user.id, Students.year>1).first():
-        takenmods = TakenCourses.query.join(Professors, TakenCourses.cid==Professors.cid).filter(TakenCourses.sid==current_user.id, TakenCourses.year!=cur_year, TakenCourses.grade.like("A%"))
+        takenmods = TakenCourses.query.join(Professors, TakenCourses.cid==Professors.cid).filter(TakenCourses.sid==current_user.id, TakenCourses.year!=cur_year, is_pending==False, TakenCourses.grade.like("A%"))
         available = []
         for takenmod in takenmods:
             found = False
-            for request in requested:
-                if takenmod.cid == request.cid:
+            for req in requested:
+                if takenmod.cid == req.cid:
                     found = True
                     break
             if not found:
                 available.append(takenmod)
     else:
         available = None
-    profs = Professors()
     ta = TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first()
-    return render_template('ta_signup.html', title='TA Sign Up', available=available, profs=profs, requested=requested, ta=ta)
+    return render_template('ta_signup.html', title='TA Sign Up', available=available, profs=Professors, requested=requested, ta=ta)
 
 
-@app.route("/ta/join/<string:cid>", methods=['GET', 'POST'])
-@login_required
-@role_required(role='Student')
-def ta_join(cid):
-    Courses.query.get_or_404(cid)
-    if Professors.query.filter_by(cid=cid).first() == None:
-        flash(f'Sorry! {cid} {Courses.query.get(cid).cname} is not available this semester!', 'warning')
-    elif TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first():
-        ta = TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first()
-        if ta.cid == cid:
-            flash(f'You are already a Teaching Assistant for {ta.cid} {Courses.query.get(ta.cid).cname}!', 'warning')
-        else:
-            flash(f'You are already a Teaching Assistant for {ta.cid} {Courses.query.get(ta.cid).cname}! You are not allowed to apply to be a Teaching Assistant for any other modules.', 'warning')
-    elif TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid).first():
-        flash(f'You have already requested to be a Teaching Assistant for {cid} {Courses.query.get(cid).cname}.', 'warning')
-    elif TakenCourses.query.get([current_user.id, cid]).grade[0] != 'A' or Students.query.get(current_user.id).year == 1:
-        flash(f'Sorry! You are not eligible to be a Teaching Assistant for {cid} {Courses.query.get(cid).cname}!', 'warning')
-    else:
-        ta = TeachingAssistants(sid=current_user.id, cid=cid, is_ta=False)
-        db.session.add(ta)
-        db.session.commit()
-        flash(f'Thank you for requesting to be a Teaching Assistant for {cid} {Courses.query.get(cid).cname}! Awaiting confirmation from Professor.', 'success')  
-    return redirect(url_for('ta_signup'))
+# @app.route("/ta/join/<string:cid>", methods=['GET', 'POST'])
+# @login_required
+# @role_required(role='Student')
+# def ta_join(cid):
+#     Courses.query.get_or_404(cid)
+#     if Professors.query.filter_by(cid=cid).first() == None:
+#         flash(f'Sorry! {cid} {Courses.query.get(cid).cname} is not available this semester!', 'warning')
+#     elif TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first():
+#         ta = TeachingAssistants.query.filter_by(sid=current_user.id, is_ta=True).first()
+#         if ta.cid == cid:
+#             flash(f'You are already a Teaching Assistant for {ta.cid} {Courses.query.get(ta.cid).cname}!', 'warning')
+#         else:
+#             flash(f'You are already a Teaching Assistant for {ta.cid} {Courses.query.get(ta.cid).cname}! You are not allowed to apply to be a Teaching Assistant for any other modules.', 'warning')
+#     elif TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid).first():
+#         flash(f'You have already requested to be a Teaching Assistant for {cid} {Courses.query.get(cid).cname}.', 'warning')
+#     elif TakenCourses.query.get([current_user.id, cid]).grade[0] != 'A' or Students.query.get(current_user.id).year == 1:
+#         flash(f'Sorry! You are not eligible to be a Teaching Assistant for {cid} {Courses.query.get(cid).cname}!', 'warning')
+#     else:
+#         ta = TeachingAssistants(sid=current_user.id, cid=cid, is_ta=False)
+#         db.session.add(ta)
+#         db.session.commit()
+#         flash(f'Thank you for requesting to be a Teaching Assistant for {cid} {Courses.query.get(cid).cname}! Awaiting confirmation from Professor.', 'success')  
+#     return redirect(url_for('ta_signup'))
 
 
-@app.route("/ta/withdraw/<string:cid>", methods=['GET', 'POST'])
-@login_required
-@role_required(role='Student')
-def ta_withdraw(cid):
-    Courses.query.get_or_404(cid)
-    if TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid, is_ta=True).first():
-        flash(f'You are already a Teaching Assistant for {cid} {Courses.query.get(cid).cname} and are not allowed to withdraw anymore.', 'error')
-        return redirect(url_for('ta_signup'))
-    mod = TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid).first()
-    if mod:
-        db.session.delete(mod)
-        db.session.commit()
-        flash(f'You have withdrawn your application as a Teaching Assistant for {cid} {Courses.query.get(cid).cname}.', 'warning')
-    else:
-        flash(f'You have not signed up to be a Teaching Assistant for {mod} {Courses.query.get(cid).cname}.', 'info')
-    return redirect(url_for('ta_signup'))
+# @app.route("/ta/withdraw/<string:cid>", methods=['GET', 'POST'])
+# @login_required
+# @role_required(role='Student')
+# def ta_withdraw(cid):
+#     Courses.query.get_or_404(cid)
+#     if TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid, is_ta=True).first():
+#         flash(f'You are already a Teaching Assistant for {cid} {Courses.query.get(cid).cname} and are not allowed to withdraw anymore.', 'error')
+#         return redirect(url_for('ta_signup'))
+#     mod = TeachingAssistants.query.filter_by(sid=current_user.id, cid=cid).first()
+#     if mod:
+#         db.session.delete(mod)
+#         db.session.commit()
+#         flash(f'You have withdrawn your application as a Teaching Assistant for {cid} {Courses.query.get(cid).cname}.', 'warning')
+#     else:
+#         flash(f'You have not signed up to be a Teaching Assistant for {mod} {Courses.query.get(cid).cname}.', 'info')
+#     return redirect(url_for('ta_signup'))
   
 
 
@@ -531,10 +581,27 @@ def prof_list():
     return render_template('prof_list.html', title='Professor List', profs=profs)
 
 
-@app.route("/prof/mytas")
+@app.route("/prof/mytas", methods=['GET', 'POST'])
 @login_required
 @role_required(role='Professor')
 def my_tas():
+    if request.method == 'POST':
+        if request.form['btn'] == 'Accept':
+            sid = request.form['sid']
+            othersignups = TeachingAssistants.query.filter_by(sid=sid).all()
+            for othersignup in othersignups:
+                db.session.delete(othersignup)
+            ta = TeachingAssistants(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True)
+            db.session.add(ta)
+            db.session.commit()
+            flash(f'Success! {Students.query.get(sid).info.name} is now your slave!', 'success')
+        elif request.form['btn'] == 'Reject':
+            sid = request.form['sid']
+            student = TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first()
+            db.session.delete(student)
+            db.session.commit()
+            flash(f'{Students.query.get(sid).info.name} is rejected from being your slave!', 'warning')
+        return redirect(url_for('my_tas'))
     cid = Professors.query.get(current_user.id).cid
     tas = TeachingAssistants.query.filter_by(cid=cid, is_ta=True).all()
     requests = TeachingAssistants.query.filter_by(cid=cid, is_ta=False).all()
@@ -543,42 +610,42 @@ def my_tas():
     return render_template('my_tas.html', title='My TAs', cid=cid, tas=tas, requests=requests, students=students, user=user, cur_year=cur_year, cur_sem=cur_sem)
 
 
-@app.route("/prof/accept/<string:sid>", methods=['GET', 'POST'])
-@login_required
-@role_required(role='Professor')
-def ta_accept(sid):
-    Students.query.get_or_404(sid)
-    if TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first() == None:
-        flash(f'Invalid Request!', 'error')
-    else:
-        othersignups = TeachingAssistants.query.filter_by(sid=sid).all()
-        for othersignup in othersignups:
-            db.session.delete(othersignup)
-        ta = TeachingAssistants(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True)
-        db.session.add(ta)
-        db.session.commit()
-        flash(f'Success! {Students.query.get(sid).info.name} is now your slave!', 'success')  
-    return redirect(url_for('my_tas'))
+# @app.route("/prof/accept/<string:sid>", methods=['GET', 'POST'])
+# @login_required
+# @role_required(role='Professor')
+# def ta_accept(sid):
+#     Students.query.get_or_404(sid)
+#     if TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first() == None:
+#         flash(f'Invalid Request!', 'error')
+#     else:
+#         othersignups = TeachingAssistants.query.filter_by(sid=sid).all()
+#         for othersignup in othersignups:
+#             db.session.delete(othersignup)
+#         ta = TeachingAssistants(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True)
+#         db.session.add(ta)
+#         db.session.commit()
+#         flash(f'Success! {Students.query.get(sid).info.name} is now your slave!', 'success')  
+#     return redirect(url_for('my_tas'))
 
 
-@app.route("/prof/reject/<string:sid>", methods=['GET', 'POST'])
-@login_required
-@role_required(role='Professor')
-def ta_reject(sid):
-    Students.query.get_or_404(sid)
-    if TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first() == None:
-        flash(f'Invalid Request!', 'error')
-    elif TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True).first():
-        student = TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True).first()
-        db.session.delete(student)
-        db.session.commit()
-        flash(f'{Students.query.get(sid).info.name} is no longer your slave!', 'warning')  
-    else:
-        student = TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first()
-        db.session.delete(student)
-        db.session.commit()
-        flash(f'{Students.query.get(sid).info.name} is rejected from being your slave!', 'warning')  
-    return redirect(url_for('my_tas'))
+# @app.route("/prof/reject/<string:sid>", methods=['GET', 'POST'])
+# @login_required
+# @role_required(role='Professor')
+# def ta_reject(sid):
+#     Students.query.get_or_404(sid)
+#     if TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first() == None:
+#         flash(f'Invalid Request!', 'error')
+#     elif TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True).first():
+#         student = TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True).first()
+#         db.session.delete(student)
+#         db.session.commit()
+#         flash(f'{Students.query.get(sid).info.name} is no longer your slave!', 'warning')  
+#     else:
+#         student = TeachingAssistants.query.filter_by(sid=sid, cid=Professors.query.get(current_user.id).cid).first()
+#         db.session.delete(student)
+#         db.session.commit()
+#         flash(f'{Students.query.get(sid).info.name} is rejected from being your slave!', 'warning')  
+#     return redirect(url_for('my_tas'))
 
 
 @app.route("/mygroups")
@@ -595,9 +662,9 @@ def my_groups():
 @role_required(role='Student')
 def mod_groups(cid):
     mod = Courses.query.get_or_404(cid)
-    if not TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem).first():
+    if not TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem, is_pending=False).first():
         abort(403)
-    groups = Groups.query.join(GroupInfo, GroupInfo.gid==Groups.gid).join(Professors, Professors.pid==Groups.pid).filter(GroupInfo.sid==current_user.id, Professors.cid==cid).all()
+    groups = Groups.query.join(GroupInfo, GroupInfo.gid==Groups.gid).filter(GroupInfo.sid==current_user.id, Groups.cid==cid).all()
     return render_template('mod_groups.html', title=cid + ' Groups', groups=groups, groupinfo=GroupInfo, mod=mod)
 
 
@@ -631,21 +698,10 @@ def ta_groups():
     return render_template('ta_groups.html', title='TA Groups', groups=groups, groupinfo=groupinfo, cid=cid)
 
 
-@app.route("/prof/groups")
+@app.route("/prof/groups", methods=['GET', 'POST'])
 @login_required
 @role_required(role='Professor')
 def prof_groups():
-    groups = Groups.query.filter_by(pid=current_user.id).all()
-    groupinfo = GroupInfo()
-    cid = Professors.query.get(current_user.id).cid
-    user = User()
-    return render_template('prof_groups.html', title='Groups', groups=groups, groupinfo=groupinfo, user=user, cid=cid)
-
-
-@app.route("/prof/create-group", methods=['GET', 'POST'])
-@login_required
-@role_required(role='Professor')
-def create_group():
     if request.method == 'POST':
         gname = request.form['gname']
         students = request.form['students'].split(',')
@@ -656,7 +712,7 @@ def create_group():
             gid = 1
         else:
             gid = db.session.query(func.max(Groups.gid)).scalar()+1
-        g = Groups(gid=gid, gname=gname, pid=current_user.id, sid=ta)
+        g = Groups(gid=gid, gname=gname, pid=current_user.id, sid=ta, cid=Professors.query.get(current_user.id).cid)
         db.session.add(g)
         for student in students:
             s = GroupInfo(gid=gid, sid=student)
@@ -664,8 +720,10 @@ def create_group():
         db.session.commit()
         flash(f'New group {gname} successfully created!', 'success')
         return redirect(url_for('prof_groups'))
+    groups = Groups.query.filter_by(pid=current_user.id).all()
+    groupinfo = GroupInfo()
     cid = Professors.query.get(current_user.id).cid
-    students = TakenCourses.query.join(User, TakenCourses.sid==User.id).filter(TakenCourses.cid==cid, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem).order_by(User.name.asc()).all()
+    students = TakenCourses.query.join(User, TakenCourses.sid==User.id).filter(TakenCourses.cid==cid, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem, TakenCourses.is_pending==False).order_by(User.name.asc()).all()
     s1, s2, s3, s4, s5 = ([] for i in range(5))
     for student in students:
         if student.student.year == 1:
@@ -678,8 +736,126 @@ def create_group():
             s4.append(student)
         elif student.student.year == 5:
             s5.append(student)
-    tas = TeachingAssistants.query.join(User, TeachingAssistants.sid==User.id).filter(TeachingAssistants.cid==cid).order_by(User.name.asc()).all()   
-    return render_template('create_group.html', title='Create Group', students=students, s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, tas=tas, cid=cid)
+    tas = TeachingAssistants.query.join(User, TeachingAssistants.sid==User.id).filter(TeachingAssistants.cid==cid).order_by(User.name.asc()).all()  
+    return render_template('prof_groups.html', title='Groups', groups=groups, groupinfo=groupinfo, cid=cid, s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, tas=tas)
+
+
+# @app.route("/prof/create-group", methods=['GET', 'POST'])
+# @login_required
+# @role_required(role='Professor')
+# def create_group():
+#     if request.method == 'POST':
+#         gname = request.form['gname']
+#         students = request.form['students'].split(',')
+#         ta = request.form['ta']
+#         if ta == "none":
+#             ta = ''
+#         if Groups.query.first() == None:
+#             gid = 1
+#         else:
+#             gid = db.session.query(func.max(Groups.gid)).scalar()+1
+#         g = Groups(gid=gid, gname=gname, pid=current_user.id, sid=ta)
+#         db.session.add(g)
+#         for student in students:
+#             s = GroupInfo(gid=gid, sid=student)
+#             db.session.add(s)
+#         db.session.commit()
+#         flash(f'New group {gname} successfully created!', 'success')
+#         return redirect(url_for('prof_groups'))
+#     cid = Professors.query.get(current_user.id).cid
+#     students = TakenCourses.query.join(User, TakenCourses.sid==User.id).filter(TakenCourses.cid==cid, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem).order_by(User.name.asc()).all()
+#     s1, s2, s3, s4, s5 = ([] for i in range(5))
+#     for student in students:
+#         if student.student.year == 1:
+#             s1.append(student)
+#         elif student.student.year == 2:
+#             s2.append(student)
+#         elif student.student.year == 3:
+#             s3.append(student)
+#         elif student.student.year == 4:
+#             s4.append(student)
+#         elif student.student.year == 5:
+#             s5.append(student)
+#     tas = TeachingAssistants.query.join(User, TeachingAssistants.sid==User.id).filter(TeachingAssistants.cid==cid).order_by(User.name.asc()).all()   
+#     return render_template('create_group.html', title='Create Group', students=students, s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, tas=tas, cid=cid)
+
+
+@app.route("/forums")
+@login_required
+@role_required(role='Student')
+def student_forums():
+    forums = forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all())
+    return render_template('student_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, time_ago=time_ago)
+
+
+@app.route("/module/<string:cid>/forums")
+@login_required
+@role_required(role='Student')
+def mod_forums(cid):
+    mod = Courses.query.get_or_404(cid)
+    if not TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem, is_pending=False).first():
+        abort(403)
+    forums = ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).join(Forums, Forums.fid==ForumInfo.fid).join(Professors, Professors.pid==Forums.pid)\
+        .filter(GroupInfo.sid==current_user.id, Professors.cid==cid).all()
+    return render_template('mod_forums.html', title=cid + ' Forums', forums=forums, foruminfo=ForumInfo, mod=mod, time_ago=time_ago)
+
+
+@app.route("/prof/forum", methods=['GET', 'POST'])
+@login_required
+@role_required(role='Professor')
+def prof_forums():
+    if request.method == 'POST':
+        title = request.form['title']
+        groups = request.form['groups'].split(',')
+        if Forums.query.first() == None:
+            fid = 1
+        else:
+            fid = db.session.query(func.max(Forums.fid)).scalar()+1
+        f = Forums(fid=fid, title=title, pid=current_user.id)
+        db.session.add(f)
+        for group in groups:
+            g = ForumInfo(fid=fid, gid=group)
+            db.session.add(g)
+        db.session.commit()
+        flash(f'New forum {title} has been successfully created!', 'success')
+        return redirect(url_for('prof_forums'))
+    forums = Forums.query.filter_by(pid=current_user.id).all()
+    cid = Professors.query.get(current_user.id).cid
+    groups = Groups.query.filter_by(pid=current_user.id).order_by(Groups.gname).all()  
+    return render_template('prof_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, cid=cid, groups=groups, time_ago=time_ago)
+
+
+@app.route("/ta/forum")
+@login_required
+@role_required(role='TA')
+def ta_forums():
+    forums = ForumInfo.query.join(Groups, Groups.gid==ForumInfo.gid).filter(Groups.sid==current_user.id).all()
+    cid = TeachingAssistants.query.filter_by(sid=current_user.id).first().cid
+    return render_template('ta_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, cid=cid, time_ago=time_ago)
+
+
+# @app.route("/prof/create-forum", methods=['GET', 'POST'])
+# @login_required
+# @role_required(role='Professor')
+# def create_forum():
+#     if request.method == 'POST':
+#         title = request.form['title']
+#         groups = request.form['groups'].split(',')
+#         if Forums.query.first() == None:
+#             fid = 1
+#         else:
+#             fid = db.session.query(func.max(Forums.fid)).scalar()+1
+#         f = Forums(fid=fid, title=title, pid=current_user.id)
+#         db.session.add(f)
+#         for group in groups:
+#             g = ForumInfo(fid=fid, gid=group)
+#             db.session.add(g)
+#         db.session.commit()
+#         flash(f'New forum {title} has been successfully created!', 'success')
+#         return redirect(url_for('prof_forums'))
+#     cid = Professors.query.get(current_user.id).cid
+#     groups = Groups.query.filter_by(pid=current_user.id).order_by(Groups.gname).all()  
+#     return render_template('create_forum.html', title='Create Forum', groups=groups, cid=cid)
 
 
 @app.route("/module/<string:cid>/forum/<int:fid>", methods=['GET', 'POST'])
@@ -728,90 +904,26 @@ def forum(cid, fid):
         abort(403)
 
 
-@app.route("/forums")
-@login_required
-@role_required(role='Student')
-def student_forums():
-    forums = forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all())
-    return render_template('student_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, time_ago=time_ago)
-
-
-@app.route("/<string:cid>/forums")
-@login_required
-@role_required(role='Student')
-def mod_forums(cid):
-    mod = Courses.query.get_or_404(cid)
-    if not TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem).first():
-        abort(403)
-    forums = ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).join(Forums, Forums.fid==ForumInfo.fid).join(Professors, Professors.pid==Forums.pid)\
-        .filter(GroupInfo.sid==current_user.id, Professors.cid==cid).all()
-    return render_template('mod_forums.html', title=cid + ' Forums', forums=forums, foruminfo=ForumInfo, mod=mod, time_ago=time_ago)
-
-
-@app.route("/prof/forum")
-@login_required
-@role_required(role='Professor')
-def prof_forums():
-    forums = Forums.query.filter_by(pid=current_user.id).all()
-    foruminfo = ForumInfo()
-    cid = Professors.query.get(current_user.id).cid
-    user = User()
-    return render_template('prof_forums.html', title='Forums', forums=forums, foruminfo=foruminfo, user=user, cid=cid, time_ago=time_ago)
-
-
-@app.route("/ta/forum")
-@login_required
-@role_required(role='TA')
-def ta_forums():
-    forums = ForumInfo.query.join(Groups, Groups.gid==ForumInfo.gid).filter(Groups.sid==current_user.id).all()
-    cid = TeachingAssistants.query.filter_by(sid=current_user.id).first().cid
-    return render_template('ta_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, cid=cid, time_ago=time_ago)
-
-
-@app.route("/prof/create-forum", methods=['GET', 'POST'])
-@login_required
-@role_required(role='Professor')
-def create_forum():
-    if request.method == 'POST':
-        title = request.form['title']
-        groups = request.form['groups'].split(',')
-        if Forums.query.first() == None:
-            fid = 1
-        else:
-            fid = db.session.query(func.max(Forums.fid)).scalar()+1
-        f = Forums(fid=fid, title=title, pid=current_user.id)
-        db.session.add(f)
-        for group in groups:
-            g = ForumInfo(fid=fid, gid=group)
-            db.session.add(g)
-        db.session.commit()
-        flash(f'New forum {title} has been successfully created!', 'success')
-        return redirect(url_for('prof_forums'))
-    cid = Professors.query.get(current_user.id).cid
-    groups = Groups.query.filter_by(pid=current_user.id).order_by(Groups.gname).all()  
-    return render_template('create_forum.html', title='Create Forum', groups=groups, cid=cid)
-
-
-@app.route("/module/<string:cid>/forum/<int:fid>/create_post", methods=['GET', 'POST'])
-@login_required
-def create_post(cid, fid):
-    if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid:
-        abort(404)
-    module = Courses.query.get(cid)
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-        if Posts.query.filter_by(fid=fid).first() == None:
-            postnum = 1
-        else:
-            postnum = db.session.query(func.max(Posts.post_num)).filter(Posts.fid==fid).scalar()+1
-        p = Posts(fid=fid, post_num=postnum, title=title, id=current_user.id, content=content, p_fid=fid, p_post_num=None)
-        db.session.add(p)
-        db.session.commit()
-        flash(f'Post created successfully.', 'success')
-        return redirect(url_for('forum', cid=cid, fid=fid))
-    forum = Forums.query.get(fid)
-    return render_template('create_post.html',title="Create Post", module=module, forum=forum, cid=cid)
+# @app.route("/module/<string:cid>/forum/<int:fid>/create_post", methods=['GET', 'POST'])
+# @login_required
+# def create_post(cid, fid):
+#     if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid:
+#         abort(404)
+#     module = Courses.query.get(cid)
+#     if request.method == 'POST':
+#         title = request.form['title']
+#         content = request.form['content']
+#         if Posts.query.filter_by(fid=fid).first() == None:
+#             postnum = 1
+#         else:
+#             postnum = db.session.query(func.max(Posts.post_num)).filter(Posts.fid==fid).scalar()+1
+#         p = Posts(fid=fid, post_num=postnum, title=title, id=current_user.id, content=content, p_fid=fid, p_post_num=None)
+#         db.session.add(p)
+#         db.session.commit()
+#         flash(f'Post created successfully.', 'success')
+#         return redirect(url_for('forum', cid=cid, fid=fid))
+#     forum = Forums.query.get(fid)
+#     return render_template('create_post.html',title="Create Post", module=module, forum=forum, cid=cid)
 
 
 @app.route("/module/<string:cid>/forum/<int:fid>/thread/<int:tid>", methods=['GET', 'POST'])

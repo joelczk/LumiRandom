@@ -8,7 +8,8 @@
                 <nav>
                     <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
                         <a class="nav-item nav-link active" id="current-tab" data-toggle="tab" href="#current" role="tab" aria-controls="current" aria-selected="true" style="width: 555px">Current</a>
-                        <a class="nav-item nav-link" id="request-tab" data-toggle="tab" href="#request" role="tab" aria-controls="request" aria-selected="false" style="width: 555px">Requests</a>
+                        <a class="nav-item nav-link" id="request-tab" data-toggle="tab" href="#request" role="tab" aria-controls="request" aria-selected="false" style="width: 555px">
+                            Requests {% if requests|length > 0 %}<div class="ui circular tiny teal button ml-2" style="padding: 0.3em">{{ requests|length }}</div>{% endif %}</a>
                     </div>
                 </nav>
                 <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
@@ -42,63 +43,65 @@
                                 {% if requests %}
                                 <div class="row justify-content-left">
                                     {% for request in requests %}
-                                        <div class="col-auto mb-3">
-                                            <div class="card unref" style="width: 25rem; height: 14rem">
+                                        <div class="col-auto mb-4">
+                                            <div class="card unref mb-2" style="width: 25rem; height: 14rem">
                                                 <div class="card-body">
-                                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#Reject{{ request.sid }}Modal" style="float: right">
+                                                    <h6 class="card-subtitle mb-2"><a class="unref" href="{{ url_for('profile', id=request.sid) }}"><small class="text-muted">{{ request.sid }}</small></a></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=request.sid) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
+                                                    <h6><small>Year: {{ students.query.get(request.sid).year }}</small></h6>
+                                                    <h6><small>Grade: {{ request.courseinfo.grade }}</small></h6>
+                                                    <button type="button" class="ui negative button" data-toggle="modal" data-target="#Reject{{ request.sid }}Modal" style="float: right">
                                                         Reject
                                                     </button>      
                                                     <!-- Modal -->
                                                     <div class="modal fade" id="Reject{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Reject{{ request.sid }}ModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog" role="document">
                                                             <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="Reject{{ request.sid }}ModalLabel">Take Note</h5>
+                                                                <div class="modal-header text-center">
+                                                                    <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                    </button>
+                                                                        <span aria-hidden="true" style="float: right">&times;</span>
+                                                                    </button> 
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <small>Are you sure you want to reject this student as your Teaching Assistant?</small>
+                                                                    Are you sure you want to <b>reject</b> this student as your Teaching Assistant?
                                                                 </div>
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                                    <form action="{{ url_for('ta_reject', sid=request.sid) }}" method='POST'>
-                                                                        <input class="btn btn-danger" type="submit" value="Reject">
+                                                                    <form class="ui form" method='POST'>
+                                                                        <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
+                                                                        <input class="ui negative submit button" type="submit" name="btn" value="Reject">
                                                                     </form>
+                                                                    <button class="ui button" data-dismiss="modal">Cancel</button>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#Accept{{ request.sid }}Modal" style="float: right">
+                                                    <button type="button" class="ui positive button" data-toggle="modal" data-target="#Accept{{ request.sid }}Modal" style="float: right">
                                                         Accept
                                                     </button>      
                                                     <!-- Modal -->
                                                     <div class="modal fade" id="Accept{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Accept{{ request.sid }}ModalLabel" aria-hidden="true">
                                                         <div class="modal-dialog" role="document">
                                                             <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="Accept{{ request.sid }}ModalLabel">Take Note</h5>
+                                                                <div class="modal-header text-center">
+                                                                    <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
                                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                    </button>
+                                                                        <span aria-hidden="true" style="float: right">&times;</span>
+                                                                    </button> 
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    <small>Are you sure you want to accept this student as your Teaching Assistant?</small>
+                                                                    Are you sure you want to <b>accept</b> this student as your Teaching Assistant?
                                                                 </div>
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                                    <form action="{{ url_for('ta_accept', sid=request.sid) }}" method='POST'>
-                                                                        <input class="btn btn-success" type="submit" value="Accept">
+                                                                    <form class="ui form" method='POST'>
+                                                                        <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
+                                                                        <input class="ui positive submit button" type="submit" name="btn" value="Accept">
                                                                     </form>
+                                                                    <button class="ui button" data-dismiss="modal">Cancel</button>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <h6 class="card-subtitle mb-2"><a class="unref" href="{{ url_for('profile', id=request.sid) }}"><small class="text-muted">{{ request.sid }}</small></a></h6>
-                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=request.sid) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
-                                                    <h6><small>Year: {{ students.query.get(request.sid).year }}</small></h6>
-                                                    <h6><small>Grade: {{ request.courseinfo.grade }}</small></h6>
                                                 </div>
                                                 <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
                                                     <small>{{ cur_year }} Semester {{ cur_sem }}</small>

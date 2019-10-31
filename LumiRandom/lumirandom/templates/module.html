@@ -2,71 +2,72 @@
 {% block content %}
 <div class="content-section">
     <div>
-        {% if 'Professor' not in current_user.roles() %}
-        {% if status == "taken" %}
-            <button type="button" class="btn btn-secondary" disabled style="float: right">Taken</button>
-        {% elif status == "taking" %}
-            <button type="button" class="btn btn-secondary" disabled style="float: right">Enrolled</button>
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#WithdrawModal" style="float: right">
-                Withdraw
-            </button> 
-            <div class="modal fade" id="WithdrawModal" tabindex="-1" role="dialog" aria-labelledby="WithdrawModalLabel" aria-hidden="true">
+        {% if 'Student' in current_user.roles() %}
+            {% if status == "taken" %}
+                <button class="ui secondary button" disabled style="float: right">Taken</button>
+            {% elif status == "taking" %}
+                <button class="ui secondary button" disabled style="float: right">Enrolled</button>
+            {% elif status == 'pending' %}
+                <button class="ui negative button" data-toggle="modal" data-target="#WithdrawModal" style="float: right">
+                    Withdraw
+                </button> 
+                <div class="modal fade" id="WithdrawModal" tabindex="-1" role="dialog" aria-labelledby="WithdrawModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header text-center">
+                                <h4 class="modal-title w-100 font-weight-bold">Hey! Wait A Minute!!</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to <b>withdraw</b> from this module? <br>We will miss you!
+                            </div>
+                            <div class="modal-footer">
+                                <form class="ui form" method='POST'>
+                                    <input class="ui negative submit button" type="submit" name="btn" value="Withdraw">
+                                </form>
+                                <button class="ui button" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% elif status == "nil" and prof %}
+            <button class="ui positive button" data-toggle="modal" data-target="#EnrolModal" style="float: right">
+                Enrol
+            </button>      
+            <!-- Modal -->
+            <div class="modal fade" id="EnrolModal" tabindex="-1" role="dialog" aria-labelledby="EnrolModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="WithdrawModalLabel">Alert</h5>
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                                <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            Are you sure you want to withdraw from this module? <br>We will miss you!
+                            Are you sure you want to <b>enrol</b> into this module?
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <form action="{{ url_for('module_withdraw', cid=module.cid) }}" method='POST'>
-                                <input class="btn btn-danger" type="submit" value="Confirm">
+                            <form class="ui form" method='POST'>
+                                <input class="ui positive submit button" type="submit" name="btn" value="Enrol">
                             </form>
+                            <button class="ui button" data-dismiss="modal">Cancel</button>
                         </div>
                     </div>
                 </div>
             </div>
-        {% elif status == "nil" %}
-        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#EnrolModal" style="float: right">
-            Enrol
-        </button>      
-        <!-- Modal -->
-        <div class="modal fade" id="EnrolModal" tabindex="-1" role="dialog" aria-labelledby="EnrolModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="EnrolModalLabel">Take Note</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to enrol into this module? <br>There is no going back!
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <form action="{{ url_for('module_enrol', cid=module.cid) }}" method='POST'>
-                            <input class="btn btn-success" type="submit" value="Confirm">
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+            {% endif %}
         {% endif %}
         <h4>{{ module.cid }}</h4>
         <h2>{{ module.cname }}</h2>
         <p class="text-muted">Modular Credit: 4<br>
-        {% if status == "unavailable" %}
+        {% if not prof %}
             <b style="font-style: italic">This module is not available for this semester!</b>
         {% else %}
-             {{ cur_year }} Semester {{ cur_sem }}
-        {% endif %}
+             {{ cur_year }} Semester {{ cur_sem }}&emsp;<a class="unref text-muted" href="{{ url_for('profile', id=prof.pid) }}">{{ prof.info.name }}</a>
+        {% endif %} 
         </p>
     </div><br><br>
     <div style="border-top: 2px solid; border-color: #b0b9c0; padding: 10px">

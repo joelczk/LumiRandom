@@ -163,9 +163,12 @@ div.unref:link, div.unref:visited, div.unref:hover, div.unref:active
   text-decoration: none;
 }
 
+.hover-light {
+  color: #6e757a;
+}
 
 .hover-light:hover {
-  color: #e2e9ec;
+  color: #b7bdbe;
 }
 
 .nav-img {

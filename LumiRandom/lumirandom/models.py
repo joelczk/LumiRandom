@@ -59,7 +59,6 @@ class Students(db.Model):
     sid = db.Column(db.String(10), db.ForeignKey('users.id'), primary_key=True)
     year = db.Column(db.Integer, db.CheckConstraint('year >= 1 AND year <= 5'), nullable=False)
     taken = db.relationship('TakenCourses', backref='student', lazy=True)
-    ta = db.relationship('Groups', backref='ta', lazy=True)
     group = db.relationship('GroupInfo', backref='student', lazy=True)
 
     def __repr__(self):
@@ -84,9 +83,11 @@ class TakenCourses(db.Model):
     year = db.Column(db.String(10), nullable=False)
     sem = db.Column(db.Integer, db.CheckConstraint('sem = 1 OR sem = 2'), nullable=False)
     grade = db.Column(db.String(5), server_default='')
+    is_rated = db.Column(db.Boolean, nullable=False, server_default='0')
+    rating = db.Column(db.Float, nullable = False, server_default='0.0')
+    is_pending = db.Column(db.Boolean, nullable=False, server_default='0')
     ta = db.relationship('TeachingAssistants', backref='courseinfo', lazy=True)
-    is_rated = db.Column(db.Boolean,nullable = False, server_default = '0')
-    rating = db.Column(db.Float, nullable = False, default = '0.0')
+
     def __repr__(self):
         return f"TakenCourses('{self.sid}', '{self.cid}', '{self.year}', '{self.sem}', '{self.grade}')"
 
@@ -98,7 +99,7 @@ class Professors(db.Model):
     forum = db.relationship('Forums', backref='prof', lazy=True)
 
     def __repr__(self):
-        return f"Professors('{self.pid}', '{self.name}', '{self.cid}')"
+        return f"Professors('{self.pid}', '{self.cid}')"
 
 
 class TeachingAssistants(db.Model):
@@ -109,6 +110,7 @@ class TeachingAssistants(db.Model):
     sid = db.Column(db.String(10), primary_key=True)
     cid = db.Column(db.String(10), primary_key=True)
     is_ta = db.Column(db.Boolean, nullable=False, server_default='0')
+    group = db.relationship('Groups', backref='ta', lazy=True)
     
 
     def __repr__(self):
@@ -117,10 +119,14 @@ class TeachingAssistants(db.Model):
 
 class Groups(db.Model):
     __tablename__ = "groups"
+    __table_args__ = (
+        db.ForeignKeyConstraint(['sid', 'cid'], ['teachingassistants.sid', 'teachingassistants.cid']),
+    )
     gid = db.Column(db.Integer, primary_key=True)
     gname = db.Column(db.String(50), nullable=False)
     pid = db.Column(db.String(10), db.ForeignKey('professors.pid'), nullable=False)
-    sid = db.Column(db.String(10), db.ForeignKey('students.sid'))
+    sid = db.Column(db.String(10))
+    cid = db.Column(db.String(10))
     groupinfo = db.relationship('GroupInfo', backref='groupinfo', lazy=True)
     group = db.relationship('ForumInfo', backref='group', lazy=True)
 

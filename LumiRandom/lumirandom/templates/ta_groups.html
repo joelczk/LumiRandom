@@ -14,7 +14,7 @@
                             </a>
                             {% if group.sid %}
                                 <a class="card-footer unref2" style="background-color: #a1b4c2; color: #e8ebee;" href="{{ url_for('profile', id=group.sid) }}">
-                                    <small style="float: left">{{ group.ta.info.name }}</small>
+                                    <small style="float: left">{{ group.ta.courseinfo.student.info.name }}</small>
                                     <small style="float: right">Teaching Assistant</small>
                                 </a>
                             {% else %}

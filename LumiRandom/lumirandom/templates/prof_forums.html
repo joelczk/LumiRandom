@@ -1,9 +1,63 @@
 {% extends 'layout.html' %}
 {% block content %}
     <h2 class="border-bottom mb-4", style="text-align:center;">Forums</h2>
-    <div class="container-fluid mt-4">
-        <a class="unrefany" href="{{ url_for('create_forum') }}"><button class="fluid ui teal button">New Forum</button></a>
+    <div class="ui container">
         <div class="row justify-content-center">
+            <a class="ui fluid teal button" data-toggle="modal" data-target="#newforum">New Forum</a>
+            <div class="modal fade" id="newforum" tabindex="-1" role="dialog" aria-labelledby="newforum" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">New Forum</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" style="float: right">&times;</span>
+                            </button> 
+                        </div>
+                        <div class="modal-body mx-3">
+                            <form class="ui form forum" method='POST'>
+                                <div class="fields">
+                                    <div class="disabled four wide field">
+                                        <label>Module Code</label>
+                                        <input type="text" placeholder="{{ cid }}"> 
+                                    </div>
+                                    <div class="twelve wide required field">
+                                        <label>Title</label>
+                                        <input id="title" name="title" placeholder="Enter a forum title"> 
+                                    </div>
+                                </div>
+                                <div class="required inline field">
+                                    <label>Groups</label>
+                                    <div class="ui multiple dropdown">
+                                        <input type="hidden" id="groups" name="groups">
+                                        <i class="users icon"></i>
+                                        <span class="text">Select Groups</span>
+                                        <div class="menu">
+                                            <div class="ui icon search input">
+                                                <i class="search icon"></i>
+                                                <input type="text" placeholder="Search group...">
+                                            </div>
+                                            <div class="divider"></div>
+                                            <div class="scrolling menu">
+                                                {% for group in groups %}
+                                                    <div class="item" data-value="{{ group.gid }}">
+                                                        <div class="ui olive empty circular label"></div>
+                                                        {{ group.gname }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field text-center">
+                                    <div class="ui teal submit button">Create</div>
+                                    <div class="ui reset button">Clear</div>
+                                    <div class="ui error message"></div>
+                                </div>
+                            </form>         
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% if forums %}
                 {% for forum in forums %}
                     <div class="ui fluid card mt-4">

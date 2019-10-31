@@ -110,8 +110,12 @@
                         <div class="active content">
                             <div class="menu">
                                 {% if 'Professor' in roles %}
-                                    <a class="item" href="{{ url_for('module_take') }}">My Module</a>
-                                    <a class="item" href="{{ url_for('my_tas') }}">My Teaching Assistants</a>
+                                    <a class="item" href="{{ url_for('module_take') }}">My Module
+                                        {% if reqcount > 0 %}<div class="ui circular teal button ml-2" style="padding: 0.3em">{{ reqcount }}</div>{% endif %}
+                                    </a>
+                                    <a class="item" href="{{ url_for('my_tas') }}">My Teaching Assistants
+                                        {% if tacount > 0 %}<div class="ui circular teal button ml-2" style="padding: 0.3em">{{ tacount }}</div>{% endif %}
+                                    </a>
                                     <div class="ui fluid dropdown item dropdown-hov" style="color: #d7dadd;" id="dropdown-filter">
                                         <i class="icon caret right" style="color: #d7dadd;"></i>
                                         <a class="unrefany" href="{{ url_for('prof_groups') }}"><div class="menu-dropdown-item">Groups</div></a>
