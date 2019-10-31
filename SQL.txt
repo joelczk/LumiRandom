@@ -25,6 +25,7 @@ CREATE TABLE TakenCourses (
 	sem	 	INTEGER NOT NULL CHECK (sem = 1 OR sem = 2),
 	grade 		VARCHAR(5) DEFAULT NULL,
 	is_rated	BOOLEAN NOT NULL DEFAULT FALSE,
+	is_pending 	BOOLEAN NOT NULL DEFAULT FALSE,
 	PRIMARY KEY 	(sid, cid)
 );
 
@@ -49,7 +50,10 @@ CREATE TABLE Groups (
 	gid 		INTEGER PRIMARY KEY,
 	gname	 	VARCHAR(50) NOT NULL,
 	pid	 	VARCHAR(10) NOT NULL REFERENCES Professors,
-	sid 	 	VARCHAR(10) REFERENCES Students
+	sid 	 	VARCHAR(10),
+	cid 		VARCHAR(10),
+	FOREIGN KEY 	(sid, cid) REFERENCES TeachingAssistants(sid, cid),
+	CHECK ((sid IS NOT NULL AND cid IS NOT NULL) OR (sid IS NULL AND cid IS NULL))
 );
 
 
