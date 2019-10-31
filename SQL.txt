@@ -53,7 +53,7 @@ CREATE TABLE Groups (
 	sid 	 	VARCHAR(10),
 	cid 		VARCHAR(10),
 	FOREIGN KEY 	(sid, cid) REFERENCES TeachingAssistants(sid, cid),
-	CHECK ((sid NOT NULL AND cid NOT NULL) OR (sid IS NULL AND cid IS NULL))
+	CHECK ((sid IS NOT NULL AND cid IS NOT NULL) OR (sid IS NULL AND cid IS NULL))
 );
 
 
