@@ -94,4 +94,4 @@ GROUP BY cid, year, sem
 )
 
 SELECT P.pid, P.cid, CR.year, CR.sem, CR.rating
-FROM professors AS P NATURAL JOIN courseRating as CR
+FROM professors AS LEFT JOIN courseRating as CR ON P.cid = CR.cid
