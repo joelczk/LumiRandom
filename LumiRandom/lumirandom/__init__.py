@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_user import UserManager
 from sqlalchemy import create_engine
+import psycopg2
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'something only you know'
@@ -16,15 +17,17 @@ app.config['SECRET_KEY'] = 'something only you know'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{username}:{password}@{host}:{port}/{database}'\
     .format(
         username='postgres',
-        password='cs2102',      # Change accordingly
+        password='Jczk1241',      # Change accordingly
         host='localhost',
         port=5432,
-        database='lumirandom'   # Change accordingly
+        database='postgres'   # Change accordingly
     )
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 db.init_app(app)
+
+connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port="5432", database="postgres")
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)

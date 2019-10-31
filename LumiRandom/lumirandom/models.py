@@ -85,7 +85,8 @@ class TakenCourses(db.Model):
     sem = db.Column(db.Integer, db.CheckConstraint('sem = 1 OR sem = 2'), nullable=False)
     grade = db.Column(db.String(5), server_default='')
     ta = db.relationship('TeachingAssistants', backref='courseinfo', lazy=True)
-
+    is_rated = db.Column(db.Boolean,nullable = False, server_default = '0')
+    rating = db.Column(db.Float, nullable = False, default = '0.0')
     def __repr__(self):
         return f"TakenCourses('{self.sid}', '{self.cid}', '{self.year}', '{self.sem}', '{self.grade}')"
 

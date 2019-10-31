@@ -1,5 +1,5 @@
 import os
-from lumirandom import app, db, bcrypt
+from lumirandom import app, db, bcrypt, connection
 from lumirandom.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from lumirandom.models import User, Students, Courses, TakenCourses, Professors, TeachingAssistants, Groups, GroupInfo, Forums, ForumInfo, Threads, Posts, Ratings, role_required
 from flask import render_template, url_for, flash, redirect, request, abort, g
@@ -196,8 +196,6 @@ def logout():
     flash(f'Logout Successful! Please Visit Again!', 'success')
     return redirect(url_for('login'))
     
-
-
 @app.route("/profile/<string:id>")
 @login_required
 def profile(id):
@@ -206,8 +204,61 @@ def profile(id):
     roles = user.roles()
     student = Students()
     prof = Professors()
-    return render_template('profile.html', title='Profile ' + id, user=user, roles=roles, student=student, prof=prof)
+    #change accordingly
+    print('psql connected')
+    cursor = connection.cursor()
+    query = "WITH course_avg\
+                AS(SELECT cid,\
+                    AVG(rating)\
+                FROM takencourses where rating <> 0\
+                GROUP BY cid),\
+                    prof_avg\
+                AS (SELECT professors.pid,\
+                    course_avg.avg\
+                FROM course_avg,\
+                    professors\
+                WHERE professors.cid = course_avg.cid)\
+                SELECT * from prof_avg;"
+    cursor.execute(query)
+    results = cursor.fetchall()
+    for i in results:
+        if i[0] == id:
+            rating = round(i[1],2)
+            # print(i)
+            # print('rating is', rating)
+    check = Professors.query.filter_by(pid = user.id).first()
+    if check is None:
+        val = "noshow"
+    elif Students.query.filter_by(sid = current_user.id).first() is None:
+        val = "noshow"
+    else:
+        if TakenCourses.query.filter_by(sid = current_user.id, cid = check.cid, is_rated = '0').first() == None:
+            val = "noshow"
+        else:
+            val = "show"
+    return render_template('profile.html', title='Profile ' + id, user=user, roles=roles, student=student, prof=prof, val=val, check = check, rating = rating)
 
+@app.route("/profile/<string:id>/rating", methods = ['GET' , 'POST'])
+@login_required
+def prof_ratings(id):
+    Professors.query.get_or_404(id)
+    profs = Professors.query.filter_by(pid = id).first()
+    if request.method == "POST":
+        number = request.form['rating']
+        if number.isdigit() == False and number.replace('.','',1).isdigit() == False:
+            flash('Invalid Format', 'warning')
+        elif float(number) > 10.0:
+            flash(f'Rating can only be between 0 and 10', 'warning')
+        else:
+            number_digit = float(number)
+            update_query = "UPDATE TakenCourses SET rating = " + str(number_digit) + "  WHERE sid = '" + str(current_user.id) + "' AND cid = '" + str(profs.cid) + "';"
+            connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port=5432, database="postgres")
+            print('sql connected')
+            cursor = connection.cursor()
+            cursor.execute(update_query)
+            connection.commit()
+
+    return redirect(url_for('profile', id = id))
 
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
@@ -279,7 +330,8 @@ def prof_module_search():
 def module(cid):
     Courses.query.get_or_404(cid)
     module = Courses.query.filter_by(cid=cid).first()
-    connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port="5432", database="postgre")
+    #change the user,password,host,port and database accordingly
+    # connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port="5432", database="postgres")
     # print('psql connected')
     cursor = connection.cursor()
     query = ("With studentGrades(sid, cid, year,sem, grade) AS\
