@@ -50,3 +50,19 @@ CREATE TRIGGER remove_requests_trigger()
 AFTER INSERT ON TeachingAssistants
 FOR EACH ROW
 EXECUTE PROCEDURE remove_requests()
+
+/*After every new rating as long as rating > 0, then update is_rated = true */
+CREATE OR REPLACE FUNCTION update_rated()
+	RETURNS TRIGGER AS $$ BEGIN
+	IF NEW.rating > 0 THEN
+		NEW.is_rated = true;
+	ELSE 
+		NEW.is_rated = false;
+	END IF;
+	RETURN NEW;
+	END;
+	$$LANGUAGE plpgsql;
+
+CREATE TRIGGER update_rated
+BEFORE UPDATE on takencourses
+FOR EACH ROW EXECUTE PROCEDURE update_rated();
