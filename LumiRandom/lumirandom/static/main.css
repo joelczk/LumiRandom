@@ -293,9 +293,9 @@ div.menu-profile {
 }
 
 
-.table-hover tbody tr:hover,
-.table-hover tbody tr:hover td,
-.table-hover tbody tr:hover th{
+.module-stats tbody tr:hover,
+.module-stats tbody tr:hover td,
+.module-stats tbody tr:hover th{
     background:#22313F !important;
     color:#fff !important;
 }
