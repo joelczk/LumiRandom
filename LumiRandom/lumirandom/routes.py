@@ -262,9 +262,9 @@ def prof_ratings(id):
             cursor = connection.cursor()
             cursor.execute(update_query)
             connection.commit()
-            rated_query = "UPDATE TakenCourses SET is_rated = true WHERE sid = '" + str(current_user.id) + "'AND cid = '" + str(profs.cid) + "';"
-            cursor.execute(rated_query)
-            connection.commit() 
+#             rated_query = "UPDATE TakenCourses SET is_rated = true WHERE sid = '" + str(current_user.id) + "'AND cid = '" + str(profs.cid) + "';"
+#             cursor.execute(rated_query)
+#             connection.commit() 
 
     return redirect(url_for('profile', id = id))
 
