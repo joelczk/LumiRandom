@@ -5,7 +5,7 @@ CREATE OR REPLACE FUNCTION check_grade()
         RETURN NULL;
     ELSE
         RETURN NEW
-    END IF
+    END IF;
     END;
     $$LANGUAGE plpgsql
 
@@ -40,16 +40,18 @@ EXECUTE PROCEDURE check_maxCourse()
     remove all of that student's other requests to be a TA for other modules
     This is to prevent student from being more than 1 TA per semester
     (not good for studies -_-") */
-CREATE OR REPLACE FUNCTION remove_requests()
-    RETURNS TRIGGER AS 
-    $$ BEGIN
-        DELETE FROM PossibleTA WHERE sid=NEW.sid AND cid<>NEW.cid;
-     END; $$
-    LANGUAGE plpgsql
-CREATE TRIGGER remove_requests_trigger()
-AFTER INSERT ON TeachingAssistants
+CREATE OR REPLACE FUNCTION remove_request()
+	RETURNS TRIGGER AS 
+	$$ BEGIN
+		IF NEW.is_ta = 't' THEN
+			DELETE FROM teachingassistants where sid = NEW.sid AND cid <> NEW.cid AND is_ta = 'f';
+	END IF;
+	END; $$
+	LANGUAGE plpgsql;
+CREATE TRIGGER delete_ta
+AFTER UPDATE ON teachingassistants
 FOR EACH ROW
-EXECUTE PROCEDURE remove_requests()
+EXECUTE PROCEDURE remove_request();
 
 /*After every new rating as long as rating > 0, then update is_rated = true */
 CREATE OR REPLACE FUNCTION update_rated()
