@@ -248,7 +248,6 @@ def profile(id):
 def prof_ratings(id):
     Professors.query.get_or_404(id)
     profs = Professors.query.filter_by(pid = id).first()
-    # print(profs)
     if request.method == "POST":
         number = request.form['rating']
         if number.isdigit() == False and number.replace('.','',1).isdigit() == False:
@@ -258,13 +257,13 @@ def prof_ratings(id):
         else:
             number_digit = float(number)
             update_query = "UPDATE TakenCourses SET rating = " + str(number_digit) + "  WHERE sid = '" + str(current_user.id) + "' AND cid = '" + str(profs.cid) + "';"
-            print('sql connected')
+            # print('sql connected')
             cursor = connection.cursor()
             cursor.execute(update_query)
             connection.commit()
-#             rated_query = "UPDATE TakenCourses SET is_rated = true WHERE sid = '" + str(current_user.id) + "'AND cid = '" + str(profs.cid) + "';"
-#             cursor.execute(rated_query)
-#             connection.commit() 
+            rated_query = "UPDATE TakenCourses SET is_rated = true WHERE sid = '" + str(current_user.id) + "'AND cid = '" + str(profs.cid) + "';"
+            cursor.execute(rated_query)
+            connection.commit() 
 
     return redirect(url_for('profile', id = id))
 
@@ -728,20 +727,33 @@ def prof_groups():
     groupinfo = GroupInfo()
     cid = Professors.query.get(current_user.id).cid
     students = TakenCourses.query.join(User, TakenCourses.sid==User.id).filter(TakenCourses.cid==cid, TakenCourses.year==cur_year, TakenCourses.sem==cur_sem, TakenCourses.is_pending==False).order_by(User.name.asc()).all()
-    s1, s2, s3, s4, s5 = ([] for i in range(5))
+    sall = []
+    for i in range(5):
+        sall.append([])
     for student in students:
         if student.student.year == 1:
-            s1.append(student)
+            sall[0].append(student)
         elif student.student.year == 2:
-            s2.append(student)
+            sall[1].append(student)
         elif student.student.year == 3:
-            s3.append(student)
+            sall[2].append(student)
         elif student.student.year == 4:
-            s4.append(student)
+            sall[3].append(student)
         elif student.student.year == 5:
-            s5.append(student)
-    tas = TeachingAssistants.query.join(User, TeachingAssistants.sid==User.id).filter(TeachingAssistants.cid==cid).order_by(User.name.asc()).all()  
-    return render_template('prof_groups.html', title='Groups', groups=groups, groupinfo=groupinfo, cid=cid, s1=s1, s2=s2, s3=s3, s4=s4, s5=s5, tas=tas)
+            sall[4].append(student)
+    tas = TeachingAssistants.query.join(User, TeachingAssistants.sid==User.id).filter(TeachingAssistants.cid==cid).order_by(User.name.asc()).all()
+    groupstudents = {}
+    for student in students:
+        groupstudents[student.sid] = student.student.info.name
+    for ta in tas:
+        groupstudents[ta.sid] = ta.courseinfo.student.info.name
+    groupsn = []
+    for i in range(5):
+        groupsn.append([])
+    for i in range(5):
+        for s in sall[i]:
+            groupsn[i].append(s.sid)
+    return render_template('prof_groups.html', title='Groups', groups=groups, groupinfo=groupinfo, cid=cid, sall=sall, groupstudents=groupstudents, groupsn=groupsn, tas=tas)
 
 
 # @app.route("/prof/create-group", methods=['GET', 'POST'])
@@ -970,6 +982,9 @@ def threads(cid, fid, tid):
         elif request.form['btn'] == 'Rate':
             postnum = request.form['post_num']
             rating = request.form['rating']
+            if Posts.query.get([fid, tid, postnum]).id == current_user.id:
+                flash(f'Sorry. You can\'t rate yourself.', 'warning')
+                return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
             Posts.query.get([fid, tid, postnum]).rating = rating
             if Ratings.query.get([fid, tid, postnum, current_user.id]):
                 Ratings.query.get([fid, tid, postnum, current_user.id]).rating = rating

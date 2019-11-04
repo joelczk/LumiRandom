@@ -75,7 +75,7 @@
         $('#rateform-' + id).submit()
     });
 </script>
-<script>$('.ui.modal').modal();</script>
+<!-- <script>$('.ui.modal').modal();</script> -->
 <script>
     $('.ui.message .close').on('click', function() {
         $(this).closest('.message').transition('fade');
@@ -328,6 +328,115 @@
             },
         inline : true,
         on : 'blur'
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#showgroup').on('click', function(event){
+            event.preventDefault();
+            $('.ui.form.group').form('validate form')
+            if ($('.ui.form.group').form('is valid')) {
+                $('#groupmodal').transition({
+                    animation: 'slide right out',
+                    duration: '0.7s',
+                    queue: false
+                });
+                setTimeout(function() {
+                    $('#groupmodal2').delay(1000).transition({
+                        animation: 'slide left in',
+                        duration: '0.7s',
+                        queue: false,});
+                    }, 705);
+                
+                var gname = $('#gname').val();
+                var ta = $('#ta').val();
+                var Sstring = $('#students').val().split(',');
+                {% if groupstudents is defined and groupstudents %}
+                    var students = {{ groupstudents | tojson }};
+                {% endif %}
+
+                {% if groupsn is defined and groupsn %}
+                    var sn = {{ groupsn | tojson }};
+                {% endif %}
+
+                var content = "<div><b>Module Code: {{ cid }}</b></div>";
+                $('#modresult').html(content);
+
+                content = "<div><b>Group Name: " + gname + "</b></div>";
+                $('#gnameresult').html(content);
+
+                if (ta == 'none') {
+                    content = "<div><b>Teaching Assistant: <span class=\"text-muted\">NIL</span></b></div>";
+                } else {
+                    content = "<div><b>Teaching Assistant: " + students[ta] +  "</b></div>";
+                }
+                $('#taresult').html(content);
+
+                var s1content = "", s2content = "", s3content = "", s4content = "", s5content = "";
+                // var i = 0;
+                for (var i = 0; i < sn[0].length; i++) {
+                    for (var j = 0; j < Sstring.length; j++) {
+                        if (Sstring[j] == sn[0][i]) {
+                            s1content += '<div><b>' + students[Sstring[j]] + '</b></div>';
+                        }
+                    }
+                }
+                for (var i = 0; i < sn[1].length; i++) {
+                    for (var j = 0; j < Sstring.length; j++) {
+                        if (Sstring[j] == sn[1][i]) {
+                            s2content += '<div><b>' + students[Sstring[j]] + '</b></div>';
+                        }
+                    }
+                }
+                for (var i = 0; i < sn[2].length; i++) {
+                    for (var j = 0; j < Sstring.length; j++) {
+                        if (Sstring[j] == sn[2][i]) {
+                            s3content += '<div><b>' + students[Sstring[j]] + '</b></div>';
+                        }
+                    }
+                }
+                for (var i = 0; i < sn[3].length; i++) {
+                    for (var j = 0; j < Sstring.length; j++) {
+                        if (Sstring[j] == sn[3][i]) {
+                            s4content += '<div><b>' + students[Sstring[j]] + '</b></div>';
+                        }
+                    }
+                }
+                for (var i = 0; i < sn[4].length; i++) {
+                    for (var j = 0; j < Sstring.length; j++) {
+                        if (Sstring[j] == sn[4][i]) {
+                            s5content += '<div><b>' + students[Sstring[j]] + '</b></div>';
+                        }
+                    }
+                }
+                content = '<div class="ui five column center aligned grid">\
+                                <div class="column">' + s1content + '</div>\
+                                <div class="column">' + s2content + '</div>\
+                                <div class="column">' + s3content + '</div>\
+                                <div class="column">' + s4content + '</div>\
+                                <div class="column">' + s5content + '</div>\
+                            </div>'
+                $('#studentresult').html(content);               
+            }
+        });
+    });
+</script>
+<script>$('#submitgroupform').on('click', function() {$('.ui.form.group').form('submit')});</script>
+<script>
+    $(document).ready(function() {
+        $('#showform').on('click', function(){
+            $('#groupmodal2').transition({
+                animation: 'slide left out',
+                duration: '0.7s',
+                queue: false
+            });
+            setTimeout(function() {
+                $('#groupmodal').delay(1000).transition({
+                    animation: 'slide right in',
+                    duration: '0.7s',
+                    queue: false,});
+                }, 705);
+        });
     });
 </script>
 <script>
