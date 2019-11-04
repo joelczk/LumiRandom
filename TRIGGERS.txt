@@ -44,7 +44,7 @@ CREATE OR REPLACE FUNCTION remove_request()
 	RETURNS TRIGGER AS 
 	$$ BEGIN
 		IF NEW.is_ta = 't' THEN
-			DELETE FROM teachingassistants where sid = NEW.sid is_ta = 'f';
+			DELETE FROM teachingassistants where sid = NEW.sid AND is_ta = 'f';
 	END IF;
 	END; $$
 	LANGUAGE plpgsql;
