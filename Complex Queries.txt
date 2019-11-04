@@ -96,3 +96,44 @@ GROUP BY cid, year, sem
 
 SELECT P.pid, P.cid, CR.year, CR.sem, CR.rating
 FROM professors AS LEFT JOIN courseRating as CR ON P.cid = CR.cid
+
+
+
+/* This query identifies students who have posted at least n times (set to 5 in this example) in a forum,
+and ranks the students first by average ranking of their posts across the forum, 
+then by the total number of their posts across the forum. 
+Thereafter, students with the top k (set to 3 in this example) [ranking, total posts] pair are selected.
+i.e. More than k students may be selected if some students share same ranking and total posts.
+Final result is a table with attributes (ranking, id, forum_rating, total_posts) */
+WITH FindTotalRatingAndPosts AS (
+	SELECT P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
+	FROM Forums F, Threads T, (
+			SELECT P.id, P.fid, P.tid, P.post_num, ROUND(AVG(rating), 2) post_rating
+			FROM Ratings R RIGHT JOIN Posts P
+			ON R.fid = P.fid AND R.tid = P.tid AND R.post_num = P.post_num
+			WHERE P.id IN (SELECT sid FROM Students)
+			GROUP BY P.id, P.fid, P.tid, P.post_num
+		) P, (
+			SELECT P.id, P.fid, COUNT(*) total
+			FROM Forums F, Threads T, Posts P
+			WHERE F.fid = T.fid AND T.fid = P.fid AND T.tid = P.tid
+				AND P.id IN (SELECT sid FROM Students)
+			GROUP BY P.id, P.fid
+		) TP
+	WHERE F.fid = T.fid and T.fid = P.fid AND T.tid = P.tid 
+		AND P.fid = TP.fid AND P.id = TP.id AND post_rating IS NOT NULL
+	GROUP BY P.id, total_posts
+	HAVING TP.total >= 5
+), RankPosts AS (
+	SELECT DISTINCT forum_rating, total_posts FROM FindTotalRatingAndPosts
+	ORDER BY forum_rating DESC, total_posts DESC
+	LIMIT 3
+)
+SELECT ranking, id, forum_rating, total_posts
+FROM FindTotalRatingAndPosts NATURAL JOIN (
+		SELECT RANK() OVER (
+			ORDER BY forum_rating DESC, total_posts DESC
+		) ranking, * 
+		FROM RankPosts
+	) R
+ORDER BY ranking, id;
