@@ -1,22 +1,4 @@
-//Check if student passes the course
-CREATE OR REPLACE FUNCTION check_grade()
-    RETURNS TRIGGER AS $$ BEGIN
-    IF NEW.grade = 'f' THEN
-        RETURN NULL;
-    ELSE
-        RETURN NEW
-    END IF;
-    END;
-    $$LANGUAGE plpgsql
-
-CREATE TRIGGER check()
-BEFORE INSERT OR UPDATE on TakenCourses
-FOR EACH ROW EXECUTE PROCEDURE check_grade()
-
-//Check if student has exceed the maximum number of courses he can
-//Based on current ER Diagram STUDENT - COURSES r/s is ENTER and TAKEN
-//Check the academic year and semester too ?
-//This could be enforced with column/ table constraint?
+/* Check if Student exceeded the max number of courses that he/she can take */
 CREATE OR REPLACE FUNCTION check_maxCourse()
     RETURNS TRIGGER AS $$ BEGIN
     WITH numCourseTaken AS
