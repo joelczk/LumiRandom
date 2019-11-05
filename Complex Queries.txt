@@ -83,10 +83,34 @@ WITH FindTotalRatingAndPosts AS (
 	) ranking
 	FROM (
 		SELECT DISTINCT fid, forum_rating, total_posts FROM FindTotalRatingAndPosts
-		ORDER BY fid, forum_rating DESC, total_posts DESC
 	) TopDistinct
 )
 SELECT fid, ranking, id, forum_rating, total_posts
 FROM FindTotalRatingAndPosts NATURAL JOIN RankPosts
 WHERE ranking <= 3
 ORDER BY fid, ranking, id;
+
+
+
+/* This query identifies for each forum, students who have posted n or less posts (set to 3 in this example),
+and orders first by total number of posts, then by the datetime of their last post if any.
+Final result is a table with attributes (fid, sid, total_posts, last_posted_date) */
+WITH TotalPosts AS (
+	SELECT P.fid, P.id, COUNT(*) total_posts, MAX(date_posted) last_posted_date
+	FROM Posts P
+	WHERE P.id IN (SELECT sid FROM Students)
+	GROUP BY P.fid, P.id
+	ORDER BY P.fid, P.id
+), SortedStudents AS (
+	SELECT BS.fid, BS.sid, CASE
+		WHEN total_posts IS NULL THEN 0
+		ELSE total_posts
+		END total_posts, last_posted_date
+	FROM TotalPosts P RIGHT JOIN (
+			SELECT DISTINCT FI.fid, GI.sid
+			FROM GroupInfo GI NATURAL JOIN ForumInfo FI
+		) BS
+	ON BS.fid = P.fid AND BS.sid = P.id
+)
+SELECT * FROM SortedStudents WHERE total_posts <= 3
+ORDER BY fid, sid, total_posts;
