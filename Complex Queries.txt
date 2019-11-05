@@ -1,26 +1,3 @@
-/* Function: Allow Profs to find out the number of posts that each student makes*/ 
-WITH forumsid AS 
-( 
-       SELECT forums.fid 
-       FROM   forums, 
-              professors 
-       WHERE  professors.pid = forums.pid 
-), 
-studentid AS 
-( 
-       SELECT sid 
-       FROM   students 
-       EXCEPT 
-       SELECT sid 
-       FROM   teachingassistants 
-) 
-SELECT   Count(*) 
-FROM     forumsid, 
-         posts, studentid
-WHERE    forumsid.fid = posts.fid, 
-         forums.id = studentid.sid 
-GROUP BY(posts.id);
-
 /*Function: Show the number of students of each grade for each module*/
 WITH courseid 
      AS (SELECT * 
@@ -61,30 +38,6 @@ AverageGPA as (
 	GROUP BY cid, year, sem
 )
 select cid,year,sem, coalesce(GPA,0.0) as GPA from AverageGPA;
-
-/* Function: Display the average grade of students under a TA, a performance indicator */
-With studentGrades(sid, cid, year,sem, grade) AS
-(SELECT sid, cid, year, sem, CASE 
-	WHEN grade = 'A+' then 5.0
-	WHEN grade = 'A'  then 5.0
-	WHEN grade = 'A-' then 4.5
-	WHEN grade = 'B+' then 4.0
-	WHEN grade = 'B'  then 3.5
-	WHEN grade = 'B-' then 3.0
-	WHEN grade = 'C+' then 2.5
-	WHEN grade = 'D+' then 1.5
-	WHEN grade = 'D'  then 1.0
-	WHEN grade = 'F'  then 0
-END AS numGrade
-FROM takencourses
-WHERE grade IS NOT NULL
-GROUP BY cid, year, sem)
-
-select groups.sid as tutor, groups.gid, studentGrades. cid, studentGrades.year, studentGrades.sem, AVG(grade) as avgGrade 
-from groups INNER JOIN groupinfo on groups.gid = groupinfo.gid natural join studentGrades
-where grade <> '' /* NOT NULL for sql? */
-group by groups.sid, groups.gid, studentGrades.year, studentGrades.sem
-
 
 /* Function: Check ratings given by the student on a course taught by particular professor */
 With courseRating(cid, year, sem, rating) AS (
