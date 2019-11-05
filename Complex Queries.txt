@@ -100,7 +100,6 @@ WITH TotalPosts AS (
 	FROM Posts P
 	WHERE P.id IN (SELECT sid FROM Students)
 	GROUP BY P.fid, P.id
-	ORDER BY P.fid, P.id
 ), SortedStudents AS (
 	SELECT BS.fid, BS.sid, CASE
 		WHEN total_posts IS NULL THEN 0
