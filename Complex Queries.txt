@@ -52,12 +52,12 @@ FROM professors AS LEFT JOIN courseRating as CR ON P.cid = CR.cid
 
 
 
-/* This query identifies students who have posted at least n times (set to 5 in this example) in a forum,
+/* This query identifies for each forum, students who have posted at least n times (set to 5 in this example) in the forum,
 and ranks the students first by average ranking of their posts across the forum, 
 then by the total number of their posts across the forum. 
 Thereafter, students with the top k (set to 3 in this example) [ranking, total posts] pair are selected.
 i.e. More than k students may be selected if some students share same ranking and total posts.
-Final result is a table with attributes (ranking, id, forum_rating, total_posts) */
+Final result is a table with attributes (fid, ranking, id, forum_rating, total_posts) */
 WITH FindTotalRatingAndPosts AS (
 	SELECT P.fid, P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
 	FROM Forums F, Threads T, (
@@ -84,7 +84,7 @@ WITH FindTotalRatingAndPosts AS (
 	FROM (
 		SELECT DISTINCT fid, forum_rating, total_posts FROM FindTotalRatingAndPosts
 		ORDER BY fid, forum_rating DESC, total_posts DESC
-	) Top
+	) TopDistinct
 )
 SELECT fid, ranking, id, forum_rating, total_posts
 FROM FindTotalRatingAndPosts NATURAL JOIN RankPosts
