@@ -59,7 +59,7 @@ Thereafter, students with the top k (set to 3 in this example) [ranking, total p
 i.e. More than k students may be selected if some students share same ranking and total posts.
 Final result is a table with attributes (ranking, id, forum_rating, total_posts) */
 WITH FindTotalRatingAndPosts AS (
-	SELECT P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
+	SELECT P.fid, P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
 	FROM Forums F, Threads T, (
 			SELECT P.id, P.fid, P.tid, P.post_num, ROUND(AVG(rating), 2) post_rating
 			FROM Ratings R RIGHT JOIN Posts P
@@ -75,18 +75,18 @@ WITH FindTotalRatingAndPosts AS (
 		) TP
 	WHERE F.fid = T.fid and T.fid = P.fid AND T.tid = P.tid 
 		AND P.fid = TP.fid AND P.id = TP.id AND post_rating IS NOT NULL
-	GROUP BY P.id, total_posts
+	GROUP BY P.fid, P.id, total_posts
 	HAVING TP.total >= 5
 ), RankPosts AS (
-	SELECT DISTINCT forum_rating, total_posts FROM FindTotalRatingAndPosts
-	ORDER BY forum_rating DESC, total_posts DESC
-	LIMIT 3
+	SELECT *, RANK() OVER (
+		PARTITION BY fid ORDER BY forum_rating DESC, total_posts DESC
+	) ranking
+	FROM (
+		SELECT DISTINCT fid, forum_rating, total_posts FROM FindTotalRatingAndPosts
+		ORDER BY fid, forum_rating DESC, total_posts DESC
+	) Top
 )
-SELECT ranking, id, forum_rating, total_posts
-FROM FindTotalRatingAndPosts NATURAL JOIN (
-		SELECT RANK() OVER (
-			ORDER BY forum_rating DESC, total_posts DESC
-		) ranking, * 
-		FROM RankPosts
-	) R
-ORDER BY ranking, id;
+SELECT fid, ranking, id, forum_rating, total_posts
+FROM FindTotalRatingAndPosts NATURAL JOIN RankPosts
+WHERE ranking <= 3
+ORDER BY fid, ranking, id;
