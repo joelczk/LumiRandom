@@ -93,23 +93,39 @@ ORDER BY fid, ranking, id;
 
 
 /* This query identifies for each forum, students who have posted n or less posts (set to 3 in this example),
-and orders first by total number of posts, then by the datetime of their last post if any.
-Final result is a table with attributes (fid, sid, total_posts, last_posted_date) */
-WITH TotalPosts AS (
-	SELECT P.fid, P.id, COUNT(*) total_posts, MAX(date_posted) last_posted_date
-	FROM Posts P
-	WHERE P.id IN (SELECT sid FROM Students)
-	GROUP BY P.fid, P.id
-), SortedStudents AS (
+and ranks the students first by total number of posts, then by the datetime of their last post if any.
+Thereafter, students with the bottom k (set to 5 in this example) [total posts, last posted date] pair are selected.
+i.e. More than k students may be selected if some students share same ranking and total posts.
+Final result is a table with attributes (fid, ranking, sid, total_posts, last_posted_date) */
+WITH SortedStudents AS (
 	SELECT BS.fid, BS.sid, CASE
 		WHEN total_posts IS NULL THEN 0
 		ELSE total_posts
 		END total_posts, last_posted_date
-	FROM TotalPosts P RIGHT JOIN (
+	FROM (
+			SELECT P.fid, P.id, COUNT(*) total_posts, MAX(date_posted) last_posted_date
+			FROM Posts P
+			WHERE P.id IN (SELECT sid FROM Students)
+			GROUP BY P.fid, P.id
+		) TP RIGHT JOIN (
 			SELECT DISTINCT FI.fid, GI.sid
 			FROM GroupInfo GI NATURAL JOIN ForumInfo FI
 		) BS
-	ON BS.fid = P.fid AND BS.sid = P.id
+	ON BS.fid = TP.fid AND BS.sid = TP.id
+), RankStudents AS (
+	SELECT *, RANK() OVER (
+		PARTITION BY fid ORDER BY total_posts, last_posted_date
+	) ranking
+	FROM (
+		SELECT DISTINCT fid, total_posts, last_posted_date 
+		FROM SortedStudents
+		WHERE total_posts <= 3
+	) LastDistinct
 )
-SELECT * FROM SortedStudents WHERE total_posts <= 3
-ORDER BY fid, sid, total_posts;
+SELECT RS.fid, RS.ranking, SS.sid, RS.total_posts, RS.last_posted_date
+FROM SortedStudents SS INNER JOIN RankStudents RS
+ON RS.fid = SS.fid AND RS.total_posts = SS.total_posts 
+	AND (RS.last_posted_date = SS.last_posted_date 
+		 OR RS.last_posted_date IS NULL AND SS.last_posted_date IS NULL)
+WHERE ranking <= 5
+ORDER BY fid, ranking, sid;
