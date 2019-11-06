@@ -23,13 +23,15 @@ EXECUTE PROCEDURE check_maxCourse()
     This is to prevent student from being more than 1 TA per semester
     (not good for studies -_-") */
 CREATE OR REPLACE FUNCTION remove_request()
-	RETURNS TRIGGER AS 
-	$$ BEGIN
-		IF NEW.is_ta = 't' 
-		THEN DELETE FROM teachingassistants where sid = NEW.sid AND is_ta = 'f';
+RETURNS TRIGGER AS 
+$content$ 
+BEGIN
+	IF NEW.is_ta = True THEN
+		DELETE FROM teachingassistants where sid = NEW.sid AND is_ta = 'f';
 	END IF;
-	END; $$
-	LANGUAGE plpgsql;
+END; 
+$content$
+LANGUAGE plpgsql;
 CREATE TRIGGER delete_ta
 BEFORE INSERT ON teachingassistants
 FOR EACH ROW
@@ -37,19 +39,29 @@ EXECUTE PROCEDURE remove_request();
 
 /*After every new rating as long as rating > 0, then update is_rated = true */
 CREATE OR REPLACE FUNCTION update_rated()
-	RETURNS TRIGGER AS $$ BEGIN
-	IF NEW.rating > 0 THEN
-		NEW.is_rated = true;
-	ELSE 
-		NEW.is_rated = false;
-	END IF;
-	RETURN NEW;
-	END;
-	$$LANGUAGE plpgsql;
+RETURNS TRIGGER AS $$ BEGIN
+IF NEW.rating > 0 THEN
+	NEW.is_rated = true;
+ELSE 
+	NEW.is_rated = false;
+END IF;
+RETURN NEW;
+END;
+$$LANGUAGE plpgsql;
 
 CREATE TRIGGER update_rated
 BEFORE UPDATE on takencourses
 FOR EACH ROW EXECUTE PROCEDURE update_rated();
 
-// create trigger after inserting a thread, create a first post associated to the thread. 
-// set post number to 1 as it is default 
+/* After a new thread is created, it also automatically becomes the first post of the thread, 
+   since it is the thread topic for discussion. */
+CREATE OR REPLACE FUNCTION add_post()
+RETURNS TRIGGER AS 
+$$ BEGIN
+	INSERT INTO Posts VALUES (NEW.fid, NEW.tid, 1, NEW.id, NEW.content, NEW.date_created, NULL, NULL, NULL, NULL);
+END; $$
+LANGUAGE plpgsql;
+CREATE TRIGGER delete_ta
+AFTER INSERT ON Threads
+FOR EACH ROW
+EXECUTE PROCEDURE add_post();
