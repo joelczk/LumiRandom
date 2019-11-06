@@ -63,7 +63,7 @@ BEGIN
 END; 
 $content$
 LANGUAGE plpgsql;
-CREATE TRIGGER delete_ta
+CREATE TRIGGER new_thread
 AFTER INSERT ON Threads
 FOR EACH ROW
 EXECUTE PROCEDURE add_post();
