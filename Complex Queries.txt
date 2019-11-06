@@ -13,8 +13,8 @@ WITH courseid
 SELECT * FROM   grade;
 
 /* Function: Display the average GPA received by students for a module for each of the past semesters.
-Also display the overall average grade across all the semesters.
-Result is a table with attributes (cid, year, sem, GPA, average_GPA) */ 
+   Also display the overall average grade across all the semesters.
+   Result is a table with attributes (cid, year, sem, GPA, average_GPA) */ 
 WITH AverageGPA AS (
 	SELECT cid, year, sem, ROUND(AVG(grade), 4) GPA
 	FROM (
@@ -60,15 +60,15 @@ FROM professors AS LEFT JOIN courseRating as CR ON P.cid = CR.cid
 
 
 /* This query identifies for each forum, students who have posted at least n times (set to 5 in this example) in the forum,
-and ranks the students first by average ranking of their posts across the forum, 
-then by the total number of their posts across the forum. 
-Thereafter, students with the top k (set to 3 in this example) [ranking, total posts] pair are selected.
-i.e. More than k students may be selected if some students share same ranking and total posts.
-Final result is a table with attributes (fid, ranking, id, forum_rating, total_posts) */
+   and ranks the students first by average ranking of their posts across the forum, 
+   then by the total number of their posts across the forum. 
+   Thereafter, students with the top k (set to 3 in this example) [ranking, total posts] pair are selected.
+   i.e. More than k students may be selected if some students share same ranking and total posts.
+   Final result is a table with attributes (fid, ranking, id, forum_rating, total_posts) */
 WITH FindTotalRatingAndPosts AS (
 	SELECT P.fid, P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
 	FROM Forums F, Threads T, (
-			SELECT P.id, P.fid, P.tid, P.post_num, ROUND(AVG(rating), 2) post_rating
+   			SELECT P.id, P.fid, P.tid, P.post_num, ROUND(AVG(rating), 2) post_rating
 			FROM Ratings R RIGHT JOIN Posts P
 			ON R.fid = P.fid AND R.tid = P.tid AND R.post_num = P.post_num
 			WHERE P.id IN (SELECT sid FROM Students)
@@ -100,10 +100,10 @@ ORDER BY fid, ranking, id;
 
 
 /* This query identifies for each forum, students who have posted n or less posts (set to 3 in this example),
-and ranks the students first by total number of posts, then by the datetime of their last post if any.
-Thereafter, students with the bottom k (set to 5 in this example) [total posts, last posted date] pair are selected.
-i.e. More than k students may be selected if some students share same ranking and total posts.
-Final result is a table with attributes (fid, ranking, sid, total_posts, last_posted_date) */
+   and ranks the students first by total number of posts, then by the datetime of their last post if any.
+   Thereafter, students with the bottom k (set to 5 in this example) [total posts, last posted date] pair are selected.
+   i.e. More than k students may be selected if some students share same ranking and total posts.
+   Final result is a table with attributes (fid, ranking, sid, total_posts, last_posted_date) */
 WITH SortedStudents AS (
 	SELECT BS.fid, BS.sid, CASE
 		WHEN total_posts IS NULL THEN 0
