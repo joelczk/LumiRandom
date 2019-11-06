@@ -1,0 +1,77 @@
+/* Functions to implement complex queries */
+
+CREATE OR REPLACE FUNCTION rank_posts(forum_id int, min_posts int, num int)
+RETURNS TABLE(fid1 int, ranking1 bigint, id1 varchar, forumrating numeric, totalposts bigint)
+AS $content$
+	WITH FindTotalRatingAndPosts AS (
+		SELECT P.fid, P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
+		FROM Forums F, Threads T, (
+				SELECT P.id, P.fid, P.tid, P.post_num, ROUND(AVG(rating), 2) post_rating
+				FROM Ratings R RIGHT JOIN Posts P
+				ON R.fid = P.fid AND R.tid = P.tid AND R.post_num = P.post_num
+				WHERE P.id IN (SELECT sid FROM Students)
+				GROUP BY P.id, P.fid, P.tid, P.post_num
+			) P, (
+				SELECT P.id, P.fid, COUNT(*) total
+				FROM Forums F, Threads T, Posts P
+				WHERE F.fid = T.fid AND T.fid = P.fid AND T.tid = P.tid
+					AND P.id IN (SELECT sid FROM Students)
+				GROUP BY P.id, P.fid
+			) TP
+		WHERE F.fid = T.fid and T.fid = P.fid AND T.tid = P.tid 
+			AND P.fid = TP.fid AND P.id = TP.id AND post_rating IS NOT NULL
+		GROUP BY P.fid, P.id, total_posts
+		HAVING TP.total >= min_posts
+	), RankPosts AS (
+		SELECT *, RANK() OVER (
+			PARTITION BY fid ORDER BY forum_rating DESC, total_posts DESC
+		) ranking
+		FROM (
+			SELECT DISTINCT fid, forum_rating, total_posts FROM FindTotalRatingAndPosts
+		) TopDistinct
+	)
+	SELECT fid, ranking, id, forum_rating, total_posts
+	FROM FindTotalRatingAndPosts NATURAL JOIN RankPosts
+	WHERE ranking <= num AND fid = forum_id
+	ORDER BY fid, ranking, id;
+$content$
+LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION expose_students(forum_id int, min_posts int, num int)
+RETURNS TABLE(fid1 int, ranking1 bigint, sid1 varchar, total_posts1 bigint, last_posted_date1 timestamp)
+AS $content$
+	WITH SortedStudents AS (
+		SELECT BS.fid, BS.sid, CASE
+			WHEN total_posts IS NULL THEN 0
+			ELSE total_posts
+			END total_posts, last_posted_date
+		FROM (
+				SELECT P.fid, P.id, COUNT(*) total_posts, MAX(date_posted) last_posted_date
+				FROM Posts P
+				WHERE P.id IN (SELECT sid FROM Students)
+				GROUP BY P.fid, P.id
+			) TP RIGHT JOIN (
+				SELECT DISTINCT FI.fid, GI.sid
+				FROM GroupInfo GI NATURAL JOIN ForumInfo FI
+			) BS
+		ON BS.fid = TP.fid AND BS.sid = TP.id
+	), RankStudents AS (
+		SELECT *, RANK() OVER (
+			PARTITION BY fid ORDER BY total_posts, last_posted_date
+		) ranking
+		FROM (
+			SELECT DISTINCT fid, total_posts, last_posted_date 
+			FROM SortedStudents
+			WHERE total_posts < min_posts
+		) LastDistinct
+	)
+	SELECT RS.fid, RS.ranking, SS.sid, RS.total_posts, RS.last_posted_date
+	FROM SortedStudents SS INNER JOIN RankStudents RS
+	ON RS.fid = SS.fid AND RS.total_posts = SS.total_posts 
+		AND (RS.last_posted_date = SS.last_posted_date 
+			 OR RS.last_posted_date IS NULL AND SS.last_posted_date IS NULL)
+	WHERE ranking <= num AND RS.fid = forum_id
+	ORDER BY fid, ranking, sid;
+$content$
+LANGUAGE sql;
