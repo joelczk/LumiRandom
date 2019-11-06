@@ -25,8 +25,8 @@ EXECUTE PROCEDURE check_maxCourse()
 CREATE OR REPLACE FUNCTION remove_request()
 	RETURNS TRIGGER AS 
 	$$ BEGIN
-		IF NEW.is_ta = 't' THEN
-			DELETE FROM teachingassistants where sid = NEW.sid AND is_ta = 'f';
+		IF NEW.is_ta = 't' 
+		THEN DELETE FROM teachingassistants where sid = NEW.sid AND is_ta = 'f';
 	END IF;
 	END; $$
 	LANGUAGE plpgsql;
