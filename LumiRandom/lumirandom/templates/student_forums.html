@@ -11,7 +11,7 @@
                 <a class="ml-2" style="color: #6e757a; font-size: 9pt;" href="{{ url_for('mod_forums', cid=mod) }}">View All</a>
                     {% for forum in forums[mod]|sort(attribute='info.title') %}
                         <div class="ui fluid">
-                            <div class="card unref2" style="height: 8rem">
+                            <div class="card unref2 mb-4" style="height: 8rem">
                                 <a class="card-body unref2" href="{{ url_for('forum', cid=forum.info.prof.cid, fid=forum.info.fid) }}">
                                     <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ foruminfo.query.filter_by(fid=forum.fid).count() }}</small><i class="users icon ml-1"></i></h6>
                                     <h6 class="card-subtitle mb-2 text-muted"><small>{{ forum.info.prof.cid }}</small></h6>

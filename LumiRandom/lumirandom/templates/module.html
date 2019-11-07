@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
-<div class="content-section">
+<div class="ui raised segment">
     <div>
         {% if 'Student' in current_user.roles() %}
             {% if status == "taken" %}
@@ -76,8 +76,8 @@
     </div>
     <div style="border-top: 2px solid; border-color: #b0b9c0; padding: 10px">
         <h5>Module Statistics</h5>
-        <table class="table table-bordered table-hover table-striped module-stats">
-            <thead class = "thead-dark">
+        <table class="table table-bordered table-hover table-striped module-stats text-center">
+            <thead class="thead-dark">
                 <tr>
                     <th>Academic Year</th>
                     <th>Semester</th>
@@ -87,12 +87,18 @@
             <tbody>
                 {% for results in results %}
                 <tr>
-                    <th>{{ results[0] }}</th>
-                    <th> {{ results[1] }}</th>
-                    <th>{% if results[2] == 0 %}NIL{% else %}{{ results[2] }}{% endif %} </th>
+                    <th>{{ results[1] }}</th>
+                    <th> {{ results[2] }}</th>
+                    <th>{% if results[3] == 0 %}NIL{% else %}{{ results[3] }}{% endif %} </th>
                 </tr>
                 {% endfor %}
             </tbody>
+            <tfoot style="border-top: 2px solid; border-color: black;">
+                <tr>
+                    <th colspan="2">Total Average</th>
+                    <th>{{ results[0][4] }}</th>
+                </tr>
+            </tfoot>
         </table>
     </div>
 </div>

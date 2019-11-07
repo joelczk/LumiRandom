@@ -34,7 +34,7 @@
                                 {% for student in students %}
                                     <div class="col-auto mb-3">
                                         {% if student.sid == current_user.id %}
-                                            <a class="card unref2" style="width: 40rem; height: 6rem; background-color: #c3d9eb;" href="{{ url_for('profile', id=student.sid) }}">
+                                            <a class="card unref3" style="width: 40rem; height: 6rem;;" href="{{ url_for('profile', id=student.sid) }}">
                                                 <div class="card-body">
                                                     <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
                                                     <h6 class="card-title">{{ student.student.info.name }}</h6>

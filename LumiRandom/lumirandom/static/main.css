@@ -149,6 +149,19 @@ a.unref:hover {
   background-color: #ebeff1;
 }
 
+
+.unref3:link, a.unref3:visited, a.unref3:active
+{
+  color: #000000;
+  text-decoration: none;
+  background-color: #dfeff1
+}
+
+.unref3:hover {
+  background-color: #ebeff1;
+}
+
+
 li.hover:hover {
   background-color: #ebeff1;
 }
@@ -300,6 +313,14 @@ div.menu-profile {
     color:#fff !important;
 }
 
+
+.link-hover {
+  color: inherit
+}
+
+.link-hover:hover {
+  color: #d7dadd;
+}
 
 /* .click a {
   display: block

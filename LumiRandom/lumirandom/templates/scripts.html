@@ -592,6 +592,107 @@
     });
 </script>
 <script>
+    $('.ui.form.rank1')
+        .form({
+            fields: {
+                minpost: {
+                    identifier: 'minpost',
+                    optional: true,
+                    rules: [
+                        {
+                            type   : 'integer',
+                            prompt : 'Only integers 0 and above are accepted'
+                        },
+                        {
+                            type   : 'doesntContain[-]',
+                            prompt : 'Only integers 0 and above are accepted'
+                        },
+                    ]
+                },
+                pos: {
+                    identifier: 'pos',
+                    optional: true,
+                    rules: [
+                        {
+                            type   : 'integer',
+                            prompt : 'Only positive integers are accepted'
+                        },
+                        {
+                            type   : 'doesntContain[-]',
+                            prompt : 'Only positive integers are accepted'
+                        },
+                        {
+                            type   : 'notExactly[0]',
+                            prompt : 'Only positive integers are accepted'
+                        }
+                    ]
+                }
+            },
+        inline : true,
+        on : 'blur'
+    });
+    $('.ui.form.rank2')
+        .form({
+            fields: {
+                minpost2: {
+                    identifier: 'minpost2',
+                    optional: true,
+                    rules: [
+                        {
+                            type   : 'integer',
+                            prompt : 'Only integers 0 and above are accepted'
+                        },
+                        {
+                            type   : 'doesntContain[-]',
+                            prompt : 'Only integers 0 and above are accepted'
+                        },
+                    ]
+                },
+                pos2: {
+                    identifier: 'pos2',
+                    optional: true,
+                    rules: [
+                        {
+                            type   : 'integer',
+                            prompt : 'Only positive integers are accepted'
+                        },
+                        {
+                            type   : 'doesntContain[-]',
+                            prompt : 'Only positive integers are accepted'
+                        },
+                        {
+                            type   : 'notExactly[0]',
+                            prompt : 'Only positive integers are accepted'
+                        }
+                    ]
+                }
+            },
+        inline : true,
+        on : 'blur'
+    });
+</script>
+<script>
+    $('#rank1').click(function() {
+        if ($('.ui.form.rank1').form('is valid')) {
+            var minpost = $('#minpost').val();
+            var pos = $('#pos').val()
+            $('#customrank tr').show();
+            $('#customrank tr td.totalpost').each(function() {
+                if ($(this).text() < minpost)
+                {
+                    $(this).parent().hide();
+                }
+            });
+            $('#customrank tr td.rank').each(function() {
+                if ($(this).text() > pos)
+                {
+                    $(this).parent().hide();
+                }
+            });
+        }
+    });
+</script>
+<script>
     $('.next-page').transition({
         animation: 'slide down in',
         duration: '0.8s'

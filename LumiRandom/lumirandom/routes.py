@@ -114,7 +114,7 @@ def inject_info():
     if current_user.is_authenticated:
         return dict(scourses=TakenCourses.query.filter_by(sid=current_user.id, year=cur_year, sem=cur_sem, is_pending=False).order_by(TakenCourses.cid.asc()).all(), \
             sgroups=groups_sort_cid(GroupInfo.query.filter_by(sid=current_user.id).all()), \
-                sforums=forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all()), \
+                sforums=forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).distinct(ForumInfo.fid).all()), \
                     pgroups=Groups.query.filter_by(pid=current_user.id).all(), pforums=Forums.query.filter_by(pid=current_user.id).all(), \
                         tagroups=Groups.query.filter_by(sid=current_user.id).all(), taforums=ForumInfo.query.join(Groups, ForumInfo.gid==Groups.gid).filter(Groups.sid==current_user.id).all(), \
                             tacid=TeachingAssistants.query.filter_by(sid=current_user.id).first(), \
@@ -207,8 +207,6 @@ def profile(id):
     user = User.query.get(id)
     student = Students
     prof = Professors
-    #change accordingly
-    print('psql connected')
     cursor = connection.cursor()
     query = "WITH course_avg\
                 AS(SELECT cid,\
@@ -353,33 +351,6 @@ def module(cid):
         return redirect(url_for('module', cid=cid))
     Courses.query.get_or_404(cid)
     module = Courses.query.filter_by(cid=cid).first()
-    # print('psql connected')
-    cursor = connection.cursor()
-    query = ("WITH studentGrades(sid, cid, year,sem, grade) AS\
-                (SELECT sid, cid, year, sem, CASE\
-	                WHEN grade = 'A+' then 5.0\
-                	WHEN grade = 'A'  then 5.0\
-                	WHEN grade = 'A-' then 4.5\
-	                WHEN grade = 'B+' then 4.0\
-	                WHEN grade = 'B'  then 3.5\
-	                WHEN grade = 'B-' then 3.0\
-	                WHEN grade = 'C+' then 2.5\
-	                WHEN grade = 'D+' then 1.5\
-	                WHEN grade = 'D'  then 1.0\
-	                WHEN grade = 'F'  then 0\
-                END AS numGrade\
-                FROM takencourses\
-                WHERE grade IS NOT NULL AND NOT is_pending\
-                GROUP BY sid ,cid, year, sem),\
-                AverageGPA as (\
-                    SELECT cid,year,sem,ROUND(AVG(grade),2) AS GPA\
-                        FROM studentGrades\
-                        WHERE cid = '" + cid + "'\
-                        GROUP BY cid, year,sem)\
-                SELECT year,sem,coalesce(GPA,0.00) as GPA from AverageGPA;")
-    cursor.execute(query)
-    results = cursor.fetchall()
-    # print(results)
     mod = TakenCourses.query.get([current_user.id, cid])
     if not mod:
         status = "nil"
@@ -390,6 +361,10 @@ def module(cid):
     else:
         status = "taking"
     prof = Professors.query.filter_by(cid=cid).first()
+    cursor = connection.cursor()
+    query = f"SELECT * FROM find_gpa(\'{cid}\')"
+    cursor.execute(query)
+    results = cursor.fetchall()
     return render_template('module.html', title=cid, module=module, status=status, prof=prof, cur_year=cur_year, cur_sem=cur_sem, results=results)
 
 
@@ -676,7 +651,7 @@ def mod_groups(cid):
 def group(cid, gid):
     Groups.query.get_or_404(gid)
     is_student, is_ta, is_prof = (False for i in range(3))
-    if Students.query.get(current_user.id) and GroupInfo.query.filter(GroupInfo.gid==gid, GroupInfo.sid==current_user.id).first():
+    if Students.query.get(current_user.id) and GroupInfo.query.filter_by(gid=gid, sid=current_user.id).first():
         is_student = True
     if current_user.id==Groups.query.get(gid).sid:
         is_ta = True
@@ -800,7 +775,7 @@ def prof_groups():
 @login_required
 @role_required(role='Student')
 def student_forums():
-    forums = forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).all())
+    forums = forums_sort_cid(ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).filter(GroupInfo.sid==current_user.id).distinct(ForumInfo.fid).all())
     return render_template('student_forums.html', title='Forums', forums=forums, foruminfo=ForumInfo, time_ago=time_ago)
 
 
@@ -812,7 +787,7 @@ def mod_forums(cid):
     if not TakenCourses.query.filter_by(sid=current_user.id, cid=cid, year=cur_year, sem=cur_sem, is_pending=False).first():
         abort(403)
     forums = ForumInfo.query.join(GroupInfo, GroupInfo.gid==ForumInfo.gid).join(Forums, Forums.fid==ForumInfo.fid).join(Professors, Professors.pid==Forums.pid)\
-        .filter(GroupInfo.sid==current_user.id, Professors.cid==cid).all()
+        .filter(GroupInfo.sid==current_user.id, Professors.cid==cid).distinct(Forums.fid).all()
     return render_template('mod_forums.html', title=cid + ' Forums', forums=forums, foruminfo=ForumInfo, mod=mod, time_ago=time_ago)
 
 
@@ -875,8 +850,9 @@ def ta_forums():
 
 
 @app.route("/module/<string:cid>/forum/<int:fid>", methods=['GET', 'POST'])
+@app.route("/module/<string:cid>/forum/<int:fid>/<string:rank>?min=<int:minpost>&pos=<int:pos>%min=<int:minpost2>&pos=<int:pos2>", methods=['GET', 'POST'])
 @login_required
-def forum(cid, fid):
+def forum(cid, fid, rank=None, minpost=5, pos=3, minpost2=3, pos2=5):
     if request.method == 'POST':
         if request.form['btn'] == 'Create':
             title = request.form['title']
@@ -899,6 +875,26 @@ def forum(cid, fid):
             db.session.commit()
             flash(f'Thread has been deleted.', 'info')
             return redirect(url_for('forum', cid=cid, fid=fid))
+        elif request.form['btn'] == 'Rank!':
+            minpost = request.form['minpost']
+            pos = request.form['pos']
+            minpost2 = request.form['minpost2']
+            pos2 = request.form['pos2']
+            if not minpost:
+                minpost = 5
+            if not pos:
+                pos = 3
+            return redirect(url_for('forum', cid=cid, fid=fid, rank='rank', minpost=minpost, pos=pos, minpost2=minpost2, pos2=pos2))
+        elif request.form['btn'] == 'Expose!':
+            minpost = request.form['minpost']
+            pos = request.form['pos']
+            minpost2 = request.form['minpost2']
+            pos2 = request.form['pos2']
+            if not minpost2:
+                minpost2 = 3
+            if not pos2:
+                pos = 5
+            return redirect(url_for('forum', cid=cid, fid=fid, rank='rank', minpost=minpost, pos=pos, minpost2=minpost2, pos2=pos2))
     if not Professors.query.filter_by(cid=cid).first() or not Forums.query.get(fid) or Forums.query.get(fid).pid != Professors.query.filter_by(cid=cid).first().pid:
         abort(404)
     is_student, is_ta, is_prof = (False for i in range(3))
@@ -914,8 +910,20 @@ def forum(cid, fid):
         size = ForumInfo.query.filter_by(fid=fid).count()
         threads = Threads.query.filter_by(fid=fid).order_by(Threads.date_created.asc()).all()
         totalthreads = Threads.query.filter_by(fid=fid).count()
+        cursor = connection.cursor()
+        query = f"SELECT * FROM rank_posts({fid}, 0, 3)"
+        cursor.execute(query)
+        rankedstudents = cursor.fetchall()
+        query = f"SELECT * FROM rank_posts({fid}, {minpost}, {pos})"
+        cursor.execute(query)
+        customrank = cursor.fetchall()
+        query = f"SELECT * FROM expose_students({fid}, {minpost2}, {pos2})"
+        cursor.execute(query)
+        badstudents = cursor.fetchall()
         return render_template('forums.html', title='Forum - ' + forum.title, forum=forum, groups=groups, size=size, threads=threads, totalthreads=totalthreads, \
-            posts=Posts, cid=cid, fid=fid, time_ago=time_ago, is_student=is_student, is_ta=is_ta, is_prof=is_prof)
+            posts=Posts, cid=cid, fid=fid, time_ago=time_ago, is_student=is_student, is_ta=is_ta, is_prof=is_prof, allgroups=Groups, groupinfo=GroupInfo, \
+                rankedstudents=rankedstudents, customrank=customrank, badstudents=badstudents, rank=rank, minpost=minpost, pos=pos, \
+                    minpost2=minpost2, pos2=pos2, datetime=datetime)
     else:
         abort(403)
 

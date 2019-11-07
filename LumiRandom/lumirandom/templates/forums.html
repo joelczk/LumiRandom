@@ -8,12 +8,13 @@
             <div class="col-xs-12 ">
                 <nav>
                     <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link active" id="thread-tab" data-toggle="tab" href="#thread" role="tab" aria-controls="thread" aria-selected="true" style="width: 555px">Threads</a>
+                        <a class="nav-item nav-link {% if rank != 'rank' %}active{% endif %}" id="thread-tab" data-toggle="tab" href="#thread" role="tab" aria-controls="thread" aria-selected="true" style="width: 555px">Threads</a>
                         <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="width: 555px">Forum Details</a>
+                        <a class="nav-item nav-link {% if rank == 'rank' %}active{% endif %}" id="rank-tab" data-toggle="tab" href="#rank" role="tab" aria-controls="rank" aria-selected="false" style="width: 555px">Rank</a>
                     </div>
                 </nav>
                 <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="thread" role="tabpanel" aria-labelledby="thread-tab">
+                    <div class="tab-pane fade {% if rank != 'rank' %}show active{% endif %}" id="thread" role="tabpanel" aria-labelledby="thread-tab">
                         <div class="container-fluid mt-4">
                             <a class="unrefany" data-toggle="modal" data-target="#newthread"><button class="fluid ui teal button mb-4">New Thread</button></a>
                             <div class="modal fade" id="newthread" tabindex="-1" role="dialog" aria-labelledby="newthread" aria-hidden="true">
@@ -118,7 +119,9 @@
                                                 </a>
                                                 <div>
                                                     {% if thread.title|length > 60 %}
-                                                        <a class="ui header" style="margin-bottom: 0.2em" href="{{ url_for('threads', cid=cid, fid=fid, tid=thread.tid) }}"><div class="popup" data-content="{{thread.title}}" data-variation="inverted flowing" data-position="top center">{{ thread.title[:60] }}...</div></a>
+                                                        <a class="ui header" style="margin-bottom: 0.2em" href="{{ url_for('threads', cid=cid, fid=fid, tid=thread.tid) }}">
+                                                            <div class="popup" data-content="{{thread.title}}" data-variation="inverted flowing" data-position="top center">{{ thread.title[:60] }}...</div>
+                                                        </a>
                                                     {% else %}
                                                         <a class="ui header" style="margin-bottom: 0.2em" href="{{ url_for('threads', cid=cid, fid=fid, tid=thread.tid) }}">{{ thread.title }}</a>
                                                     {% endif %}
@@ -176,20 +179,42 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
-                        <div class="container-fluid mt-4">
-                            <div class="content-section">
-                                <h6 class="text-muted">{{ forum.prof.cid }}</h6>
-                                <h4>{{ forum.title }}</h4>
-                                <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=forum.prof.pid) }}">{{ forum.prof.info.name }}</a></h6>
-                                <div class="ui accordion">
+                        <div class="ui raised segment">
+                            <div class="ui raised segment">
+                                <div class="ui fluid accordion">
+                                    <div class="active title">
+                                        <div class="ui horizontal divider header">Overview</div>
+                                    </div>
+                                    <div class="active content" style="text-align:center">
+                                        <h6 class="text-muted">{{ forum.prof.cid }}</h6>
+                                        <h4>{{ forum.title }}</h4>
+                                        <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=forum.prof.pid) }}">{{ forum.prof.info.name }}</a></h6>
+                                        <h6 class="text-muted">Date Created: {{ forum.date_created.strftime('%d %B %Y %H:%M') }}</h6>
+                                        <h6 class="mt-1">Total Threads: <b>{{ totalthreads }}</b></h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui raised segment">
+                                <div class="ui fluid accordion">
                                     <div class="title">
-                                      <i class="dropdown icon"></i>
-                                      Show Groups ({{size}})
+                                        <div class="ui horizontal divider header">Groups ({{size}})</div>
                                     </div>
                                     <div class="content">
                                         {% for group in groups %}
-                                            <div class="col-auto mb-3">
-                                                <a class="card unref2" style="width: 40rem; height: 4rem" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
+                                            <div class="ui grid center aligned mt-3 mb-3">
+                                                {% if (is_student and not groupinfo.query.filter_by(sid=current_user.id, gid=group.gid).first()) or (is_ta and allgroups.query.get(group.gid).sid != current_user.id) %}
+                                                    <div class="card" style="width: 40rem; height: 4rem">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title" style="float: left">{{ group.gname }}</h6>
+                                                            {% if group.sid %}
+                                                                <small class="text-muted" style="float: right">{{ group.ta.courseinfo.student.info.name }}</small>
+                                                            {% else %}
+                                                                    <small class="text-muted" style="float: right">Unmanaged</small>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% else %}
+                                                <a class="card unref3" style="width: 40rem; height: 4rem;" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
                                                     <div class="card-body">
                                                         <h6 class="card-title" style="float: left">{{ group.gname }}</h6>
                                                         {% if group.sid %}
@@ -199,13 +224,189 @@
                                                         {% endif %}
                                                     </div>
                                                 </a>
+                                                {% endif %}
                                             </div> 
                                         {% endfor %}
                                     </div>
                                 </div>
-                                <h6 class="mt-1">Total Threads: <b>{{ totalthreads }}</b></h6>
                             </div>
-                        </div>   
+                            <div class="ui raised segment">
+                                <div class="ui fluid accordion">
+                                    <div class="title">
+                                        <div class="ui horizontal divider header">Scoreboard</div>
+                                    </div>
+                                    <div class="content">
+                                        <div class="ui three column center aligned grid">
+                                            <div class="column">
+                                                <div class="ui yellow statistic">
+                                                    <div class="value"><i class="icon yellow trophy" style="margin: 0.1em"></i><small>#1</small></div>
+                                                    <div class="label">
+                                                        {% set found = {'found': false} %}
+                                                        {% for student in rankedstudents %}
+                                                            {% if student[1] == 1 %}
+                                                                <a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                                    {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}<br>
+                                                                 </a>
+                                                                {% if found.update({'found': true}) %}{% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if not found.found %}<span class="text-muted">NONE</span>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <div class="ui statistic">
+                                                    <div class="value" style="color: #aeb3b3"><i class="icon trophy" style="color: #aeb3b3; margin: 0.1em"></i><small>#2</small></div>
+                                                    <div class="label">
+                                                        {% set found = {'found': false} %}
+                                                        {% for student in rankedstudents %}
+                                                            {% if student[1] == 2 %}
+                                                                <a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                                    {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}<br>
+                                                                 </a>
+                                                                {% if found.update({'found': true}) %}{% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if not found.found %}<span class="text-muted">NONE</span>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <div class="ui brown statistic">
+                                                    <div class="value"><i class="icon brown trophy" style="margin: 0.1em"></i><small>#3</small></div>
+                                                    <div class="label">
+                                                        {% set found = {'found': false} %}
+                                                        {% for student in rankedstudents %}
+                                                            {% if student[1] == 3 %}
+                                                                <a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                                    {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}<br>
+                                                                 </a>
+                                                                {% if found.update({'found': true}) %}{% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if not found.found %}<span class="text-muted">NONE</span>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if rank == 'rank' %}show active{% endif %}" id="rank" role="tabpanel" aria-labelledby="rank-tab">
+                        <div class="ui raised segment">
+                            <div class="ui large horizontal divider header">
+                                <div><i class="icon small star mr-1" style="color: #f7d61f; padding: 0"></i>
+                                    <i class="icon small star ml-1 mr-1" style="color: #f7d61f; padding: 0"></i>
+                                    <i class="icon small star ml-1" style="color: #f7d61f; padding: 0"></i>
+                                </div>TOP FORUM POSTS
+                            </div>
+                            <div class="ui grid">
+                                <div class="row">
+                                    <div class="eleven wide column">
+                                        <table class="ui teal striped table" style="width: 40rem; margin: 0 auto; text-align:center">
+                                            <thead><tr>
+                                                <th style="width: 6rem;">Rank <i class="icon trophy" style="color: #f7d61f"></i></th>
+                                                <th>Name</th>
+                                                <th style="width: 6rem;">Rating</th>
+                                                <th style="width: 10rem;">Number of Posts</th>
+                                            </tr></thead>
+                                            <tbody>
+                                                {% if not customrank %}
+                                                    <td colspan="4"><h6 class="text-muted text-center">No one meets the criteria given!</h6></td>
+                                                {% else %}
+                                                    {% for student in customrank %}
+                                                    <tr>
+                                                        <td style="text-align:center"><b>{{ student[1] }}</b></td>
+                                                        <td><a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                            {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}
+                                                        </a></td>
+                                                        <td>{{ student[3] }}</td>
+                                                        <td>{{ student[4] }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="five wide column">
+                                        <form class="ui form rank1 text-right" method="POST">
+                                            <input type="hidden" id="minpost2" name="minpost2" value="{{ minpost2 }}">
+                                            <input type="hidden" id="pos2" name="pos2" value="{{ pos2 }}">
+                                            <div class="field">
+                                                <label>Minimum number of posts</label>
+                                                <input class="text-right" type="text" name="minpost" value="{{ minpost }}"> 
+                                            </div>
+                                            <div class="field">
+                                                <label>Number of positions</label>
+                                                <input class="text-right" type="text" name="pos" value="{{ pos }}">
+                                            </div>
+                                            <div class="field">
+                                                <input class="ui teal submit button" type="submit" name="btn" value="Rank!">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui large horizontal divider header">
+                                <div><i class="icon small exclamation mr-1" style="color: #f7261f; padding: 0"></i>
+                                    <i class="icon small exclamation ml-1 mr-1" style="color: #f7261f; padding: 0"></i>
+                                    <i class="icon small exclamation ml-1" style="color: #f7261f; padding: 0"></i>
+                                </div>ENDANGERED STUDENTS
+                            </div>
+                            <div class="ui grid">
+                                <div class="row">
+                                    <div class="eleven wide column">
+                                        <table class="ui teal striped table" style="width: 40rem; margin: 0 auto; text-align:center">
+                                            <thead><tr>
+                                                <th style="width: 6rem;">Rank </th>
+                                                <th>Name</th>
+                                                <th style="width: 8rem;">Number of Posts</th>
+                                                <th style="width: 12rem;">Date Last Posted</th>
+                                            </tr></thead>
+                                            <tbody>
+                                                {% if not badstudents %}
+                                                    <td colspan="4"><h6 class="text-muted text-center">Everyone is safe!!</h6></td>
+                                                {% else %}
+                                                    {% for student in badstudents %}
+                                                    <tr>
+                                                        <td><b>{{ student[1] }}</b></td>
+                                                        <td><a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                            {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}
+                                                        </a></td>
+                                                        <td>{{ student[3] }}</td>
+                                                        {% if student[4] %}
+                                                            <td>{{ student[4].strftime('%d %B %Y %H:%M') }}</td>
+                                                        {% else %}
+                                                            <td class="text-muted">None</td>
+                                                        {% endif %}
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="five wide column">
+                                        <form class="ui form rank2 text-right" method="POST">
+                                            <input type="hidden" id="minpost" name="minpost" value="{{ minpost }}">
+                                            <input type="hidden" id="pos" name="pos" value="{{ pos }}">
+                                            <div class="field">
+                                                <label>Minimum number of posts</label>
+                                                <input class="text-right" type="text" name="minpost2" value="{{ minpost2 }}"> 
+                                            </div>
+                                            <div class="field">
+                                                <label>Number of positions</label>
+                                                <input class="text-right" type="text" name="pos2" value="{{ pos2 }}">
+                                            </div>
+                                            <div class="field">
+                                                <input class="ui teal submit button" type="submit" name="btn" value="Expose!">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

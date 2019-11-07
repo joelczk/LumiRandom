@@ -194,7 +194,7 @@
                             </thead>
                             <tbody class="table-filter" style="display: block; width: 100%; max-height: 70vh; overflow: auto;">
                                 {% for student in students|sort(attribute='student.info.name') %}
-                                    <tr style="display: block; position: relative; {% if student.sid==current_user.id %}background-color: #d3e4f1{% endif %}">
+                                    <tr style="display: block; position: relative; {% if student.sid==current_user.id %}background-color: #dfeff1{% endif %}">
                                         <td class="selectable" style="font-weight: 500; width: 19.9rem;">
                                             <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left; margin: 0.8em 2em" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
                                             <a class="unrefany" href="{{ url_for('profile', id=student.sid) }}" style="margin-top: 0.6em">{{ student.student.info.name }}</a>
@@ -223,7 +223,7 @@
                 <div class="tab-pane fade" id="group" role="tabpanel" aria-labelledby="group-tab">
                     {% for group in groups|sort(attribute='gname') %}
                         {% if groupinfo.query.filter_by(gid=group.gid, sid=current_user.id).first() or group.pid == current_user.id or group.sid == current_user.id %}
-                        <div class="ui raised {% if not is_student %} teal {% endif %} segment unref2" style="height: 8rem; background-color: #d3e4f1"><a class="unrefany" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
+                        <div class="ui raised {% if not is_student %} teal {% endif %} segment" style="height: 8rem; background-color: #d3e4f1"><a class="unref3" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
                         {% else %}
                         <div class="ui raised segment" style="height: 8rem">
                         {% endif %}

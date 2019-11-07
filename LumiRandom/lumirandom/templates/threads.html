@@ -10,7 +10,7 @@
                 <div class="comment">
                     <a class="avatar" href="{{ url_for('profile', id=thread.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + thread.author.image_file) }}" style="height: 60px; width: 60px; border-radius: 8px;"></a>
                     <div class="content" style="margin-left: 4.8em">
-                        <div class="author"><font size="+2">{{ thread.title }}</font></div>
+                        <div class="author" style="overflow:hidden"><font size="+2">{{ thread.title }}</font></div>
                         <a class="author" href="{{ url_for('profile', id=thread.author.id) }}"><small>{{ thread.author.name }}</small></a>
                         <div class="metadata">
                             <span class="date popup" data-content="{{ thread.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(thread.date_posted) }}</small></span>
@@ -156,7 +156,7 @@
                 <div class="comment">
                     <a class="avatar" href="{{ url_for('profile', id=post.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + post.author.image_file) }}" style="height: 60px; width: 60px; border-radius: 8px;"></a>
                     <div class="content" style="margin-left: 5.2em">
-                        <div class="author"><font size="+2">{{ post.title }}</font></div>
+                        <div class="author" style="overflow:hidden"><font size="+2">{{ post.title }}</font></div>
                         <a class="author" href="{{ url_for('profile', id=post.author.id) }}"><small>{{ post.author.name }}</small></a>
                         <div class="metadata">
                             <span class="date popup" data-content="{{ post.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(post.date_posted) }}</small></span>
@@ -345,7 +345,7 @@
                     {% if post.post_num != 1 %}
                     <a class="avatar" href="{{ url_for('profile', id=post.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + post.author.image_file) }}" style="height: 60px; width: 60px; border-radius: 8px"></a>
                     <div class="content" style="margin-left: 5.2em">
-                        <div class="author"><font size="+2">{{ post.title }}</font></div>
+                        <div class="author" style="overflow:hidden"><font size="+2">{{ post.title }}</font></div>
                         <a class="author" href="{{ url_for('profile', id=post.author.id) }}"><small>{{ post.author.name }}</small></a>
                         <div class="metadata">
                             <span class="date popup" data-content="{{ post.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(post.date_posted) }}</small></span>
