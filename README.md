@@ -6,16 +6,16 @@
 Please download the LumiRandom folder\
 Run terminal/cmd and cd into LumiRandom directory\
 Run python start.py\
-**----------------------------------------------------------------------------------\
-|If not running then you are probably missing some modules needed for the webpage|\
-|Do the following:                                                               |
-|pip install flask                                                               |\
-|pip install Flask-SQLAlchemy                                                    |\
-|pip install Flask-Bcrypt                                                        |\
-|pip install Flask-Login                                                         |\
-|pip install Flask-User                                                          |\
-|pip install Pillow                                                              |\
-|pip install psycopg2                                                            |\
+**---------------------------------------------------------------------------------\
+If not running then you are probably missing some modules needed for the webpage\
+Do the following:\
+pip install flask\
+pip install Flask-SQLAlchemy\
+pip install Flask-Bcrypt\
+pip install Flask-Login\
+pip install Flask-User\
+pip install Pillow\
+pip install psycopg2\
 ----------------------------------------------------------------------------------**\
 
 Connect to localhost:5300 in Browser
