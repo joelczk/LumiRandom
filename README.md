@@ -17,7 +17,6 @@ pip install Flask-User\
 pip install Pillow\
 pip install psycopg2\
 ----------------------------------------------------------------------------------**\
-
 Connect to localhost:5300 in Browser
 
 Default Account ID and Password for LumiRandom\
