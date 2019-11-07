@@ -7,8 +7,9 @@ RETURNS TRIGGER AS
 $content$ 
 BEGIN
 	IF NEW.is_ta = True THEN
-		DELETE FROM teachingassistants where sid = NEW.sid AND is_ta = 'f';
+		DELETE FROM teachingassistants WHERE sid = NEW.sid AND is_ta = False;
 	END IF;
+	RETURN NEW;
 END; 
 $content$
 LANGUAGE plpgsql;
@@ -39,7 +40,8 @@ CREATE OR REPLACE FUNCTION add_post()
 RETURNS TRIGGER AS 
 $content$ 
 BEGIN
-	INSERT INTO Posts VALUES (NEW.fid, NEW.tid, 1, NEW.id, NEW.content, NEW.date_created, NULL, NULL, NULL, NULL);
+	INSERT INTO Posts VALUES (NEW.fid, NEW.tid, 1, NEW.id, NEW.title, NEW.content, NEW.date_created, NULL, NULL, NULL, NULL);
+	RETURN NULL;
 END; 
 $content$
 LANGUAGE plpgsql;
