@@ -75,3 +75,41 @@ AS $content$
 	ORDER BY fid, ranking, sid;
 $content$
 LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION find_gpa(c_id VARCHAR)
+RETURNS TABLE(cid VARCHAR, year VARCHAR, sem INTEGER, gpa NUMERIC, avegpa NUMERIC)
+AS $content$
+	WITH AverageGPA AS (
+		SELECT cid, year, sem, ROUND(AVG(grade), 4) GPA
+			FROM (
+				SELECT sid, cid, year, sem, CASE 
+					WHEN grade = 'A+' THEN 5.0
+					WHEN grade = 'A'  THEN 5.0
+					WHEN grade = 'A-' THEN 4.5
+					WHEN grade = 'B+' THEN 4.0
+					WHEN grade = 'B'  THEN 3.5
+					WHEN grade = 'B-' THEN 3.0
+					WHEN grade = 'C+' THEN 2.5
+					WHEN grade = 'D+' THEN 1.5
+					WHEN grade = 'D'  THEN 1.0
+					WHEN grade = 'F'  THEN 0   
+				END grade
+				FROM TakenCourses
+				WHERE grade IS NOT NULL
+			) studentGrades
+		GROUP BY cid, year, sem
+	), adjustedGPA AS (
+		SELECT cid, year, sem, COALESCE(GPA, 0.0) GPA 
+		FROM AverageGPA
+	)
+	SELECT *, (
+			SELECT ROUND(AVG(GPA), 4)
+			FROM adjustedGPA
+			WHERE cid = A.cid
+		) average_GPA
+	FROM adjustedGPA A
+	WHERE cid = c_id
+	ORDER BY cid, year, sem;
+$content$
+LANGUAGE sql;
