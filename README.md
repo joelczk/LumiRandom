@@ -6,6 +6,18 @@
 Please download the LumiRandom folder\
 Run terminal/cmd and cd into LumiRandom directory\
 Run python start.py\
+**----------------------------------------------------------------------------------\
+|If not running then you are probably missing some modules needed for the webpage|\
+|Do the following:                                                               |
+|pip install flask                                                               |\
+|pip install Flask-SQLAlchemy                                                    |\
+|pip install Flask-Bcrypt                                                        |\
+|pip install Flask-Login                                                         |\
+|pip install Flask-User                                                          |\
+|pip install Pillow                                                              |\
+|pip install psycopg2                                                            |\
+----------------------------------------------------------------------------------**\
+
 Connect to localhost:5300 in Browser
 
 Default Account ID and Password for LumiRandom\
@@ -15,8 +27,8 @@ For Profs: Choose any from P00001 - P00100\
 **Password**\
 For All: password\
 **SQLite Database**\
-NOTE: Some of the complex queries cannot work using SQLITE Database\
-To view database, please download DB browser for SQL Lite\
+NOTE: Some of the complex queries cannot work using SQLite Database\
+To view database, please download DB browser for SQLite\
 Load site.db into DB Browser\
 **PSQL Database**\
 If you are using psql database for testing, please remember to include the following code into psql:
@@ -33,5 +45,3 @@ Please refer to runtime.txt for the python version used
 3.There must be at least three non-trivial application constraints that cannot be enforced using column/table\
 constraints and must be enforced using triggers\
 4.There must be at least 3 complex queries on data(Need to use at least 1 Group By clause or 1 join clause that produces a dangling tuple)
-
-
