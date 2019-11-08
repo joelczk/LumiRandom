@@ -8,6 +8,7 @@ RETURNS TRIGGER AS
 $content$ 
 BEGIN
 	IF (SELECT year FROM Students WHERE sid = NEW.sid) <= 1 OR
+	NEW.cid NOT IN (SELECT cid FROM Professors) OR
 	NOT EXISTS (
 		SELECT *
 		FROM TakenCourses
