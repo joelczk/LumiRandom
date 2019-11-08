@@ -23,14 +23,14 @@ BEGIN
 	) THEN RETURN NULL;
 	END IF;
 	IF NEW.is_ta = True THEN
-		DELETE FROM teachingassistants WHERE sid = NEW.sid AND is_ta = False;
+		DELETE FROM TeachingAssistants WHERE sid = NEW.sid AND is_ta = False;
 	END IF;
 	RETURN NEW;
 END; 
 $content$
 LANGUAGE plpgsql;
 CREATE TRIGGER delete_ta
-BEFORE INSERT OR UPDATE ON teachingassistants
+BEFORE INSERT OR UPDATE ON TeachingAssistants
 FOR EACH ROW
 EXECUTE PROCEDURE remove_request();
 
