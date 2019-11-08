@@ -29,7 +29,7 @@ END;
 $content$
 LANGUAGE plpgsql;
 CREATE TRIGGER delete_ta
-BEFORE INSERT ON teachingassistants
+BEFORE INSERT OR UPDATE ON teachingassistants
 FOR EACH ROW
 EXECUTE PROCEDURE remove_request();
 
