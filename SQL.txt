@@ -59,7 +59,7 @@ CREATE TABLE Groups (
 
 CREATE TABLE GroupInfo (
 	gid	 	INTEGER REFERENCES Groups,
-	sid	 	VARCHAR(6) REFERENCES Students,
+	sid	 	VARCHAR(10) REFERENCES Students,
 	PRIMARY KEY 	(gid, sid)
 );
 
