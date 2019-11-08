@@ -8,9 +8,9 @@
             <div class="col-xs-12 ">
                 <nav>
                     <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link {% if rank != 'rank' %}active{% endif %}" id="thread-tab" data-toggle="tab" href="#thread" role="tab" aria-controls="thread" aria-selected="true" style="width: 555px">Threads</a>
-                        <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="width: 555px">Forum Details</a>
-                        <a class="nav-item nav-link {% if rank == 'rank' %}active{% endif %}" id="rank-tab" data-toggle="tab" href="#rank" role="tab" aria-controls="rank" aria-selected="false" style="width: 555px">Rank</a>
+                        <a class="nav-item nav-link {% if rank != 'rank' %}active{% endif %}" id="thread-tab" data-toggle="tab" href="#thread" role="tab" aria-controls="thread" aria-selected="true" style="width: 370px">Threads</a>
+                        <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="width: 370px">Forum Details</a>
+                        <a class="nav-item nav-link {% if rank == 'rank' %}active{% endif %}" id="rank-tab" data-toggle="tab" href="#rank" role="tab" aria-controls="rank" aria-selected="false" style="width: 370px">Rank</a>
                     </div>
                 </nav>
                 <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
@@ -189,7 +189,7 @@
                                         <h6 class="text-muted">{{ forum.prof.cid }}</h6>
                                         <h4>{{ forum.title }}</h4>
                                         <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=forum.prof.pid) }}">{{ forum.prof.info.name }}</a></h6>
-                                        <h6 class="text-muted">Date Created: {{ forum.date_created.strftime('%d %B %Y %H:%M') }}</h6>
+                                        <h6 class="text-muted">Date Created: {{ forum.date_created.strftime('%d %B %Y') }}</h6>
                                         <h6 class="mt-1">Total Threads: <b>{{ totalthreads }}</b></h6>
                                     </div>
                                 </div>
@@ -289,7 +289,15 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                        <div>
+                                        <div class="hover-light inline-popup2" style="font-size: 9pt; cursor: pointer;">Ranking System<i style="color: inherit;" class="icon info"></i></div>
+                                        <div class="ui mini popup top left transition hidden">
+                                            <div class="ui horizontal divider header">Ranking System</div>
+                                            <div class="text-left"><i class="icon angle right"></i>Must have <b>at least 5 posts</b></div>
+                                            <div class="text-left"><i class="icon angle right"></i>Ranked by <b>highest rating</b></div>
+                                            <div class="text-left"><i class="icon angle right"></i>Ranked by <b>highest number of posts</b></div>
+                                        </div>
+                                    </div></div>
                                 </div>
                             </div>
                         </div>
@@ -379,7 +387,7 @@
                                                         {% if student[4] %}
                                                             <td>{{ student[4].strftime('%d %B %Y %H:%M') }}</td>
                                                         {% else %}
-                                                            <td class="text-muted">None</td>
+                                                            <td class="text-muted">-</td>
                                                         {% endif %}
                                                     </tr>
                                                     {% endfor %}

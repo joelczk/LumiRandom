@@ -44,68 +44,69 @@
                                 <div class="row justify-content-left">
                                     {% for request in requests %}
                                         <div class="col-auto mb-4">
-                                            <div class="card unref mb-2" style="width: 25rem; height: 14rem">
-                                                <div class="card-body">
-                                                    <h6 class="card-subtitle mb-2"><a class="unref" href="{{ url_for('profile', id=request.sid) }}"><small class="text-muted">{{ request.sid }}</small></a></h6>
-                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=request.sid) }}">{{ students.query.get(request.sid).info.name }}</a></h6>
-                                                    <h6><small>Year: {{ students.query.get(request.sid).year }}</small></h6>
-                                                    <h6><small>Grade: {{ request.courseinfo.grade }}</small></h6>
-                                                    <button type="button" class="ui negative button" data-toggle="modal" data-target="#Reject{{ request.sid }}Modal" style="float: right">
-                                                        Reject
-                                                    </button>      
-                                                    <!-- Modal -->
-                                                    <div class="modal fade" id="Reject{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Reject{{ request.sid }}ModalLabel" aria-hidden="true">
-                                                        <div class="modal-dialog" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header text-center">
-                                                                    <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
-                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true" style="float: right">&times;</span>
-                                                                    </button> 
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    Are you sure you want to <b>reject</b> this student as your Teaching Assistant?
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <form class="ui form" method='POST'>
-                                                                        <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
-                                                                        <input class="ui negative submit button" type="submit" name="btn" value="Reject">
-                                                                    </form>
-                                                                    <button class="ui button" data-dismiss="modal">Cancel</button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                            <div class="ui small raised card unref mb-2" style="width: 25rem; height: 10.5rem">
+                                                <div class="content">
+                                                    <div class="right floated ui meta">Year: {{ students.query.get(request.sid).year }}<br>Grade: {{ request.courseinfo.grade }}</div>
+                                                    <div class="meta">
+                                                        <a class="link-hover" href="{{ url_for('profile', id=request.sid) }}"><span class="text-muted">{{ request.sid }}</span></a>
                                                     </div>
-                                                    <button type="button" class="ui positive button" data-toggle="modal" data-target="#Accept{{ request.sid }}Modal" style="float: right">
-                                                        Accept
-                                                    </button>      
-                                                    <!-- Modal -->
-                                                    <div class="modal fade" id="Accept{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Accept{{ request.sid }}ModalLabel" aria-hidden="true">
-                                                        <div class="modal-dialog" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header text-center">
-                                                                    <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
-                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true" style="float: right">&times;</span>
-                                                                    </button> 
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    Are you sure you want to <b>accept</b> this student as your Teaching Assistant?
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <form class="ui form" method='POST'>
-                                                                        <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
-                                                                        <input class="ui positive submit button" type="submit" name="btn" value="Accept">
-                                                                    </form>
-                                                                    <button class="ui button" data-dismiss="modal">Cancel</button>
-                                                                </div>
-                                                            </div>
+                                                    <div class="header mt-1">
+                                                        <a class="link-hover" href="{{ url_for('profile', id=request.sid) }}">{{ students.query.get(request.sid).info.name }}</a>
+                                                    </div>
+                                                    <div class="description">
+                                                        {{ students.query.get(request.sid).info.name }} requested to be your Teaching Assistant.
+                                                    </div>
+                                                </div>
+                                                <div class="extra content">
+                                                    <div class="ui two buttons">
+                                                        <div class="ui basic green button" data-toggle="modal" data-target="#Accept{{ request.sid }}Modal">Accept</div>
+                                                        <div class="ui basic red button" data-toggle="modal" data-target="#Reject{{ request.sid }}Modal">Reject</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal fade" id="Reject{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Reject{{ request.sid }}ModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header text-center">
+                                                            <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                                            </button> 
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to <b>reject</b> this student as your Teaching Assistant?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <form class="ui form" method='POST'>
+                                                                <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
+                                                                <input class="ui negative submit button" type="submit" name="btn" value="Reject">
+                                                            </form>
+                                                            <button class="ui button" data-dismiss="modal">Cancel</button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
-                                                    <small>{{ cur_year }} Semester {{ cur_sem }}</small>
-                                                </span>
+                                            </div>
+                                            <div class="modal fade" id="Accept{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Accept{{ request.sid }}ModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header text-center">
+                                                            <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                                            </button> 
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to <b>accept</b> this student as your Teaching Assistant?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <form class="ui form" method='POST'>
+                                                                <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
+                                                                <input class="ui positive submit button" type="submit" name="btn" value="Accept">
+                                                            </form>
+                                                            <button class="ui button" data-dismiss="modal">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     {% endfor %}      

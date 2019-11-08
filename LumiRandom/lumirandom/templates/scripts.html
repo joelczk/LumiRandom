@@ -61,7 +61,43 @@
         });
     });
 </script>
+<script>$('#homecarousel').carousel()</script>
+<script>
+    var startDate = new Date("July 24, 2019 00:00:00").getTime();
+    var endDate = new Date("December 07, 2019 00:00:00").getTime();
+    var total = endDate - startDate;
 
+    var x = setInterval(function() {
+        var now = new Date().getTime();
+        var distance = now - startDate;
+        var percent = distance * 100.0 / total;
+            $('#examprogress').progress({
+                percent: percent
+            });
+    }, 1000);
+</script>
+<script>
+    var countDownDate = new Date("December 07, 2019 00:00:00").getTime();
+    
+    var x = setInterval(function() {
+        var now = new Date().getTime();
+        var distance = countDownDate - now;
+    
+
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("countdown").innerHTML = days + "d " + hours + "h "
+        + minutes + "m " + seconds + "s " + "to Examination Week";
+
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("countdown").innerHTML = "IT'S DOOMSWEEK!!";
+        }
+    }, 1000);
+</script>
 <!-- Semantic UI components -->
 <script>$('.ui.dropdown').dropdown({ fullTextSearch: 'exact' });</script>
 <script>$('.ui.dropdown-hov').dropdown({on: 'hover'});</script>
@@ -115,6 +151,13 @@
 		inline   : true,
 		hoverable: true,
 		position : 'bottom right',
+		delay: { show: 200, hide: 300 },
+        variation: 'wide small'
+    });
+    $('.inline-popup2').popup({
+		inline   : true,
+		hoverable: true,
+		position : 'top left',
 		delay: { show: 200, hide: 300 },
         variation: 'wide small'
     });

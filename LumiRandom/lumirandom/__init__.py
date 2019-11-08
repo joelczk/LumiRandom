@@ -13,31 +13,31 @@ app.config['SECRET_KEY'] = 'something only you know'
 # db = SQLAlchemy(app)
 
 # Uncomment this block and comment above two lines to switch from SQLite to PostGreSQL
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{username}:{password}@{host}:{port}/{database}'\
-    .format(
-        username='postgres',
-        password='Jczk1241',      # Change accordingly
-        host='localhost',
-        port=5432,
-        database='postgre'   # Change accordingly
-    )
-
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{username}:{password}@{host}:{port}/{database}'\
 #     .format(
 #         username='postgres',
-#         password='cs2102',      # Change accordingly
+#         password='Jczk1241',      # Change accordingly
 #         host='localhost',
 #         port=5432,
-#         database='lumirandom'   # Change accordingly
+#         database='postgre'   # Change accordingly
 #     )
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://{username}:{password}@{host}:{port}/{database}'\
+    .format(
+        username='postgres',
+        password='cs2102',      # Change accordingly
+        host='localhost',
+        port=5432,
+        database='lumirandom'   # Change accordingly
+    )
 
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 db.init_app(app)
 
-connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port="5432", database="postgres")
-# connection = psycopg2.connect(user="postgres", password="cs2102", host="localhost", port="5432", database="lumirandom")
+# connection = psycopg2.connect(user="postgres", password="Jczk1241", host="localhost", port="5432", database="postgres")
+connection = psycopg2.connect(user="postgres", password="cs2102", host="localhost", port="5432", database="lumirandom")
 
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)

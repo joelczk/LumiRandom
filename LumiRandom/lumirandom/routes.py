@@ -13,6 +13,32 @@ import sys
 
 cur_year = '2019/2020'
 cur_sem = 1
+# Hard-coded sample timetable
+schedule = [
+    [0, 'Lecture', 'Monday', '10:00', 'LC-LT21'],
+    [0, 'Tutorial', 'Monday', '13:00', 'BN-0321'],
+    [2, 'Lecture', 'Monday', '14:00', 'ST-AUD2'],
+    [-1],
+    [4, 'Lab', 'Tuesday', '08:00', 'RD-0218'],
+    [1, 'Lecture', 'Tuesday', '10:00', 'LC-LT16'],
+    [3, 'Tutorial', 'Tuesday', '14:00', 'DT-0511'],
+    [5, 'Tutorial', 'Tuesday', '15:00', 'SR-0412'],
+    [-1],
+    [4, 'Tutorial', 'Wednesday', '09:00', 'DT-0512'],
+    [3, 'Lecture', 'Wednesday', '12:00', 'LP-LT13'],
+    [4, 'Lecture', 'Wednesday', '14:00', 'LP-AUD1'],
+    [0, 'Lab', 'Wednesday', '16:00', 'RD-0301'],
+    [-1],
+    [3, 'Lab', 'Thursday', '08:00', 'RD-0422'],
+    [1, 'Lab', 'Thursday', '10:00', 'RD2-0512'],
+    [5, 'Lecture', 'Thursday', '14:00', 'TH-LT33'],
+    [1, 'Tutorial', 'Thursday', '16:00', 'MK-0214'],
+    [2, 'Tutorial', 'Thursday', '17:00', 'PB-0216'],
+    [-1],
+    [2, 'Lab', 'Friday', '14:00', 'RD2-0408'],
+    [5, 'Lab', 'Friday', '16:00', 'RD3-0701']
+]
+
 
 
 # Convert time to time ago from current time
@@ -150,7 +176,7 @@ def login():
 @app.route("/home")
 @login_required
 def home():
-    return render_template('home.html')
+    return render_template('home.html', taken=TakenCourses, prof=Professors, year=cur_year, sem=cur_sem, schedule=schedule)
 
 
 @app.route("/about")
@@ -184,7 +210,7 @@ def signin():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
-            flash(f'Welcome {user.name}!', 'success')
+            flash(f'Welcome Back {user.name}!', 'success')
             return redirect(next_page) if next_page else redirect(url_for('login'))
         else:
             flash('Invalid ID or Password. Please try again.', 'error')
@@ -566,9 +592,9 @@ def my_tas():
     if request.method == 'POST':
         if request.form['btn'] == 'Accept':
             sid = request.form['sid']
-            othersignups = TeachingAssistants.query.filter_by(sid=sid).all()
-            for othersignup in othersignups:
-                db.session.delete(othersignup)
+            # othersignups = TeachingAssistants.query.filter_by(sid=sid).all()
+            # for othersignup in othersignups:
+            #     db.session.delete(othersignup)
             ta = TeachingAssistants(sid=sid, cid=Professors.query.get(current_user.id).cid, is_ta=True)
             db.session.add(ta)
             db.session.commit()
@@ -862,9 +888,9 @@ def forum(cid, fid, rank=None, minpost=5, pos=3, minpost2=3, pos2=5):
             else:
                 tid = db.session.query(func.max(Threads.tid)).filter(Threads.fid==fid).scalar()+1
             t = Threads(fid=fid, tid=tid, id=current_user.id, title=title, content=content)
-            p = Posts(fid=fid, tid=tid, post_num=1, id=current_user.id, title=title, content=content, pfid=fid, ptid=tid, ppost_num=None)
+            # p = Posts(fid=fid, tid=tid, post_num=1, id=current_user.id, title=title, content=content, pfid=fid, ptid=tid, ppost_num=None)
             db.session.add(t)
-            db.session.add(p)
+            # db.session.add(p)
             db.session.commit()
             flash(f'Thread created successfully.', 'success')
             return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
@@ -981,9 +1007,9 @@ def threads(cid, fid, tid):
             Posts.query.get([fid, tid, postnum]).title = title
             Posts.query.get([fid, tid, postnum]).content = content
             Posts.query.get([fid, tid, postnum]).date_edited = dateedited
-            if postnum == '1':
-                Threads.query.get([fid, tid]).title = title
-                Threads.query.get([fid, tid]).content = content
+            # if postnum == '1':
+            #     Threads.query.get([fid, tid]).title = title
+            #     Threads.query.get([fid, tid]).content = content
             db.session.commit()
             flash(f'Post edited successfully.', 'success')
             return redirect(url_for('threads', cid=cid, fid=fid, tid=tid))
