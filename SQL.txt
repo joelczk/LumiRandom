@@ -116,10 +116,9 @@ CREATE TABLE Ratings (
 	tid 		INTEGER,
 	post_num 	INTEGER,
 	id 		VARCHAR(10) REFERENCES Users,
-	rating 		INTEGER NOT NULL DEFAULT 0,
+	rating 		INTEGER NOT NULL CHECK (rating >=0 AND rating <= 5)
 	PRIMARY KEY 	(fid, tid, post_num, id),
 	FOREIGN KEY 	(fid, tid, post_num) REFERENCES Posts(fid, tid, post_num) ON DELETE CASCADE,
-	CHECK (rating >=0 AND rating <= 5)
 );
 
 
