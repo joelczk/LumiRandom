@@ -7,6 +7,14 @@ CREATE OR REPLACE FUNCTION remove_request()
 RETURNS TRIGGER AS 
 $content$ 
 BEGIN
+	IF (SELECT year FROM Students WHERE sid = NEW.sid) <= 1 OR
+	NOT EXISTS (
+		SELECT *
+		FROM TakenCourses
+		WHERE sid = NEW.sid AND cid = NEW.cid AND grade LIKE 'A%'
+	)
+	THEN RETURN NULL;
+	END IF;
 	IF EXISTS (
 		SELECT * 
 		FROM TeachingAssistants
