@@ -1,7 +1,7 @@
 /* Functions to implement complex queries */
 
-CREATE OR REPLACE FUNCTION rank_posts(forum_id int, min_posts int, num int)
-RETURNS TABLE(fid1 int, ranking1 bigint, id1 varchar, forumrating numeric, totalposts bigint)
+CREATE OR REPLACE FUNCTION rank_posts(forum_id INTEGER, min_posts INTEGER, num INTEGER)
+RETURNS TABLE(fid INTEGER, ranking BIGINT, id VARCHAR, forum_rating NUMERIC, total_posts BIGINT)
 AS $content$
 	WITH FindTotalRatingAndPosts AS (
 		SELECT P.fid, P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
@@ -38,8 +38,8 @@ $content$
 LANGUAGE sql;
 
 
-CREATE OR REPLACE FUNCTION expose_students(forum_id int, min_posts int, num int)
-RETURNS TABLE(fid1 int, ranking1 bigint, sid1 varchar, total_posts1 bigint, last_posted_date1 timestamp)
+CREATE OR REPLACE FUNCTION expose_students(forum_id INTEGER, min_posts INTEGER, num INTEGER)
+RETURNS TABLE(fid INTEGER, ranking BIGINT, sid VARCHAR, total_posts BIGINT, last_posted_date TIMESTAMP)
 AS $content$
 	WITH SortedStudents AS (
 		SELECT BS.fid, BS.sid, CASE
