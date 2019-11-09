@@ -24,10 +24,10 @@ CREATE TABLE TakenCourses (
 	year 		VARCHAR(10) NOT NULL,
 	sem	 	INTEGER NOT NULL CHECK (sem = 1 OR sem = 2),
 	grade 		VARCHAR(5) DEFAULT NULL,
-	is_rated	BOOLEAN NOT NULL DEFAULT FALSE,
-	rating 		NUMERIC(3,2) NOT NULL DEFAULT 000.00,
+	rating 		INTEGER DEFAULT NULL,
 	is_pending 	BOOLEAN NOT NULL DEFAULT FALSE,
 	PRIMARY KEY 	(sid, cid)
+	CHECK (rating IS NULL OR (rating >= 0 AND rating <= 10))
 );
 
 
