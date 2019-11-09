@@ -31,3 +31,7 @@ Setup:
 5. To log into a professor account, choose any username from P00001 to P00100
 6. The password for both student and professor accounts are 'password'
 
+Languages used: python, JavaScript, HTML, CSS
+
+The project repository is also available at https://github.com/joelczk/CS2102-Project
+
