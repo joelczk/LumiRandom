@@ -20,6 +20,9 @@ pip install psycopg2\
 Connect to localhost:5300 in Browser
 
 Default Account ID and Password for LumiRandom\
+**NOTE**\
+This github repository may not be up to date with the project report\
+For accuracy please refer to the project report and project code submitted\
 **Account ID**\
 For Students: Choose any from S00001 - S01000\
 For Profs: Choose any from P00001 - P00100\
