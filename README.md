@@ -2,6 +2,11 @@
 ## Introduction
 This project was implement as part of CS2101(Introduction to database) module that I took while in NUS. Our project topic was to emulate a student management system, with a locally deployed database. Our database of choice for this project is `psql`, and the backend language used is `Python Flask`.
 
+## Group Members
+1. Joel Chang
+2. Clement Cheng
+3. Chan Jing Hong
+
 ## ER Diagram
 ![ER Diagram](https://github.com/joelczk/CS2102-Project/blob/v1.2/ER%20Diagram.jpg)
 
