@@ -57,3 +57,5 @@ Please make sure to update tests as appropriate.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+
+To refer to a more detailed report, please refer to [here](https://github.com/joelczk/CS2102-Project/blob/master/report/CS2102ProjectReport.pdf)
