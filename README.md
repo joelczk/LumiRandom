@@ -1,49 +1,23 @@
-# ER Diagram
+# CS2102 Project - LumiRandom
+## Introduction
+This project was implement as part of CS2101(Introduction to database) module that I took while in NUS. Our project topic was to emulate a student management system, with a locally deployed database. Our database of choice for this project is `psql`, and the backend language used is `Python Flask`.
+
+## ER Diagram
 ![ER Diagram](https://github.com/joelczk/CS2102-Project/blob/v1.2/ER%20Diagram.jpg)
 
-# Setup
+## Database Requirements:
+1. There are at least 15 entity sets and relationship sets
+2. There is at least 1 weak entity set
+3. There is at least 3 non-trivial application constraints that cannot be cannot be enforced using column/table\
+constraints and must be enforced using triggers
+4. There is at least 3 complex queries on data, with at least 1 `Group By` or `join` clause that produces 1 dangling tuple
 
-Please download the LumiRandom folder\
-Run terminal/cmd and cd into LumiRandom directory\
-Run python start.py\
-**---------------------------------------------------------------------------------\
-If not running then you are probably missing some modules needed for the webpage\
-Do the following:\
-pip install flask\
-pip install Flask-SQLAlchemy\
-pip install Flask-Bcrypt\
-pip install Flask-Login\
-pip install Flask-User\
-pip install Pillow\
-pip install psycopg2\
-----------------------------------------------------------------------------------**\
-Connect to localhost:5300 in Browser
+## Requirements
+1. Python 3
+2. PSQL (Please refer to [here](https://www.guru99.com/download-install-postgresql.html) on installation process for PSQL)
 
-Default Account ID and Password for LumiRandom\
-**NOTE**\
-This github repository may not be up to date with the project report\
-For accuracy please refer to the project report and project code submitted\
-**Account ID**\
-For Students: Choose any from S00001 - S01000\
-For Profs: Choose any from P00001 - P00100\
-**Password**\
-For All: password\
-**SQLite Database**\
-NOTE: Some of the complex queries cannot work using SQLite Database\
-To view database, please download DB browser for SQLite\
-Load site.db into DB Browser\
-**PSQL Database**\
-If you are using psql database for testing, please remember to include the following code into psql:
+## Setting Up
+1. Setting up the database
+```psql
+Test
 ```
-set timezone to 'GMT +8';
-```
-**Code Requirements**\
-Please refer to requirements.txt for the list of dependencies needed\
-Please refer to runtime.txt for the python version used
-
-**Requirements**\
-1.The total number of entity sets and relationship sets must be at least 15\
-2.There must be at least 1 weak entity set\
-3.There must be at least three non-trivial application constraints that cannot be enforced using column/table\
-constraints and must be enforced using triggers\
-4.There must be at least 3 complex queries on data(Need to use at least 1 Group By clause or 1 join clause that produces a dangling tuple)
