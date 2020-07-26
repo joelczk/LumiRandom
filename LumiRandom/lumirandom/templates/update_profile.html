@@ -1,0 +1,92 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="content-section" style="background-color: #d5d9dd;">
+    <form method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="media">
+            <div class="media-left">
+                <a href="#">
+                    <img class="rounded-circle account-img fadeimage upload-button profile-pic" src="{{ url_for('static', filename='profile_pictures/' + current_user.image_file) }}" data-toggle="tooltip" data-placement="bottom" title="Change Profile Picture">
+                    <input class="file-upload" type="file" accept="image/*" name="picture"/>
+                </a>
+            </div>
+            <div class="media-body">
+                <h4 class="text-muted" style="margin-top: 2px">{{ current_user.id }}</h4>
+                <h2 style="margin-top: 0px">{{ current_user.name }}</h2>
+                {% if 'Student' in current_user.roles() %}
+                    <h6 class="text-muted">Student<br>Year {{ student.query.get(current_user.id).year }}</h6>
+                {% endif %}
+                {% if 'Professor' in current_user.roles() %}
+                    <h6 class="text-muted">Professor<br> {{ prof.query.get(current_user.id).cid }}</h6>
+                {% endif %}
+            </div>
+        </div>
+        <legend class="border-bottom mb-4">Account Information</legend>
+        <div class="row">      
+            <div style="width: 35%; padding-left: 20px">
+                <h6>Email</h6>
+                <h6><small>{{ current_user.id }}@random.com</small></h6>
+            </div>
+            <div class="border-left" style="width: 65%; padding-right: 20px; padding-left: 20px">
+                <h5>Change Password?</h5>
+                <fieldset>
+                    <div class="form-group">
+                        {{ form.cur_password.label(class="form-control-label") }}
+                        {% if form.cur_password.errors %}
+                            {{ form.cur_password(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.cur_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.cur_password(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.new_password.label(class="form-control-label") }}
+                        {% if form.new_password.errors %}
+                            {{ form.new_password(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.new_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.new_password(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.confirm_password.label(class="form-control-label") }}
+                        {% if form.confirm_password.errors %}
+                            {{ form.confirm_password(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.confirm_password.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.confirm_password(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group" style="text-align: right">
+                        {{ form.submit(class="btn btn-outline-info") }}
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+</div> 
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+	<div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+	<div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+        <br><br><a class="section unrefany" href="{{ url_for('profile', id=current_user.id) }}"><div class="menu-dropdown-item bread-header">My Profile</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        <br><br><div class="active section bread-header" style="color: white">Edit Profile</div>
+	</div>
+</div>
+{% endblock bread %}

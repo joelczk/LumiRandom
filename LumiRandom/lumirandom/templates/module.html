@@ -1,0 +1,121 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="ui raised segment">
+    <div>
+        {% if 'Student' in current_user.roles() %}
+            {% if status == "taken" %}
+                <button class="ui secondary button" disabled style="float: right">Taken</button>
+            {% elif status == "taking" %}
+                <button class="ui secondary button" disabled style="float: right">Enrolled</button>
+            {% elif status == 'pending' %}
+                <button class="ui negative button" data-toggle="modal" data-target="#WithdrawModal" style="float: right">
+                    Withdraw
+                </button> 
+                <div class="modal fade" id="WithdrawModal" tabindex="-1" role="dialog" aria-labelledby="WithdrawModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header text-center">
+                                <h4 class="modal-title w-100 font-weight-bold">Hey! Wait A Minute!!</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to <b>withdraw</b> from this module? <br>We will miss you!
+                            </div>
+                            <div class="modal-footer">
+                                <form class="ui form" method='POST'>
+                                    <input class="ui negative submit button" type="submit" name="btn" value="Withdraw">
+                                </form>
+                                <button class="ui button" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% elif status == "nil" and prof %}
+            <button class="ui positive button" data-toggle="modal" data-target="#EnrolModal" style="float: right">
+                Enrol
+            </button>      
+            <!-- Modal -->
+            <div class="modal fade" id="EnrolModal" tabindex="-1" role="dialog" aria-labelledby="EnrolModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to <b>enrol</b> into this module?
+                        </div>
+                        <div class="modal-footer">
+                            <form class="ui form" method='POST'>
+                                <input class="ui positive submit button" type="submit" name="btn" value="Enrol">
+                            </form>
+                            <button class="ui button" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+        <h4>{{ module.cid }}</h4>
+        <h2>{{ module.cname }}</h2>
+        <p class="text-muted">Modular Credit: 4<br>
+        {% if not prof %}
+            <b style="font-style: italic">This module is not available for this semester!</b>
+        {% else %}
+             {{ cur_year }} Semester {{ cur_sem }}&emsp;<a class="unref text-muted" href="{{ url_for('profile', id=prof.pid) }}">{{ prof.info.name }}</a>
+        {% endif %} 
+        </p>
+    </div><br><br>
+    <div style="border-top: 2px solid; border-color: #b0b9c0; padding: 10px">
+        <h5>Module Description</h5>
+        <p>The BEST module in the world! Enrol today!</p>
+    </div>
+    <div style="border-top: 2px solid; border-color: #b0b9c0; padding: 10px">
+        <h5>Module Statistics</h5>
+        <table class="table table-bordered table-hover table-striped module-stats text-center">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Academic Year</th>
+                    <th>Semester</th>
+                    <th>Average GPA</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for results in results %}
+                <tr>
+                    <th>{{ results[1] }}</th>
+                    <th> {{ results[2] }}</th>
+                    <th>{% if results[3] == 0 %}NIL{% else %}{{ results[3] }}{% endif %} </th>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot style="border-top: 2px solid; border-color: black;">
+                <tr>
+                    <th colspan="2">Total Average</th>
+                    <th>{{ results[0][4] }}</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        {% if 'Professor' not in current_user.roles() %}
+        <a class="section unrefany" href="{{ url_for('module_search') }}"><div class="menu-dropdown-item bread-header">Module Search</div></a>
+        {% else %}
+        <a class="section unrefany" href="{{ url_for('prof_module_search') }}"><div class="menu-dropdown-item bread-header">Module Search</div></a>
+        {% endif %}
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Module: {{ module.cid }}</div>
+	</div>
+</div>
+{% endblock bread %}

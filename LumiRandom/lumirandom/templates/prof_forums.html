@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2 class="border-bottom mb-4", style="text-align:center;">Forums</h2>
+    <div class="ui container">
+        <div class="row justify-content-center">
+            <a class="ui fluid teal button" data-toggle="modal" data-target="#newforum">New Forum</a>
+            <div class="modal fade" id="newforum" tabindex="-1" role="dialog" aria-labelledby="newforum" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">New Forum</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" style="float: right">&times;</span>
+                            </button> 
+                        </div>
+                        <div class="modal-body mx-3">
+                            <form class="ui form forum" method='POST'>
+                                <div class="fields">
+                                    <div class="disabled four wide field">
+                                        <label>Module Code</label>
+                                        <input type="text" placeholder="{{ cid }}"> 
+                                    </div>
+                                    <div class="twelve wide required field">
+                                        <label>Title</label>
+                                        <input id="title" name="title" placeholder="Enter a forum title"> 
+                                    </div>
+                                </div>
+                                <div class="required inline field">
+                                    <label>Groups</label>
+                                    <div class="ui multiple dropdown">
+                                        <input type="hidden" id="groups" name="groups">
+                                        <i class="users icon"></i>
+                                        <span class="text">Select Groups</span>
+                                        <div class="menu">
+                                            <div class="ui icon search input">
+                                                <i class="search icon"></i>
+                                                <input type="text" placeholder="Search group...">
+                                            </div>
+                                            <div class="divider"></div>
+                                            <div class="scrolling menu">
+                                                {% for group in groups %}
+                                                    <div class="item" data-value="{{ group.gid }}">
+                                                        <div class="ui olive empty circular label"></div>
+                                                        {{ group.gname }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field text-center">
+                                    <div class="ui teal submit button">Create</div>
+                                    <div class="ui reset button">Clear</div>
+                                    <div class="ui error message"></div>
+                                </div>
+                            </form>         
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if forums %}
+                {% for forum in forums %}
+                    <div class="ui fluid card mt-4">
+                        <a class="card-body unref2" href="{{ url_for('forum', cid=cid, fid=forum.fid) }}">
+                            <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ foruminfo.query.filter_by(fid=forum.fid).count() }}</small><i class="users icon ml-1"></i></h6>
+                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ cid }}</small></h6>
+                            <h6 class="card-title">{{ forum.title }}</h6>
+                        </a>
+                        <div class="card-footer unref2" style="background-color: #a1b4c2; color: #e8ebee;">
+                            <small>{{ time_ago(forum.date_created) }}</small>
+                        </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You have not created any forums yet. Go make some!</h6>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+        <a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><a class="section unrefany" href="{{ url_for('module_take') }}"><div class="menu-dropdown-item bread-header">My Module: {{ cid }}</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Forums</div>
+	</div>
+</div>
+{% endblock bread %}

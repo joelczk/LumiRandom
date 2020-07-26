@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2 style="text-align:center;">Groups</h2>
+    <h4 class="text-muted border-bottom mb-4" style="text-align:center;">{{ mod.cid }} &nbsp; {{ mod.cname }}</h4>
+    {% if groups %}
+        {% for group in groups|sort(attribute='gname') %}
+            <div class="ui raised segment unref2" style="height: 8rem">
+                <a class="unrefany" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
+                <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
+                <h6 class="card-subtitle mb-2 text-muted"><small>{{ group.prof.cid }}</small></h6>
+                <h6 class="card-title">{{ group.gname }}</h6>
+                <div class="ui bottom attached label" style="background-color: #a1b4c2;">
+                    {% if group.sid %}
+                        <a href="{{ url_for('profile', id=group.ta.courseinfo.student.info.id) }}" style="color:white;">
+                            <div style="float: right; padding: 0.3em">Teaching Assistant</div>
+                            <div style="float: left; padding: 0.3em">{{ group.ta.courseinfo.student.info.name }}</div>
+                        </a>
+                    {% else %}
+                        <div style="color: #d8d7d7; padding: 0.3em">Unmanaged</div>
+                    {% endif %}
+                </div>
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You are not in any group for {{ mod.cid }} {{ mod.cname }}!</h6>
+    {% endif %}
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu show-bread-bar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        <a class="section unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item bread-header">My Modules</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=mod.cid) }}"><div class="menu-dropdown-item bread-header">{{ mod.cid }}</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        <br><br><div class="active section bread-header" style="color: white">Groups</div>
+	</div>
+</div>
+{% endblock bread %}

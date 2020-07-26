@@ -1,0 +1,113 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="ui raised segment">
+    <h2 class="border-bottom mb-4", style="text-align:center;">New Group</h2>
+    <form class="ui form group" method='POST'>
+        <div class="form-group">
+            <label>Module Code</label>
+            <input id="mods" name="mods" id="mods" type="text" placeholder="{{ cid }}" class="form-control form-control" disabled> 
+        </div>
+        <div class="form-group required field">
+            <label>Group Name</label>
+            <input id="gname" name="gname" placeholder="Enter a group name" class="form-control form-control">
+        </div>
+        <div class="form-group required inline field">
+            <label>Teaching Assistant</label>
+            <div class="ui floating dropdown">
+                <input type="hidden" id="ta" name="ta">
+                <i class="user plus icon"></i>
+                <span class="text ml-2">Select Teaching Assistant</span>
+                <div class="menu">
+                    <div class="ui icon search input">
+                        <i class="search icon"></i>
+                        <input type="text" placeholder="Search name...">
+                    </div>
+                    <div class="divider"></div>
+                    <div class="scrolling menu">
+                        <div class="item" data-value="none">
+                            None
+                        </div>
+                        {% for ta in tas %}
+                            <div class="item" data-value="{{ ta.sid }}">
+                                {{ ta.courseinfo.student.info.name }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group required inline field">
+            <label>Students</label>
+            <div class="ui multiple dropdown">
+                <input type="hidden" id="students" name="students">
+                <i class="user plus icon"></i>
+                <span class="text">Select Students</span>
+                <div class="menu">
+                    <div class="ui icon search input">
+                        <i class="search icon"></i>
+                        <input type="text" placeholder="Search name...">
+                    </div>
+                    <div class="divider"></div>
+                    <div class="scrolling menu">
+                        <div class="header">
+                            <i class="user circle icon"></i>
+                            Year 1
+                        </div>
+                        {% for s in s1 %}
+                            <div class="item" data-value="{{ s.sid }}">
+                                <div class="ui red empty circular label"></div>
+                                {{ s.student.info.name }}
+                            </div>
+                        {% endfor %}
+                        <div class="header">
+                            <i class="user circle icon"></i>
+                            Year 2
+                        </div>
+                        {% for s in s2 %}
+                            <div class="item" data-value="{{ s.sid }}">
+                                <div class="ui orange empty circular label"></div>
+                                {{ s.student.info.name }}
+                            </div>
+                        {% endfor %}
+                        <div class="header">
+                            <i class="user circle icon"></i>
+                            Year 3
+                        </div>
+                        {% for s in s3 %}
+                            <div class="item" data-value="{{ s.sid }}">
+                                <div class="ui yellow empty circular label"></div>
+                                {{ s.student.info.name }}
+                            </div>
+                        {% endfor %}
+                        <div class="header">
+                            <i class="user circle icon"></i>
+                            Year 4
+                        </div>
+                        {% for s in s4 %}
+                            <div class="item" data-value="{{ s.sid }}">
+                                <div class="ui green empty circular label"></div>
+                                {{ s.student.info.name }}
+                            </div>
+                        {% endfor %}
+                        <div class="header">
+                            <i class="user circle icon"></i>
+                            Year 5
+                        </div>
+                        {% for s in s5 %}
+                        <div class="item" data-value="{{ s.sid }}">
+                            <div class="ui blue empty circular label"></div>
+                            {{ s.student.info.name }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group text-center">
+                <div class="ui teal submit button">Submit</div>
+            <div class="ui reset button">Clear</div>
+            <div class="ui error message"></div>
+        </div>
+    </form>
+</div>
+{% endblock content %}

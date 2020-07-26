@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="content-section">
+    <h2 class="border-bottom mb-4", style="text-align:center;">New Forum</h2>
+    <form class="ui form forum" method='POST'>
+        <div class=" disabled field">
+            <label>Module Code</label>
+            <input id="mods" name="mods" id="mods" type="text" placeholder="{{ cid }}"> 
+        </div>
+        <div class="required field">
+            <label>Title</label>
+            <input id="title" name="title" placeholder="Enter a forum title">
+        </div>
+        <div class="required inline field">
+            <label>Groups</label>
+            <div class="ui multiple dropdown">
+                <input type="hidden" id="groups" name="groups">
+                <i class="users icon"></i>
+                <span class="text">Select Groups</span>
+                <div class="menu">
+                    <div class="ui icon search input">
+                        <i class="search icon"></i>
+                        <input type="text" placeholder="Search group...">
+                    </div>
+                    <div class="divider"></div>
+                    <div class="scrolling menu">
+                        {% for group in groups %}
+                            <div class="item" data-value="{{ group.gid }}">
+                                <div class="ui olive empty circular label"></div>
+                                {{ group.gname }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="field text-center">
+                <div class="ui teal submit button">Submit</div>
+            <div class="ui reset button">Clear</div>
+            <div class="ui error message"></div>
+        </div>
+    </form>         
+</div>
+{% endblock content %}

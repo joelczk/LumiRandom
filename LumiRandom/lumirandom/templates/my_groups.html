@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2 class="border-bottom mb-4", style="text-align:center;">My Groups</h2>
+    {% if groups %}
+        {% for mod in groups|sort %}
+        <div class="ui fluid accordion">
+            <div class="active title">
+                <div class="ui horizontal divider small header"><div style="color: white; text-shadow: -.5px -.5px 0 #000, .5px -.5px 0 #000, -.5px .5px 0 #000, .5px .5px 0 #000;">{{ mod }}</div></div>
+            </div>
+            <div class="active content">
+                <a class="ml-2" style="color: #6e757a; font-size: 9pt;" href="{{ url_for('mod_groups', cid=mod) }}">View All</a>
+                <div class="row">
+                    {% for group in groups[mod]|sort(attribute='groupinfo.gname') %}
+                        <div class="col-auto mb-3">
+                            <div class="card unref2" style="width: 18rem; height: 10rem">
+                                <a class="card-body unref2" href="{{ url_for('group', cid=group.groupinfo.prof.cid, gid=group.gid) }}">
+                                    <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
+                                    <h6 class="card-subtitle mb-2 text-muted"><small>{{ group.groupinfo.prof.cid }}</small></h6>
+                                    <h6 class="card-title">{{ group.groupinfo.gname }}</h6>
+                                </a>
+                                {% if group.groupinfo.sid %}
+                                    <a class="card-footer unref2" style="background-color: #a1b4c2; color: #d3e4f1" href="{{ url_for('profile', id=group.groupinfo.ta.courseinfo.student.info.id) }}">
+                                        <small style="float: left">Teaching Assistant</small>
+                                        <small style="float: right">{{ group.groupinfo.ta.courseinfo.student.info.name }}</small>
+                                    </a>
+                                {% else %}
+                                    <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                        <small>Unmanaged</small>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div> 
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You are not in any group.</h6>
+    {% endif %}
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Groups</div>
+	</div>
+</div>
+{% endblock bread %}

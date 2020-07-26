@@ -1,0 +1,452 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+    <div class="container">
+        <h4 class="text-muted", style="text-align:center;">{{ forum.prof.cid }}</h4>
+        <h2 class="border-bottom mb-4", style="text-align:center;">{{ forum.title }}</h2>
+        <div class="row">
+            <div class="col-xs-12 ">
+                <nav>
+                    <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link {% if rank != 'rank' %}active{% endif %}" id="thread-tab" data-toggle="tab" href="#thread" role="tab" aria-controls="thread" aria-selected="true" style="width: 370px">Threads</a>
+                        <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="width: 370px">Forum Details</a>
+                        <a class="nav-item nav-link {% if rank == 'rank' %}active{% endif %}" id="rank-tab" data-toggle="tab" href="#rank" role="tab" aria-controls="rank" aria-selected="false" style="width: 370px">Rank</a>
+                    </div>
+                </nav>
+                <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                    <div class="tab-pane fade {% if rank != 'rank' %}show active{% endif %}" id="thread" role="tabpanel" aria-labelledby="thread-tab">
+                        <div class="container-fluid mt-4">
+                            <a class="unrefany" data-toggle="modal" data-target="#newthread"><button class="fluid ui teal button mb-4">New Thread</button></a>
+                            <div class="modal fade" id="newthread" tabindex="-1" role="dialog" aria-labelledby="newthread" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-center">
+                                            <h4 class="modal-title w-100 font-weight-bold">Start A Thread</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                            </button> 
+                                        </div>
+                                        <div class="modal-body mx-3">
+                                            <form class="ui form thread" method='POST'>
+                                                <div class="fields">
+                                                    <div class="disabled four wide field">
+                                                        <label>Module Code</label>
+                                                        <input id="mods" name="mods" type="text" placeholder="{{ cid }}"> 
+                                                    </div>
+                                                    <div class="disabled twelve wide field">
+                                                        <label>Forum Title</label>
+                                                        <input id="ftitle" name="ftitle" type="text" placeholder="{{ forum.title }}"> 
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Thread Title</label>
+                                                    <input id="title" name="title" placeholder="Enter a thread title">
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Thread Content</label>
+                                                    <textarea rows="8" id="content" name="content" placeholder="Enter a thread message"></textarea>
+                                                </div>
+                                                <div class="field text-center">
+                                                        <input class="ui teal submit button" type="submit" name="btn" value="Create">
+                                                    <div class="ui reset button">Clear</div>
+                                                    <div class="ui error message"></div>
+                                                </div>
+                                            </form>         
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if threads %}   
+                                {% for thread in threads %}
+                                    <div class="ui raised segment">
+                                        <div class="ui grid">
+                                            {% if is_prof %}
+                                                <a class="ui mini secondary right corner label" data-toggle="modal" data-target="#d{{ thread.tid }}">
+                                                    <i class="icon trash alternate outline popup" data-content="Delete" data-variation="inverted mini" data-position="top center"></i>
+                                                </a>
+                                                <div class="modal fade" id="d{{ thread.tid }}" tabindex="-1" role="dialog" aria-labelledby="d{{ thread.tid }}" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header text-center">
+                                                                <h4 class="modal-title w-100 font-weight-bold">Are you sure you want to delete this thread?</h4>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true" style="float: right">&times;</span>
+                                                                </button> 
+                                                            </div>
+                                                            <div class="modal-body mx-3">
+                                                                <form class="ui form" method='POST'>
+                                                                    <input type="hidden" id="tid" name="tid" value="{{ thread.tid }}">
+                                                                    <div class="field">
+                                                                        <div class="disabled field">
+                                                                            <label>Author</label>
+                                                                            <input type="text" placeholder="{{ thread.creator.name }}"> 
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="disabled field">
+                                                                        <label>Thread Title</label>
+                                                                        <input placeholder="{{ thread.title }}">
+                                                                    </div>
+                                                                    <div class="disabled field">
+                                                                        <label>Thread Content</label>
+                                                                    </div>
+                                                                    <div class="ui segment fluid" style="max-height: 20rem; overflow: auto; color: #b0b9c0;">
+                                                                        {% for para in thread.content.split('\n') %}
+                                                                            <p style="margin: 0">{{ para }}</p>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                    <div style="color: #b0b9c0; font-size: 9pt; font-weight: 600">
+                                                                        Number of Posts: 
+                                                                        {% set postcount = posts.query.filter_by(fid=fid, tid=thread.tid).count() %}
+                                                                        {% if postcount == 1 %}
+                                                                            <i>None</i>
+                                                                        {% else %}
+                                                                            {{ postcount-1 }}
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    <div class="field text-center">
+                                                                        <input class="ui red submit button" type="submit" name="btn" value="Delete">
+                                                                        <div class="ui button" data-dismiss="modal">Close</div>
+                                                                    </div>
+                                                                </form>       
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                            <div class="nine wide column">
+                                                <a href="{{ url_for('profile', id=thread.id) }}" style="float: left; margin-right: 1em">
+                                                    <img src="{{ url_for('static', filename='profile_pictures/' + thread.creator.image_file) }}" style="height: 50px; width: 50px; border-radius: 10px">
+                                                </a>
+                                                <div>
+                                                    {% if thread.title|length > 60 %}
+                                                        <a class="ui header" style="margin-bottom: 0.2em" href="{{ url_for('threads', cid=cid, fid=fid, tid=thread.tid) }}">
+                                                            <div class="popup" data-content="{{thread.title}}" data-variation="inverted flowing" data-position="top center">{{ thread.title[:60] }}...</div>
+                                                        </a>
+                                                    {% else %}
+                                                        <a class="ui header" style="margin-bottom: 0.2em" href="{{ url_for('threads', cid=cid, fid=fid, tid=thread.tid) }}">{{ thread.title }}</a>
+                                                    {% endif %}
+                                                    <div>
+                                                    <div class="text-muted row">
+                                                        <div style="margin-right: 1em; float:left">{{ thread.creator.name }}</div>
+                                                        <div class="popup" data-content="{{ thread.date_created.strftime('%d %B %Y %H:%M') }}" data-variation="inverted mini" data-position="top center"> {{ time_ago(thread.date_created) }}</div>    
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
+                                            <div class="two wide column">
+                                                <div style="font-size: 9pt; padding-top: 1.5em">
+                                                    <i class="icon comments outline"></i>
+                                                    {% set postcount = posts.query.filter_by(fid=fid, tid=thread.tid).count() %}
+                                                    {% if postcount == 1 %}
+                                                        <i style="color: #b0b9c0">No Posts</i>
+                                                    {% elif postcount == 2 %}
+                                                        1 Post
+                                                    {% else %}
+                                                        {{ postcount-1 }} Posts
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="two wide column">
+                                                <div style="font-size: 9pt; padding-top: 1.5em"><i class="icon eye"></i> Views</div>
+                                            </div>
+                                            <div class="two wide column">
+                                                <div style="font-size: 9pt; padding-top: 1em">
+                                                    Last reply:<br>
+                                                    {% if postcount == 1 %}
+                                                        <i style="color: #b0b9c0">None</i>
+                                                    {% else %}
+                                                        {% set timing = posts.query.filter_by(fid=fid, tid=thread.tid).order_by(posts.date_posted.desc()).first().date_posted %}
+                                                        <div class="popup" data-content="{{ timing.strftime('%d %B %Y %H:%M') }}" data-variation="inverted mini" data-position="top left">{{ time_ago(timing) }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ui accordion">
+                                            <div class="title" style="color: #b0b9c0; font-size: 6pt; text-align: right;">
+                                                View Content
+                                            </div>
+                                            <div class="content" style="max-height: 15rem; overflow: auto">
+                                                {% for para in thread.content.split('\n') %}
+                                                    <p style="margin: 0">{{ para }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}                              
+                            {% else %}
+                                <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">There are no threads in this forum yet!</h6>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
+                        <div class="ui raised segment">
+                            <div class="ui raised segment">
+                                <div class="ui fluid accordion">
+                                    <div class="active title">
+                                        <div class="ui horizontal divider header">Overview</div>
+                                    </div>
+                                    <div class="active content" style="text-align:center">
+                                        <h6 class="text-muted">{{ forum.prof.cid }}</h6>
+                                        <h4>{{ forum.title }}</h4>
+                                        <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=forum.prof.pid) }}">{{ forum.prof.info.name }}</a></h6>
+                                        <h6 class="text-muted">Date Created: {{ forum.date_created.strftime('%d %B %Y') }}</h6>
+                                        <h6 class="mt-1">Total Threads: <b>{{ totalthreads }}</b></h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui raised segment">
+                                <div class="ui fluid accordion">
+                                    <div class="title">
+                                        <div class="ui horizontal divider header">Groups ({{size}})</div>
+                                    </div>
+                                    <div class="content">
+                                        {% for group in groups %}
+                                            <div class="ui grid center aligned mt-3 mb-3">
+                                                {% if (is_student and not groupinfo.query.filter_by(sid=current_user.id, gid=group.gid).first()) or (is_ta and allgroups.query.get(group.gid).sid != current_user.id) %}
+                                                    <div class="card" style="width: 40rem; height: 4rem">
+                                                        <div class="card-body">
+                                                            <h6 class="card-title" style="float: left">{{ group.gname }}</h6>
+                                                            {% if group.sid %}
+                                                                <small class="text-muted" style="float: right">{{ group.ta.courseinfo.student.info.name }}</small>
+                                                            {% else %}
+                                                                    <small class="text-muted" style="float: right">Unmanaged</small>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% else %}
+                                                <a class="card unref3" style="width: 40rem; height: 4rem;" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
+                                                    <div class="card-body">
+                                                        <h6 class="card-title" style="float: left">{{ group.gname }}</h6>
+                                                        {% if group.sid %}
+                                                            <small class="text-muted" style="float: right">{{ group.ta.courseinfo.student.info.name }}</small>
+                                                        {% else %}
+                                                                <small class="text-muted" style="float: right">Unmanaged</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </a>
+                                                {% endif %}
+                                            </div> 
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui raised segment">
+                                <div class="ui fluid accordion">
+                                    <div class="title">
+                                        <div class="ui horizontal divider header">Scoreboard</div>
+                                    </div>
+                                    <div class="content">
+                                        <div class="ui three column center aligned grid">
+                                            <div class="column">
+                                                <div class="ui yellow statistic">
+                                                    <div class="value"><i class="icon yellow trophy" style="margin: 0.1em"></i><small>#1</small></div>
+                                                    <div class="label">
+                                                        {% set found = {'found': false} %}
+                                                        {% for student in rankedstudents %}
+                                                            {% if student[1] == 1 %}
+                                                                <a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                                    {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}<br>
+                                                                 </a>
+                                                                {% if found.update({'found': true}) %}{% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if not found.found %}<span class="text-muted">NONE</span>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <div class="ui statistic">
+                                                    <div class="value" style="color: #aeb3b3"><i class="icon trophy" style="color: #aeb3b3; margin: 0.1em"></i><small>#2</small></div>
+                                                    <div class="label">
+                                                        {% set found = {'found': false} %}
+                                                        {% for student in rankedstudents %}
+                                                            {% if student[1] == 2 %}
+                                                                <a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                                    {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}<br>
+                                                                 </a>
+                                                                {% if found.update({'found': true}) %}{% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if not found.found %}<span class="text-muted">NONE</span>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="column">
+                                                <div class="ui brown statistic">
+                                                    <div class="value"><i class="icon brown trophy" style="margin: 0.1em"></i><small>#3</small></div>
+                                                    <div class="label">
+                                                        {% set found = {'found': false} %}
+                                                        {% for student in rankedstudents %}
+                                                            {% if student[1] == 3 %}
+                                                                <a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                                    {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}<br>
+                                                                 </a>
+                                                                {% if found.update({'found': true}) %}{% endif %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                        {% if not found.found %}<span class="text-muted">NONE</span>{% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                        <div class="hover-light inline-popup2" style="font-size: 9pt; cursor: pointer;">Ranking System<i style="color: inherit;" class="icon info"></i></div>
+                                        <div class="ui mini popup top left transition hidden">
+                                            <div class="ui horizontal divider header">Ranking System</div>
+                                            <div class="text-left"><i class="icon angle right"></i>Must have <b>at least 5 posts</b></div>
+                                            <div class="text-left"><i class="icon angle right"></i>Ranked by <b>highest rating</b></div>
+                                            <div class="text-left"><i class="icon angle right"></i>Ranked by <b>highest number of posts</b></div>
+                                        </div>
+                                    </div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade {% if rank == 'rank' %}show active{% endif %}" id="rank" role="tabpanel" aria-labelledby="rank-tab">
+                        <div class="ui raised segment">
+                            <div class="ui large horizontal divider header">
+                                <div><i class="icon small star mr-1" style="color: #f7d61f; padding: 0"></i>
+                                    <i class="icon small star ml-1 mr-1" style="color: #f7d61f; padding: 0"></i>
+                                    <i class="icon small star ml-1" style="color: #f7d61f; padding: 0"></i>
+                                </div>TOP FORUM POSTS
+                            </div>
+                            <div class="ui grid">
+                                <div class="row">
+                                    <div class="eleven wide column">
+                                        <table class="ui teal striped table" style="width: 40rem; margin: 0 auto; text-align:center">
+                                            <thead><tr>
+                                                <th style="width: 6rem;">Rank <i class="icon trophy" style="color: #f7d61f"></i></th>
+                                                <th>Name</th>
+                                                <th style="width: 6rem;">Rating</th>
+                                                <th style="width: 10rem;">Number of Posts</th>
+                                            </tr></thead>
+                                            <tbody>
+                                                {% if not customrank %}
+                                                    <td colspan="4"><h6 class="text-muted text-center">No one meets the criteria given!</h6></td>
+                                                {% else %}
+                                                    {% for student in customrank %}
+                                                    <tr>
+                                                        <td style="text-align:center"><b>{{ student[1] }}</b></td>
+                                                        <td><a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                            {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}
+                                                        </a></td>
+                                                        <td>{{ student[3] }}</td>
+                                                        <td>{{ student[4] }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="five wide column">
+                                        <form class="ui form rank1 text-right" method="POST">
+                                            <input type="hidden" id="minpost2" name="minpost2" value="{{ minpost2 }}">
+                                            <input type="hidden" id="pos2" name="pos2" value="{{ pos2 }}">
+                                            <div class="field">
+                                                <label>Minimum number of posts</label>
+                                                <input class="text-right" type="text" name="minpost" value="{{ minpost }}"> 
+                                            </div>
+                                            <div class="field">
+                                                <label>Number of positions</label>
+                                                <input class="text-right" type="text" name="pos" value="{{ pos }}">
+                                            </div>
+                                            <div class="field">
+                                                <input class="ui teal submit button" type="submit" name="btn" value="Rank!">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui large horizontal divider header">
+                                <div><i class="icon small exclamation mr-1" style="color: #f7261f; padding: 0"></i>
+                                    <i class="icon small exclamation ml-1 mr-1" style="color: #f7261f; padding: 0"></i>
+                                    <i class="icon small exclamation ml-1" style="color: #f7261f; padding: 0"></i>
+                                </div>ENDANGERED STUDENTS
+                            </div>
+                            <div class="ui grid">
+                                <div class="row">
+                                    <div class="eleven wide column">
+                                        <table class="ui teal striped table" style="width: 40rem; margin: 0 auto; text-align:center">
+                                            <thead><tr>
+                                                <th style="width: 6rem;">Rank </th>
+                                                <th>Name</th>
+                                                <th style="width: 8rem;">Number of Posts</th>
+                                                <th style="width: 12rem;">Date Last Posted</th>
+                                            </tr></thead>
+                                            <tbody>
+                                                {% if not badstudents %}
+                                                    <td colspan="4"><h6 class="text-muted text-center">Everyone is safe!!</h6></td>
+                                                {% else %}
+                                                    {% for student in badstudents %}
+                                                    <tr>
+                                                        <td><b>{{ student[1] }}</b></td>
+                                                        <td><a class="link-hover" href="{{ url_for('profile', id=student[2]) }}">
+                                                            {{ groupinfo.query.filter_by(sid=student[2]).first().student.info.name }}
+                                                        </a></td>
+                                                        <td>{{ student[3] }}</td>
+                                                        {% if student[4] %}
+                                                            <td>{{ student[4].strftime('%d %B %Y %H:%M') }}</td>
+                                                        {% else %}
+                                                            <td class="text-muted">-</td>
+                                                        {% endif %}
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="five wide column">
+                                        <form class="ui form rank2 text-right" method="POST">
+                                            <input type="hidden" id="minpost" name="minpost" value="{{ minpost }}">
+                                            <input type="hidden" id="pos" name="pos" value="{{ pos }}">
+                                            <div class="field">
+                                                <label>Minimum number of posts</label>
+                                                <input class="text-right" type="text" name="minpost2" value="{{ minpost2 }}"> 
+                                            </div>
+                                            <div class="field">
+                                                <label>Number of positions</label>
+                                                <input class="text-right" type="text" name="pos2" value="{{ pos2 }}">
+                                            </div>
+                                            <div class="field">
+                                                <input class="ui teal submit button" type="submit" name="btn" value="Expose!">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu show-bread-bar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        {% if is_student %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        <a class="section unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item bread-header">My Modules</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        {% if is_student %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=forum.prof.cid) }}"><div class="menu-dropdown-item bread-header">{{ forum.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('mod_forums', cid=forum.prof.cid) }}"><div class="menu-dropdown-item bread-header">Forums</div></a>
+        {% elif is_prof %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take') }}"><div class="menu-dropdown-item bread-header">My Module: {{ forum.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('prof_forums') }}"><div class="menu-dropdown-item bread-header">Forums</div></a>
+        {% elif is_ta %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=forum.prof.cid) }}"><div class="menu-dropdown-item bread-header">TA Module: {{ forum.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('ta_forums') }}"><div class="menu-dropdown-item bread-header">TA Forums</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">{{ forum.title }}</div>
+	</div>
+</div>
+{% endblock bread %}

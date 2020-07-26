@@ -1,0 +1,89 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+    <div class="ui container">
+        <h4 class="text-muted", style="text-align:center;">{{ group.prof.cid }}</h4>
+        <h2 class="border-bottom mb-4", style="text-align:center;">{{ group.gname }}</h2>
+        <div class="row">
+            <div class="col-xs-12 ">
+                <nav>
+                    <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true" style="width: 555px">Group Details</a>
+                        <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="width: 555px">Groupmates</a>
+                    </div>
+                </nav>
+                <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                        <div class="container-fluid mt-4">
+                            <div class="content-section">
+                                <h6 class="text-muted" style="float: right">{{ size }}<i class="fa fa-user fa-xs ml-1"></i></h6>
+                                <h6 class="text-muted">{{ group.prof.cid }}</h6>
+                                <h4>{{ group.gname }}</h4>
+                                <h6 class="text-muted">Professor: <a class="unref text-muted" href="{{ url_for('profile', id=group.prof.pid) }}">{{ group.prof.info.name }}</a></h6>
+                                {% if group.sid %}
+                                    <h6 class="text-muted">Teaching Assistant: <a class="unref text-muted" href="{{ url_for('profile', id=group.sid) }}">{{ user.query.get(group.sid).name }}</a></h6>
+                                {% else %}
+                                    <h6 class="text-muted">Teaching Assistant: NIL</h6>
+                                {% endif %}
+                            </div>
+                        </div>   
+                    </div>
+                    <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
+                        <div class="container-fluid mt-4"></div>
+                            <div class="row justify-content-center">
+                                {% for student in students %}
+                                    <div class="col-auto mb-3">
+                                        {% if student.sid == current_user.id %}
+                                            <a class="card unref3" style="width: 40rem; height: 6rem;;" href="{{ url_for('profile', id=student.sid) }}">
+                                                <div class="card-body">
+                                                    <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
+                                                    <h6 class="card-title">{{ student.student.info.name }}</h6>
+                                                </div>
+                                            </a>
+                                        {% else %}
+                                            <a class="card unref2" style="width: 40rem; height: 6rem" href="{{ url_for('profile', id=student.sid) }}">
+                                                <div class="card-body">
+                                                    <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
+                                                    <h6 class="card-title">{{ student.student.info.name }}</h6>
+                                                </div>
+                                            </a>
+                                        {% endif %}
+                                    </div> 
+                                {% endfor %}      
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>  
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu show-bread-bar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        {% if is_student %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        <a class="section unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item bread-header">My Modules</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        {% if is_student %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=group.prof.cid) }}"><div class="menu-dropdown-item bread-header">{{ group.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('mod_groups', cid=group.prof.cid) }}"><div class="menu-dropdown-item bread-header">Groups</div></a>
+        {% elif is_prof %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take') }}"><div class="menu-dropdown-item bread-header">My Module: {{ group.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('prof_groups') }}"><div class="menu-dropdown-item bread-header">Groups</div></a>
+        {% elif is_ta %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=group.prof.cid) }}"><div class="menu-dropdown-item bread-header">TA Module: {{ group.prof.cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('ta_groups') }}"><div class="menu-dropdown-item bread-header">TA Groups</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">{{ group.gname }}</div>
+	</div>
+</div>
+{% endblock bread %}

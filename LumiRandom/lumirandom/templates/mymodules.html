@@ -1,0 +1,80 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <section id="tabs">
+        <div class="container">
+            <h2 class="border-bottom mb-4", style="text-align:center;">My Modules</h2>
+            <div class="row">
+                <div class="col-xs-12 ">
+                    <nav>
+                        <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                            <a class="nav-item nav-link active" id="enrolled-tab" data-toggle="tab" href="#enrolled" role="tab" aria-controls="enrolled" aria-selected="true" style="width: 555px">Enrolled Modules</a>
+                            <a class="nav-item nav-link" id="taken-tab" data-toggle="tab" href="#taken" role="tab" aria-controls="taken" aria-selected="false" style="width: 555px">Taken Modules</a>
+                        </div>
+                    </nav>
+                    <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                        <div class="tab-pane fade show active" id="enrolled" role="tabpanel" aria-labelledby="enrolled-tab">
+                            <div class="container-fluid mt-4">
+                                {% if takingmods %}
+                                    <div class="row justify-content-left">
+                                        {% for takingmod in takingmods %}
+                                            <div class="col-auto mb-3">
+                                                <a class="card unref2" href="{{ url_for('module_take', cid=takingmod.cid) }}" style="width: 15rem; height: 15rem">
+                                                        <div class="card-body">
+                                                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ takingmod.cid }}</small></h6>
+                                                            <h6 class="card-title">{{ mods.query.filter_by(cid=takingmod.cid).first().cname }}</h6>
+                                                            <p class="card-text"></p>
+                                                        </div>
+                                                    <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                                        <small>{{ cur_year }} Semester {{ cur_sem }}</small><br>
+                                                        <small>{{ profs.query.filter_by(cid=takingmod.cid).first().info.name }}</small>
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        {% endfor %}        
+                                    </div>
+                                {% else %}
+                                    <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You are not enrolled to any modules this semester!</h6>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="taken" role="tabpanel" aria-labelledby="taken-tab">
+                            <div class="tab-pane fade show active" id="enrolled" role="tabpanel" aria-labelledby="enrolled-tab">
+                                <div class="container-fluid mt-4" style="height: 75vmin; overflow: auto">
+                                    {% if takenmods %}
+                                        <div class="row justify-content-left">
+                                            {% for takenmod in takenmods %}
+                                                <div class="col-auto mb-3">
+                                                    <a class="card unref2" style="width: 15rem; height: 15rem" href="{{ url_for('module', cid=takenmod.cid) }}">
+                                                        <div class="card-body">
+                                                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ takenmod.cid }}</small></h6>
+                                                            <h6 class="card-title">{{ mods.query.filter_by(cid=takenmod.cid).first().cname }}</h6>
+                                                        </div>
+                                                        <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                                                <small>{{ takenmod.year }} Semester {{ takenmod.sem }}</small>
+                                                        </span>
+                                                    </a>
+                                                </div> 
+                                            {% endfor %}      
+                                        </div>
+                                    {% else %}
+                                        <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You have not taken any modules in the past!</h6>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>  
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+	<div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+	<div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">My Modules</div>
+	</div>
+</div>
+{% endblock bread %}

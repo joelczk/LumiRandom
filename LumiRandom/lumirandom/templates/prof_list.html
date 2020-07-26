@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="ui raised segment" style="margin-bottom: 2em">
+        <div class="ui stackable grid">
+            <div class="six wide column">
+                <div class="ui search">
+                    <div class="ui icon input" style="width: 20rem">
+                        <input class="prompt table-search" type="text" placeholder="Search Professor Name or Module">
+                        <i class="search icon"></i>
+                    </div>
+                    <div class="results"></div>
+                </div>
+            </div>
+            <div class="four wide center aligned column"><legend>Professors</legend></div>
+        </div>
+        <table class="ui sortable padded teal striped selectable table table-sort" style="border-left-color: white; border-right-color: white; table-layout: fixed">
+            <thead style=" display: block;">
+                <tr>
+                    <th class="sorted ascending" style="width: 12rem">Name</th>
+                    <th style="width: 10rem">Module Code</th>
+                    <th style="width: 56rem">Module Title</th>
+                </tr>
+            </thead>
+            <tbody class="table-filter" style="display: block; width: 100%; max-height: 50rem; overflow: auto; ">
+                {% for prof in profs %}
+                    <tr style=" display: block; position: relative;">
+                        <td class="selectable" style="font-weight: 500; width: 12rem"><a class="unrefany" href="{{ url_for('profile', id=prof.pid) }}">{{ prof.info.name }}</a></td>
+                        <td class="selectable" style="width: 10rem"><a class="unrefany" href="{{ url_for('module', cid=prof.cid) }}">{{ prof.cid }}</a></td>
+                        <td class="selectable" style="width: 54rem"><a class="unrefany" href="{{ url_for('module', cid=prof.cid) }}">{{ prof.courseinfo.cname }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Professor List</div>
+	</div>
+</div>
+{% endblock bread %}

@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+{% block search %}
+<div style="text-align: center;">
+    <form method="POST" action="" style="justify-content: center">
+        <div style="display: inline-block; width: 25rem">
+            <table>
+                <td><input type="text" name="search" id="search" placeholder="Search for names" class="form-control left rounded" style="display: inline-block; margin-bottom:3%; width:150%"></td>
+                <td><button type = "sumbit" class = "btn btn-outline-info" style = "margin-left:150%; margin-right:0px;">Search</button></table></td>
+            </table>
+        </div>
+    </form>
+</div>
+{% endblock search %}
+{% block content %}
+<div style="text-align: center;">
+    <div class="content-section" style="width: 30rem; display: inline-block;">
+        <legend class="border-bottom mb-4", style="text-align:center;">Student List</legend>
+        {% if students.pages %}
+            <table class="table table-hover border-bottom pt-1 mb-4">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Student Name</th>
+                        <th scope="col">Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students.items %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            <td style="width: 80%"><a class="unref" href="{{ url_for('profile', id=s.sid) }}">{{ s.info.name }}</a></td>
+                            <td style="width: 10%">{{ s.year }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if students.pages > 1 %}
+                <div style="text-align:center;">
+                    {% if students.page == 1 %}
+                        <a class="btn btn-outline-secondary mb-4 disabled" href="{{ url_for('student_list', query=query, page=1) }}">&#8810;</a>
+                        <a class="btn btn-outline-secondary mb-4 disabled" href="{{ url_for('student_list', query=query, page=students.prev_num) }}">&lt;</a>
+                    {% else %}
+                        <a class="btn btn-outline-info mb-4" href="{{ url_for('student_list', query=query, page=1) }}">&#8810;</a>
+                        <a class="btn btn-outline-info mb-4" href="{{ url_for('student_list', query=query, page=students.prev_num) }}">&lt;</a>
+                    {% endif %}
+                    {% for page_num in students.iter_pages(left_edge=0, right_edge=0, left_current=1, right_current=2) %}
+                        {% if page_num %}                   
+                            {% if students.page == page_num %}
+                                <a class="btn btn-info mb-4">{{ page_num }}</a>
+                            {% else %}
+                                <a class="btn btn-outline-info mb-4" href="{{ url_for('student_list', query=query, page=page_num) }}">{{ page_num }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    {% if students.page == students.pages %}
+                        <a class="btn btn-outline-secondary mb-4 disabled" href="{{ url_for('student_list', query=query, page=students.next_num) }}">&gt;</a>
+                        <a class="btn btn-outline-secondary mb-4 disabled" href="{{ url_for('student_list', query=query, page=students.pages) }}">&#8811;</a>
+                    {% else %}
+                        <a class="btn btn-outline-info mb-4" href="{{ url_for('student_list', query=query, page=students.next_num) }}">&gt;</a>
+                        <a class="btn btn-outline-info mb-4" href="{{ url_for('student_list', query=query, page=students.pages) }}">&#8811;</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">Student does not exist!</h6>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Student List</div>
+	</div>
+</div>
+{% endblock bread %}

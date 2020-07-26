@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2 class="border-bottom mb-4", style="text-align:center;">Teaching Assistant Groups</h2>
+    <div class="container-fluid mt-4">
+        <div class="row justify-content-center">
+            {% if groups %}
+                {% for group in groups %}
+                    <div class="col-auto mb-3">
+                        <div class="card unref2" style="height: 9rem; width: 60rem; justify-content: center;" >
+                            <a class="card-body unref2" href="{{ url_for('group', cid=cid, gid=group.gid) }}">
+                                <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
+                                <h6 class="card-subtitle mb-2 text-muted"><small>{{ group.prof.cid }}</small></h6>
+                                <h6 class="card-title">{{ group.gname }}</h6>
+                            </a>
+                            {% if group.sid %}
+                                <a class="card-footer unref2" style="background-color: #a1b4c2; color: #e8ebee;" href="{{ url_for('profile', id=group.sid) }}">
+                                    <small style="float: left">{{ group.ta.courseinfo.student.info.name }}</small>
+                                    <small style="float: right">Teaching Assistant</small>
+                                </a>
+                            {% else %}
+                                <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                    <small>Unmanaged</small>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You do not have any groups under you. Lucky!</h6>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+        <a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><a class="section unrefany" href="{{ url_for('module_take', cid=cid) }}"><div class="menu-dropdown-item bread-header">TA Module: {{ cid }}</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">TA Groups</div>
+	</div>
+</div>
+{% endblock bread %}

@@ -1,0 +1,228 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="ui container">
+	<div class="ui grid">
+		<div class="doubling two column row">
+			<div class="seven wide column">
+				<div class="ui raised segment">
+					<div class="ui horizontal divider header">Announcements</div>
+					<div class="text-muted ml-1 mb-1" style="font-size: 8pt"><a class="link-hover" href="#">View All</a></div>
+					<div style="max-height: 42rem; overflow: auto; padding:2px">
+						<div class="ui stacked segment">
+							<h4 class="ui small header" style="margin-bottom: 1px">Update on LumiRandom<span class="text-muted" style="float:right; font-size:9pt; font-weight:normal">3 hours ago</span></h4>
+							<div class="text-muted mb-2" style="font-size:9pt">System Administrator</div>
+							<p style="font-size: 10pt">LumiRandom has been updated to its latest beta version 1.3.2.2!<br><br>
+								Below are the following modifications made:<br>
+								<i class="ui icon angle right mr-1"></i><b>Navigaiton sidebar</b> included for easier navigation<br>
+								<i class="ui icon angle right mr-1"></i>Several changes to the interface for <b>enhanced userbility</b>.<br>
+								<i class="ui icon angle right mr-1"></i>You can now <b>rate posts</b>!<br>
+							</p>
+						</div>
+						{% if 'Student' in current_user.roles() %}
+						<div class="ui divider"></div>
+						<div class="ui stacked segment">			
+							<h4 class="ui small header" style="margin-bottom: 1px">New Assignment 3 Released!<span class="text-muted" style="float:right; font-size:9pt; font-weight:normal">16 hours ago</span></h4>
+							<div class="text-muted mb-2" style="font-size:9pt">
+								{% set cid = taken.query.filter_by(sid=current_user.id, year=year, sem=sem).first().cid %}
+								{% set p = prof.query.filter_by(cid=cid).first() %}
+								<a class="link-hover" href="{{url_for('module_take', cid=cid)}}">{{cid}}</a> - 
+								<a class="link-hover" href="{{url_for('profile', id=p.pid) }}">{{ p.info.name }}</a>
+							</div>
+							<p style="font-size: 10pt">Hi all<br><br>
+								As promised, Assignment 3 is released early so you all will have more time to complete it.<br><br>
+								<b>Dateline for submission is 26 November</b>. However, do try to complete it early and not leave to the last minute as it may take some time.
+								The expected duration to complete the assignment is around a week.<br><br>
+								As an incentive, the student with the highest score and earliest submission time will get a <b>1% bonus mark</b>
+								to his/her final grade.<br>
+								The assignment can be found under the Assignment folder.<br><br>
+								All the best!<br><br>Cheers<br>{{ p.info.name }}
+							</p>
+						</div>
+						<div class="ui divider"></div>
+						<div class="ui stacked segment">			
+							<h4 class="ui small header" style="margin-bottom: 1px">Tutorial 18<span class="text-muted" style="float:right; font-size:9pt; font-weight:normal">1 day ago</span></h4>
+							<div class="text-muted mb-2" style="font-size:9pt">
+								{% set cid = taken.query.filter_by(sid=current_user.id, year=year, sem=sem).offset(1).first().cid %}
+								{% set p = prof.query.filter_by(cid=cid).first() %}
+								<a class="link-hover" href="{{url_for('module_take', cid=cid)}}">{{cid}}</a> - 
+								<a class="link-hover" href="{{url_for('profile', id=p.pid) }}">{{ p.info.name }}</a>
+							</div>
+							<p style="font-size: 10pt">Hi everyone,<br><br>
+								Tutorial 18 has just been uploaded. This will be your <b>third last tutorial</b>. Don't give up!<br><br>{{ p.info.name }}
+							</p>
+						</div>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			<div class="five wide column">
+				<div id="homecarousel" class="carousel slide" data-ride="carousel">
+					<div class="carousel-indicators">
+						<li data-target="#homecarousel" data-slide-to="0" class="active"></li>
+						<li data-target="#homecarousel" data-slide-to="1"></li>
+					</div>
+					<div class="carousel-inner">
+						<div class="carousel-item active">
+							<div class="ui raised segment">
+								<div class="ui horizontal divider header">Upcoming Classes</div>
+								<div style="max-height: 43rem; overflow: auto">
+									{% if 'Student' in current_user.roles() %}
+									{% set mods = taken.query.filter_by(sid=current_user.id, year=year, sem=sem).all() %}
+									{% for s in schedule %}
+										{% if s[0] == -1 %}
+											<div class="ui divider"></div>
+										{% elif mods|length > s[0] %}
+										<div>
+											<a class="link-hover" href="{{url_for('module_take', cid=mods[s[0]].cid)}}"><b>{{ mods[s[0]].cid }}</b></a> - {{ s[1] }}<br>
+											{{ s[2] }}, {{ s[3] }}<br>
+											{{ s[4] }}
+										</div>
+										{% endif %}
+										{% if not loop.last and loop.nextitem[0] != -1 and s[0] != -1 and mods|length > loop.nextitem[0] %}<br>{% endif %}
+									{% endfor %}
+									{% elif 'Professor' in current_user.roles() %}
+										{% for s in schedule %}
+											{% if s[0] == 0 %}
+												<div>
+													<a class="link-hover" href="{{url_for('module_take', cid=prof.query.get(current_user.id).cid)}}"><b>{{ prof.query.get(current_user.id).cid }}</b></a> - {{ s[1] }}<br>
+													{{ s[2] }}, {{ s[3] }}<br>
+													{{ s[4] }}
+												</div>
+											{% endif %}
+											{% if not loop.last and loop.nextitem[0] == 0 %}<br>{% endif %}
+										{% endfor %}
+									{% endif %}
+								</div>
+							</div>
+						</div>
+						<div class="carousel-item">
+							<div class="ui raised segment">
+								<div class="ui horizontal divider header">Deadlines</div>
+								<div style="max-height: 43rem; overflow: auto; padding: 2px">
+									{% if 'Student' in current_user.roles() %}
+									<div class="ui stacked yellow segment">
+										{% set cid = taken.query.filter_by(sid=current_user.id, year=year, sem=sem).offset(3).first().cid %}
+										<div class="text-muted mb-2" style="font-size:9pt">
+											<a class="link-hover" href="{{url_for('module_take', cid=cid)}}">{{cid}}</a>
+										</div>
+										<h4 class="ui small header" style="margin-bottom: 1px; margin-top: 2px"><a class="link-hover" href="#">Submission: Project Report</a></h4>
+										<div class="text-muted mb-2" style="font-size:9pt">
+											Due in <span style="color:orange">2 hours</span>
+										</div>
+									</div>
+									<div class="ui steacked yellow segment">
+										{% set cid = taken.query.filter_by(sid=current_user.id, year=year, sem=sem).offset(3).first().cid %}
+										<div class="text-muted mb-2" style="font-size:9pt">
+											<a class="link-hover" href="{{url_for('module_take', cid=cid)}}">{{cid}}</a>
+										</div>
+										<h4 class="ui small header" style="margin-bottom: 1px; margin-top: 2px"><a class="link-hover" href="#">Submission: Project Code</a></h4>
+										<div class="text-muted mb-2" style="font-size:9pt">
+											Due in <span style="color:orange">2 hours</span>
+										</div>
+									</div>
+									<div class="ui stacked segment">
+										{% set cid = taken.query.filter_by(sid=current_user.id, year=year, sem=sem).offset(1).first().cid %}
+										<div class="text-muted mb-2" style="font-size:9pt">
+											<a class="link-hover" href="{{url_for('module_take', cid=cid)}}">{{cid}}</a>
+										</div>
+										<h4 class="ui small header" style="margin-bottom: 1px; margin-top: 2px"><a class="link-hover" href="#">Submission: Tutorial 18</a></h4>
+										<div class="text-muted mb-2" style="font-size:9pt">
+											Due in 6 days
+										</div>
+									</div>
+									<div class="ui green stacked segment">
+										{% set cid = taken.query.filter_by(sid=current_user.id, year=year, sem=sem).offset(1).first().cid %}
+										<div class="text-muted mb-2" style="font-size:9pt">
+											<a class="link-hover" href="{{url_for('module_take', cid=cid)}}">{{cid}}</a>
+										</div>
+										<h4 class="ui small header" style="margin-bottom: 1px; margin-top: 2px"><a class="link-hover" href="#">Submission: Assignment 2</a></h4>
+										<div class="text-muted mb-2" style="font-size:9pt">
+											Due in 3 days<br>
+											Completed <span style="color:green">1 day ago</span>
+										</div>
+									</div>
+									<div class="ui green stacked segment">
+										<div class="text-muted mb-2" style="font-size:9pt">
+											The Management
+										</div>
+										<h4 class="ui small header" style="margin-bottom: 1px; margin-top: 2px"><a class="link-hover" href="#">Quiz: IQ Test For Elites</a></h4>
+										<div class="text-muted mb-2" style="font-size:9pt">
+											Due in 4 days<br>
+											Completed <span style="color:green">1 week ago</span>
+										</div>
+									</div>
+									{% else %}
+										<div class="ui yellow stacked segment">
+											<div class="text-muted mb-2" style="font-size:9pt">
+												The Management
+											</div>
+											<h4 class="ui small header" style="margin-bottom: 1px; margin-top: 2px"><a class="link-hover" href="#">Survey: Module Evaluation</a></h4>
+											<div class="text-muted mb-2" style="font-size:9pt">
+												Due in <span style="color:orange">1 day</span>
+											</div>
+										</div>
+										<div class="ui green stacked segment">
+											<div class="text-muted mb-2" style="font-size:9pt">
+												The Management
+											</div>
+											<h4 class="ui small header" style="margin-bottom: 1px; margin-top: 2px"><a class="link-hover" href="#">Survey: End of Year Evaluation</a></h4>
+											<div class="text-muted mb-2" style="font-size:9pt">
+												Due in 4 days<br>
+												Completed <span style="color:green">2 days ago</span>
+											</div>
+										</div>
+									{% endif %}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="ui four wide column">
+				<div class="ui raised segment">
+					<div class="ui horizontal divider header">Memo</div>
+					<div class="mb-3" style="max-height: 30rem; overflow: auto; padding: 2px">
+						{% if 'Student' in current_user.roles() %}
+						<div class="ui orange stacked segment" style="font-size: 9pt">
+							Do {{ taken.query.filter_by(sid=current_user.id, year=year, sem=sem).first().cid }} Assignment 3!! <br> &lt;({-_-})&gt;
+						</div>
+						<div class="ui stacked segment" style="font-size: 9pt">
+							Do {{ taken.query.filter_by(sid=current_user.id, year=year, sem=sem).offset(1).first().cid }} Tutorial
+						</div>
+						{% else %}
+							<div class="ui orange stacked segment" style="font-size: 9pt">
+								Finalise final exam questions
+							</div>
+						{% endif %}
+					</div>
+					<div>
+						<form class="ui form">
+							<div class="field">
+								<textarea placeholder="My Memo" style="min-height: 8rem; max-height: 14rem; overflow: auto;"></textarea>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="ui raised segment">
+					<div class="ui horizontal divider header">Exam Countdown</div>
+					<div>
+						<b><div class="text-muted mb-2 ml-1" style="font-size:8pt" id="countdown"></div></b>
+						<div class="ui yellow tiny active progress" id="examprogress" style="height: 5px; margin: 2px">
+							<div class="bar"></div>
+						</div>
+						<div class="text-muted ml-1 mt-3 text-right" style="font-size: 8pt"><a class="link-hover" href="#">View More</a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5);">
+	<div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+	<div class="ui breadcrumb" style="background-color: transparent;">
+		<div class="active section bread-header" style="color: white">Home</div>
+	</div>
+</div>
+{% endblock bread %}

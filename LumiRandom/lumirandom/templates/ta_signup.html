@@ -1,0 +1,156 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% if ta %}
+    <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">
+        You are already a Teaching Assistant for {{ ta.cid }} {{ ta.courseinfo.courseinfo.cname }}.
+    </h6>
+{% else %} 
+<section id="tabs">
+    <div class="container">
+        <div style="text-align: center">
+            <h2>Interested to Be a Teaching Assistant?</h2>
+            <h3>Join Now!</h3>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 ">
+                <nav>
+                    <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="available-tab" data-toggle="tab" href="#available" role="tab" aria-controls="available" aria-selected="true" style="width: 555px">Available</a>
+                        <a class="nav-item nav-link" id="request-tab" data-toggle="tab" href="#request" role="tab" aria-controls="request" aria-selected="false" style="width: 555px">Requested</a>
+                    </div>
+                </nav>
+                <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="available" role="tabpanel" aria-labelledby="available-tab">
+                        <div class="container-fluid mt-4">
+                            {% if available %} 
+                                <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">Modules eligible for application</h6>
+                                <div class="hover-light inline-popup" style="font-size: 9pt; float: right; cursor: pointer;">Eligibility Criteria<i style="color: inherit;" class="icon info"></i></div>
+                                <div class="ui mini popup transition hidden">
+                                    <div class="ui horizontal divider header">Eligibility Criteria</div>
+                                    <div><i class="icon angle right"></i>Must be <b>at least Year 2</b></div>
+                                    <div><i class="icon angle right"></i>Must have <b>at least an A- grade</b> for the module</div>
+                                    <div><i class="icon angle right"></i>Must have a <b>positive attitude</b></div>
+                                </div>
+                                <div class="row justify-content-left">
+                                    {% for mod in available %}
+                                        <div class="col-auto mb-3">
+                                            <div class="card" style="width: 25rem; height: 15rem">
+                                                <div class="card-body">
+                                                    <button type="button" class="ui positive button" data-toggle="modal" data-target="#Join{{ mod.cid }}Modal" style="float: right">
+                                                        Apply
+                                                    </button>      
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="Join{{ mod.cid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Join{{ mod.cid }}ModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header text-center">
+                                                                    <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    Are you sure you want to <b>apply</b> to be a Teaching Assistant for this module?
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <form class="ui form" method='POST'>
+                                                                        <input type="hidden" id="cid" name="cid" value="{{ mod.cid }}">
+                                                                        <input class="ui positive submit button" type="submit" name="btn" value="Apply">
+                                                                    </form>
+                                                                    <button class="ui button" data-dismiss="modal">Cancel</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><small><a class="unref" href="{{ url_for('module', cid=mod.cid) }}">{{ mod.cid }}</a></small></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('module', cid=mod.cid) }}">{{ mod.courseinfo.cname }}</a></h6>
+                                                </div>
+                                                <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                                    <small>2019/2020 Semester 2</small>
+                                                    <span style="float: right"><small><a class="unref" style="color: #e8ebee" href="{{ url_for('profile', id=profs.query.filter_by(cid=mod.cid).first().info.id) }}">{{ profs.query.filter_by(cid=mod.cid).first().info.name }}</a></small></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}        
+                                </div>
+                            {% else %}
+                                <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No eligible modules to apply!</h6>
+                                <div class="hover-light inline-popup" style="font-size: 9pt; float: right; cursor: pointer;">Eligibility Criteria<i style="color: inherit;" class="icon info"></i></div>
+                                <div class="ui popup bottom right transition hidden">
+                                    <div class="ui horizontal divider header">Eligibility Criteria</div>
+                                    <div><i class="icon angle right"></i>Must be <b>at least Year 2</b></div>
+                                    <div><i class="icon angle right"></i>Must have <b>at least an A- grade</b> for the module</div>
+                                    <div><i class="icon angle right"></i>Must have a <b>positive attitude</b></div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="request" role="tabpanel" aria-labelledby="request-tab">
+                        <div class="tab-pane fade show active" id="request" role="tabpanel" aria-labelledby="request-tab">
+                            <div class="container-fluid mt-4">
+                                {% if requested %}
+                                <div class="row justify-content-left">
+                                    {% for request in requested %}
+                                        <div class="col-auto mb-3">
+                                            <div class="card" style="width: 25rem; height: 15rem">
+                                                <div class="card-body">
+                                                    <button type="button" class="ui negative button" data-toggle="modal" data-target="#Withdraw{{ request.cid }}Modal" style="float: right">
+                                                        Withdraw
+                                                    </button>      
+                                                    <!-- Modal -->
+                                                    <div class="modal fade" id="Withdraw{{ request.cid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Withdraw{{ request.cid }}ModalLabel" aria-hidden="true">
+                                                        <div class="modal-dialog" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header text-center">
+                                                                    <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    Are you sure you want to <b>withdraw</b> your application as a Teaching Assistant for this module?
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <form class="ui form" method='POST'>
+                                                                        <input type="hidden" id="cid" name="cid" value="{{ request.cid }}">
+                                                                        <input class="ui negative submit button" type="submit" name="btn" value="Withdraw">
+                                                                    </form>
+                                                                    <button class="ui button" data-dismiss="modal">Cancel</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <h6 class="card-subtitle mb-2 text-muted"><small><a class="unref" href="{{ url_for('module', cid=request.cid) }}">{{ request.cid }}</a></small></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('module', cid=request.cid) }}">{{ request.courseinfo.courseinfo.cname }}</a></h6>
+                                                </div>
+                                                <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                                    <small>2019/2020 Semester 2</small>
+                                                    <span style="float: right"><small><a class="unref" style="color: #e8ebee" href="{{ url_for('profile', id=profs.query.filter_by(cid=request.cid).first().info.id) }}">{{ profs.query.filter_by(cid=request.cid).first().info.name }}</a></small></span>
+                                                </span>
+                                            </div>
+                                        </div> 
+                                    {% endfor %}      
+                                </div>
+                                {% else %}
+                                    <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No requests made!</h6>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Teaching Assistant Signup</div>
+	</div>
+</div>
+{% endblock bread %}

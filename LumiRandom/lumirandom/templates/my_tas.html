@@ -1,0 +1,135 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+    <div class="container">
+        <h2 class="border-bottom mb-4", style="text-align:center;">My Teaching Assistants</h2>
+        <div class="row">
+            <div class="col-xs-12 ">
+                <nav>
+                    <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="current-tab" data-toggle="tab" href="#current" role="tab" aria-controls="current" aria-selected="true" style="width: 555px">Current</a>
+                        <a class="nav-item nav-link" id="request-tab" data-toggle="tab" href="#request" role="tab" aria-controls="request" aria-selected="false" style="width: 555px">
+                            Requests {% if requests|length > 0 %}<div class="ui circular tiny teal button ml-2" style="padding: 0.3em">{{ requests|length }}</div>{% endif %}</a>
+                    </div>
+                </nav>
+                <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+                        <div class="container-fluid mt-4">
+                            {% if tas %}
+                                <div class="row justify-content-left">
+                                    {% for ta in tas %}
+                                        <div class="col-auto mb-3">
+                                            <div class="card unref" style="width: 25rem; height: 14rem">
+                                                <div class="card-body">
+                                                    <h6 class="card-subtitle mb-2 text-muted"><a class="unref" href="{{ url_for('profile', id=ta.sid) }}"><small class="text-muted">{{ ta.sid }}</small></a></h6>
+                                                    <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=ta.sid) }}">{{ students.query.get(ta.sid).info.name }}</a></h6>
+                                                    <h6><small>Year: {{ students.query.get(ta.sid).year }}</small></h6>
+                                                </div>
+                                                <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                                    <small>{{ cur_year }} Semester {{ cur_sem }}</small>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}        
+                                </div>
+                            {% else %}
+                                <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No Teaching Assistants yet! Go find some!</h6>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="request" role="tabpanel" aria-labelledby="request-tab">
+                        <div class="tab-pane fade show active" id="request" role="tabpanel" aria-labelledby="request-tab">
+                            <div class="container-fluid mt-4">
+                                {% if requests %}
+                                <div class="row justify-content-left">
+                                    {% for request in requests %}
+                                        <div class="col-auto mb-4">
+                                            <div class="ui small raised card unref mb-2" style="width: 25rem; height: 10.5rem">
+                                                <div class="content">
+                                                    <div class="right floated ui meta">Year: {{ students.query.get(request.sid).year }}<br>Grade: {{ request.courseinfo.grade }}</div>
+                                                    <div class="meta">
+                                                        <a class="link-hover" href="{{ url_for('profile', id=request.sid) }}"><span class="text-muted">{{ request.sid }}</span></a>
+                                                    </div>
+                                                    <div class="header mt-1">
+                                                        <a class="link-hover" href="{{ url_for('profile', id=request.sid) }}">{{ students.query.get(request.sid).info.name }}</a>
+                                                    </div>
+                                                    <div class="description">
+                                                        {{ students.query.get(request.sid).info.name }} requested to be your Teaching Assistant.
+                                                    </div>
+                                                </div>
+                                                <div class="extra content">
+                                                    <div class="ui two buttons">
+                                                        <div class="ui basic green button" data-toggle="modal" data-target="#Accept{{ request.sid }}Modal">Accept</div>
+                                                        <div class="ui basic red button" data-toggle="modal" data-target="#Reject{{ request.sid }}Modal">Reject</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal fade" id="Reject{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Reject{{ request.sid }}ModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header text-center">
+                                                            <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                                            </button> 
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to <b>reject</b> this student as your Teaching Assistant?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <form class="ui form" method='POST'>
+                                                                <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
+                                                                <input class="ui negative submit button" type="submit" name="btn" value="Reject">
+                                                            </form>
+                                                            <button class="ui button" data-dismiss="modal">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal fade" id="Accept{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Accept{{ request.sid }}ModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header text-center">
+                                                            <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                                            </button> 
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to <b>accept</b> this student as your Teaching Assistant?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <form class="ui form" method='POST'>
+                                                                <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
+                                                                <input class="ui positive submit button" type="submit" name="btn" value="Accept">
+                                                            </form>
+                                                            <button class="ui button" data-dismiss="modal">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}      
+                                </div>
+                                {% else %}
+                                    <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No requests currently!</h6>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>  
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto;">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">My Teaching Assistants</div>
+	</div>
+</div>
+{% endblock bread %}

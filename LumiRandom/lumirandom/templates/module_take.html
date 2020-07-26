@@ -1,0 +1,343 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+<div class="ui container">
+    <div class="row">
+        <div class="col-xs-12 ">
+            <nav>
+                <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true" style="{% if is_prof %}width: 222px{% else %}width: 278px{% endif %}">Module Overview</a>
+                    <a class="nav-item nav-link" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="false" style="{% if is_prof %}width: 222px{% else %}width: 277px{% endif %}">Module Details</a>
+                    <a class="nav-item nav-link" id="list-tab" data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="false" style="{% if is_prof %}width: 222px{% else %}width: 278px{% endif %}">Classmates</a>
+                    <a class="nav-item nav-link" id="group-tab" data-toggle="tab" href="#group" role="tab" aria-controls="group" aria-selected="false" style="{% if is_prof %}width: 222px{% else %}width: 277px{% endif %}">Groups</a>
+                    {% if is_prof %}<a class="nav-item nav-link" id="request-tab" data-toggle="tab" href="#request" role="tab" aria-controls="request" aria-selected="false" style="width: 222px">
+                        Requests {% if requests|length > 0 %}<div class="ui circular tiny teal button ml-2" style="padding: 0.3em">{{ requests|length }}</div>{% endif %}</a>{% endif %}
+                </div>
+            </nav>
+            <div class="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                    <div class="ui raised {% if not is_student %} teal {% endif %} segment">
+                        <div>
+                            <h4>{{ mod.cid }}</h4>
+                            <h2>{{ mod.cname }}</h2>
+                            <p class="text-muted">Modular Credit: 4</p>
+                            <p class="text-muted">{{ year }} Semester {{ sem }}&emsp;<a class="unref text-muted" href="{{ url_for('profile', id=prof.pid) }}">{{ prof.info.name }}</a></p>
+                        </div>
+                        <br>
+                        <div class="ui horizontal divider small header">Module Description</div>
+                        <p>The <b>BEST</b> module in the world!</p>
+                        <div class="ui horizontal divider small header">Accessories</div>
+                        <div class="ui four column grid">
+                            <div class="column">
+                                <a class="ui fluid primary basic button" style="text-transform: uppercase; letter-spacing: 1px; font-weight: 600; font-size: 10pt; height: 3.5em" 
+                                href="{% if is_student %}{{ url_for('mod_groups', cid=mod.cid) }}{% elif is_ta %}{{ url_for('ta_groups') }}{% elif is_prof %}{{ url_for('prof_groups') }}{% endif %}">
+                                    <div class="mt-2">Groups<i class="icon blue users large ml-2" style="margin-top: -0.4em; margin-right: 0"></i></div>
+                                </a>
+                            </div>
+                            <div class="column">
+                                <a class="ui fluid primary basic button" style="text-transform: uppercase; letter-spacing: 1px; font-weight: 600; font-size: 10pt; height: 3.5em"
+                                href="{% if is_student %}{{ url_for('mod_forums', cid=mod.cid) }}{% elif is_ta %}{{ url_for('ta_forums') }}{% elif is_prof %}{{ url_for('prof_forums') }}{% endif %}">
+                                    <div class="mt-2">Forums<i class="icon blue comment large ml-2" style="margin-top: -0.4em; margin-right: 0"></i></div>
+                                </a>
+                            </div>
+                            <div class="column">
+                                <button class="ui fluid primary basic button" style="text-transform: uppercase; letter-spacing: 1px; font-weight: 600; font-size: 10pt; height: 3.5em">
+                                    Tasks<i class="icon blue archive large ml-2" style="margin-top: -0.4em; margin-right: 0"></i>
+                                </button>
+                            </div>
+                            <div class="column">
+                                <button class="ui fluid primary basic button" style="text-transform: uppercase; letter-spacing: 1px; font-weight: 600; font-size: 10pt; height: 3.5em">
+                                    Web Lectures<i class="icon blue video large ml-2" style="margin-top: -0.4em; margin-right: 0"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="ui horizontal divider small header">Announcements</div>
+                        <p style="color: #afb2b4; text-align: center"><b>There are currently no announcements. Keep up the good work!</b></p>
+                    </div>
+                </div>  
+                <div class="tab-pane fade" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                    <div class="ui raised {% if not is_student %} teal {% endif %} segment">
+                        <div class="ui raised segment">
+                            <div class="ui fluid accordion">
+                                <div class="active title">
+                                    <div class="ui horizontal divider header">Learning Outcomes</div>
+                                </div>
+                                <div class="active content">
+                                    <p>{{ mod.cid }} {{ mod.cname }} aims to develop in students a greater understanding and appreciation for this module. At the end of the module, students are expected
+                                        to have a basic understanding of the key concepts of {{ mod.cname }}, and be able to explain its general ideas adequately.
+                                        <br><br><b>Webcasts will be uploaded weekly</b> to facilitate a better and freer learning experience at the students' own pace.
+                                        Moreover, this module will be <b>entirely CA based</b>, thus students need not fret unnecessarily and can enjoy their well-deserved break after Week 13.
+                                        <br><br>However, do note that <b>there are still assignments and projects for this module</b>, so do show at least minimal effort as you breeze through this module.
+                                        More information on this under the workload section.
+                                        <br><br>As a final plus point, this is a <b>CS/CU module</b>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui raised segment">
+                            <div class="ui fluid accordion">
+                                <div class="active title">
+                                    <div class="ui horizontal divider header">Workload</div>
+                                </div>
+                                <div class="content">
+                                    <div class="ui two column grid">
+                                        <div class="column">
+                                            <table class="ui very basic table" id="borderless-table" style="margin-left: 1em;"> 
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="four wide"><b>Lectures</b></td>
+                                                        <td class="three wide"><b>2 hours</b></td>
+                                                        <td class="nine wide"><i class="icon red circle"></i><i class="icon red circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Tutorials</b></td>
+                                                        <td class="three wide"><b>1 hour</b></td>
+                                                        <td class="nine wide"><i class="icon orange circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Laboratory</b></td>
+                                                        <td class="three wide"><b>2 hours</b></td>
+                                                        <td class="nine wide"><i class="icon olive circle"></i><i class="icon olive circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Projects</b></td>
+                                                        <td class="three wide"><b>2 hours</b></td>
+                                                        <td class="nine wide"><i class="icon teal circle"></i><i class="icon teal circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Preparation</b></td>
+                                                        <td class="three wide"><b>1 hour</b></td>
+                                                        <td class="nine wide"><i class="icon brown circle"></i></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><div style="border-top: 2px solid black"></div></td>
+                                                        <td class="three wide"><div style="border-top: 2px solid black; width: 5.5em"></div></td>
+                                                        <td class="nine wide"></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="four wide"><b>Total</b></td>
+                                                        <td class="three wide"><b>8 hours</b></td>
+                                                        <td class="nine wide"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="column">
+                                            <p>
+                                                Apart from the tutorials, there will be <b>three short assignments</b> for this module.
+                                                Each assignment constitutes <b>10%</b> weightage to the module grade.
+                                                <br>In addition, there will be <b>one mini project</b> released after recess week. 
+                                                The project is to be conducted in groups of four and students are free to choose their own members.
+                                                Any leftovers will be put into groups by the classic <a href="https://www.randomlists.com/team-generator">team randomiser</a>.
+                                                The weightage of the project is <b>30%</b> of the final grade.
+                                                <br>Again, this module is <b>entirely CA based</b> and is <b>CS/CU</b>.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="ui vertical divider" style="margin-top: 1.5em; max-height: 5rem">
+                                        <i class="icon plus"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui raised segment">
+                            <div class="ui fluid accordion">
+                                <div class="active title">
+                                    <div class="ui horizontal divider header">Pre-requisites and Preclusions</div>
+                                </div>
+                                <div class="content">
+                                    <div class="ui grid">
+                                        <div class="two wide column" style="margin-left: 1em">
+                                            <b>Pre-requisites
+                                            <br>Preclusions</b>
+                                        </div>
+                                        <div class="twelve wide column">
+                                            <b><i>None</i>
+                                            <br><i>None</i></b>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ui raised segment">
+                            <div class="ui fluid accordion">
+                                <div class="active title">
+                                    <div class="ui horizontal divider header">Extra Information</div>
+                                </div>
+                                <div class="content">
+                                    <div style="margin-left: 1em">
+                                        <p><b>Modular Credits: 4</b>
+                                        <br>This module is <b>entirely CA based</b>.
+                                        <br>This is a <b>CS/CU module</b>.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
+                    <div class="ui raised fluid {% if not is_student %} teal {% endif %} segment">
+                        <div class="ui search">
+                            <div class="ui icon input" style="width: 20rem">
+                                <input class="prompt table-search" type="text" placeholder="Search Classmate's Name">
+                                <i class="search icon"></i>
+                            </div>
+                            <div class="results"></div>
+                        </div>
+                        <table class="ui sortable padded teal striped selectable table table-sort" style="border-left-color: white; border-right-color: white; table-layout: fixed">
+                            <thead style=" display: block;">
+                                <tr>
+                                    <th class="sorted ascending" style="width: 20rem; text-align: center">Name</th>
+                                    <th style="width: 60rem; text-align: center">Groups</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-filter" style="display: block; width: 100%; max-height: 70vh; overflow: auto;">
+                                {% for student in students|sort(attribute='student.info.name') %}
+                                    <tr style="display: block; position: relative; {% if student.sid==current_user.id %}background-color: #dfeff1{% endif %}">
+                                        <td class="selectable" style="font-weight: 500; width: 19.9rem;">
+                                            <img class="rounded-circle account-img" style="height: 40px; width: 40px; float: left; margin: 0.8em 2em" src="{{ url_for('static', filename='profile_pictures/' + student.student.info.image_file) }}">
+                                            <a class="unrefany" href="{{ url_for('profile', id=student.sid) }}" style="margin-top: 0.6em">{{ student.student.info.name }}</a>
+                                        </td>
+                                        {% set modulegroups = groupinfo.query.join(Groups, Groups.gid==groupinfo.gid).filter(Groups.pid==prof.pid, groupinfo.sid==student.student.sid).all() %}
+                                        {% if modulegroups %}
+                                        <td class="selectable" style="font-weight: 500; width: 59rem; padding-top: 1.5em; overflow: auto; text-align: center">
+                                            {% for group in modulegroups|sort(attribute='groupinfo.gname') %}
+                                                {{ group.groupinfo.gname }}&nbsp; 
+                                                {% if not loop.last %}
+                                                    <i class="icon circle outline small" style="color: black"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        {% else %}
+                                            <td class="selectable error" style="font-weight: 500; width: 59rem; padding-top: 1.5em; text-align: center">
+                                                <i class="icon times" style="color: black"></i>
+                                            </td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="group" role="tabpanel" aria-labelledby="group-tab">
+                    {% for group in groups|sort(attribute='gname') %}
+                        {% if groupinfo.query.filter_by(gid=group.gid, sid=current_user.id).first() or group.pid == current_user.id or group.sid == current_user.id %}
+                        <div class="ui raised {% if not is_student %} teal {% endif %} segment" style="height: 8rem; background-color: #d3e4f1"><a class="unref3" href="{{ url_for('group', cid=group.prof.cid, gid=group.gid) }}">
+                        {% else %}
+                        <div class="ui raised segment" style="height: 8rem">
+                        {% endif %}
+                            <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
+                            <h6 class="card-subtitle mb-2 text-muted"><small>{{ group.prof.cid }}</small></h6>
+                            <h6 class="card-title">{{ group.gname }}</h6>
+                            <div class="ui bottom attached label" style="background-color: #a1b4c2;">
+                                {% if group.sid %}
+                                    <a href="{{ url_for('profile', id=group.ta.courseinfo.student.info.id) }}" style="color:white">
+                                        <div style="float: right; padding: 0.3em">Teaching Assistant</div>
+                                        <div style="float: left; padding: 0.3em">{{ group.ta.courseinfo.student.info.name }}</div>
+                                    </a>
+                                {% else %}
+                                    <div style="color: #d8d7d7; padding: 0.3em">Unmanaged</div>
+                                {% endif %}
+                            </div>
+                        {% if groupinfo.query.filter_by(gid=group.gid, sid=current_user.id).first() or group.pid == current_user.id or group.sid == current_user.id %}
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if is_prof %}
+                <div class="tab-pane fade" id="request" role="tabpanel" aria-labelledby="request-tab">
+                    <div class="container-fluid mt-4">
+                        {% if requests %}
+                        <div class="row justify-content-left">
+                            {% for request in requests %}
+                                <div class="col-auto mb-4">
+                                    <div class="ui raised card unref mb-2" style="width: 25rem; height: 10rem">
+                                        <div class="card-body">
+                                            <h6 class="card-subtitle mb-2"><a class="unref" href="{{ url_for('profile', id=request.sid) }}"><small class="text-muted">{{ request.sid }}</small></a></h6>
+                                            <h6 class="card-title"><a class="unref" href="{{ url_for('profile', id=request.sid) }}">{{ request.student.info.name }}</a></h6>
+                                            <h6><small>Year: {{ request.student.year }}</small></h6>
+                                            <button type="button" class="ui negative button" data-toggle="modal" data-target="#Reject{{ request.sid }}Modal" style="float: right">
+                                                Reject
+                                            </button>      
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="Reject{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Reject{{ request.sid }}ModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header text-center">
+                                                            <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                                            </button> 
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to <b>reject</b> this student from {{ mod.cid }} {{ mod.cname }}?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <form class="ui form" method='POST'>
+                                                                <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
+                                                                <input class="ui negative submit button" type="submit" name="btn" value="Reject">
+                                                            </form>
+                                                            <button class="ui button" data-dismiss="modal">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="button" class="ui positive button" data-toggle="modal" data-target="#Accept{{ request.sid }}Modal" style="float: right">
+                                                Accept
+                                            </button>      
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="Accept{{ request.sid }}Modal" tabindex="-1" role="dialog" aria-labelledby="Accept{{ request.sid }}ModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header text-center">
+                                                            <h4 class="modal-title w-100 font-weight-bold">Hang On...</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                                            </button> 
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are you sure you want to <b>accept</b> this student into {{ mod.cid }} {{ mod.cname }}?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <form class="ui form" method='POST'>
+                                                                <input type="hidden" id="sid" name="sid" value="{{ request.sid }}">
+                                                                <input class="ui positive submit button" type="submit" name="btn" value="Accept">
+                                                            </form>
+                                                            <button class="ui button" data-dismiss="modal">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}      
+                        </div>
+                        {% else %}
+                            <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">No requests currently!</h6>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        {% if is_student %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        <a class="section unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item bread-header">My Modules</div></a>
+        {% endif %}
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">{% if is_prof %}My module: {% elif is_ta %}TA Module: {% endif %}{{ mod.cid }}</div>
+	</div>
+</div>
+{% endblock bread %}

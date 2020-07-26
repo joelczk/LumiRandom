@@ -1,0 +1,138 @@
+/*Function: Show the number of students of each grade for each module*/
+WITH courseid 
+     AS (SELECT * 
+         FROM   takencourses), 
+     grade 
+     AS (SELECT cid, 
+                grade, 
+                Count(courseid.grade) 
+         FROM   (SELECT * 
+                 FROM   takencourses) AS courseid 
+         GROUP  BY courseid.grade, 
+                   courseid.cid) 
+SELECT * FROM   grade;
+
+/* Function: Display the average GPA received by students for a module for each of the past semesters.
+   Also display the overall average grade across all the semesters.
+   Result is a table with attributes (cid, year, sem, GPA, average_GPA) */ 
+WITH AverageGPA AS (
+	SELECT cid, year, sem, ROUND(AVG(grade), 4) GPA
+	FROM (
+		SELECT sid, cid, year, sem, CASE 
+			WHEN grade = 'A+' THEN 5.0
+			WHEN grade = 'A'  THEN 5.0
+			WHEN grade = 'A-' THEN 4.5
+			WHEN grade = 'B+' THEN 4.0
+			WHEN grade = 'B'  THEN 3.5
+			WHEN grade = 'B-' THEN 3.0
+			WHEN grade = 'C+' THEN 2.5
+			WHEN grade = 'D+' THEN 1.5
+			WHEN grade = 'D'  THEN 1.0
+			WHEN grade = 'F'  THEN 0   
+		END grade
+		FROM TakenCourses
+		WHERE grade IS NOT NULL
+	) studentGrades
+	GROUP BY cid, year, sem
+), adjustedGPA AS (
+	SELECT cid, year, sem, COALESCE(GPA, 0.0) GPA 
+	FROM AverageGPA
+)
+SELECT *, (
+		SELECT ROUND(AVG(GPA), 4)
+		FROM adjustedGPA
+		WHERE cid = A.cid
+	) average_GPA
+FROM adjustedGPA A
+ORDER BY cid, year, sem;
+
+
+/* Function: Check ratings given by the student on a course taught by particular professor */
+With courseRating(cid, year, sem, rating) AS (
+SELECT cid, year, sem, SUM(rating) / count(rating) AS rating
+FROM takencourses
+WHERE is_rated = 1
+GROUP BY cid, year, sem
+)
+SELECT P.pid, P.cid, CR.year, CR.sem, CR.rating
+FROM professors AS LEFT JOIN courseRating as CR ON P.cid = CR.cid
+
+
+
+/* This query identifies for each forum, students who have posted at least n times (set to 5 in this example) in the forum,
+   and ranks the students first by average ranking of their posts across the forum, 
+   then by the total number of their posts across the forum. 
+   Thereafter, students with the top k (set to 3 in this example) [ranking, total posts] pair are selected.
+   i.e. More than k students may be selected if some students share same ranking and total posts.
+   Final result is a table with attributes (fid, ranking, id, forum_rating, total_posts) */
+WITH FindTotalRatingAndPosts AS (
+	SELECT P.fid, P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
+	FROM Forums F, Threads T, (
+   			SELECT P.id, P.fid, P.tid, P.post_num, ROUND(AVG(rating), 2) post_rating
+			FROM Ratings R RIGHT JOIN Posts P
+			ON R.fid = P.fid AND R.tid = P.tid AND R.post_num = P.post_num
+			WHERE P.id IN (SELECT sid FROM Students)
+			GROUP BY P.id, P.fid, P.tid, P.post_num
+		) P, (
+			SELECT P.id, P.fid, COUNT(*) total
+			FROM Forums F, Threads T, Posts P
+			WHERE F.fid = T.fid AND T.fid = P.fid AND T.tid = P.tid
+				AND P.id IN (SELECT sid FROM Students)
+			GROUP BY P.id, P.fid
+		) TP
+	WHERE F.fid = T.fid and T.fid = P.fid AND T.tid = P.tid 
+		AND P.fid = TP.fid AND P.id = TP.id AND post_rating IS NOT NULL
+	GROUP BY P.fid, P.id, total_posts
+	HAVING TP.total >= 5
+), RankPosts AS (
+	SELECT *, RANK() OVER (
+		PARTITION BY fid ORDER BY forum_rating DESC, total_posts DESC
+	) ranking
+	FROM (
+		SELECT DISTINCT fid, forum_rating, total_posts FROM FindTotalRatingAndPosts
+	) TopDistinct
+)
+SELECT fid, ranking, id, forum_rating, total_posts
+FROM FindTotalRatingAndPosts NATURAL JOIN RankPosts
+WHERE ranking <= 3
+ORDER BY fid, ranking, id;
+
+
+
+/* This query identifies for each forum, students who have posted less than n posts (set to 3 in this example),
+   and ranks the students first by total number of posts, then by the datetime of their last post if any.
+   Thereafter, students with the bottom k (set to 5 in this example) [total posts, last posted date] pair are selected.
+   i.e. More than k students may be selected if some students share same ranking and total posts.
+   Final result is a table with attributes (fid, ranking, sid, total_posts, last_posted_date) */
+WITH SortedStudents AS (
+	SELECT BS.fid, BS.sid, CASE
+		WHEN total_posts IS NULL THEN 0
+		ELSE total_posts
+		END total_posts, last_posted_date
+	FROM (
+			SELECT P.fid, P.id, COUNT(*) total_posts, MAX(date_posted) last_posted_date
+			FROM Posts P
+			WHERE P.id IN (SELECT sid FROM Students)
+			GROUP BY P.fid, P.id
+		) TP RIGHT JOIN (
+			SELECT DISTINCT FI.fid, GI.sid
+			FROM GroupInfo GI NATURAL JOIN ForumInfo FI
+		) BS
+	ON BS.fid = TP.fid AND BS.sid = TP.id
+), RankStudents AS (
+	SELECT *, RANK() OVER (
+		PARTITION BY fid ORDER BY total_posts, last_posted_date
+	) ranking
+	FROM (
+		SELECT DISTINCT fid, total_posts, last_posted_date 
+		FROM SortedStudents
+		WHERE total_posts < 3
+	) LastDistinct
+)
+SELECT RS.fid, RS.ranking, SS.sid, RS.total_posts, RS.last_posted_date
+FROM SortedStudents SS INNER JOIN RankStudents RS
+ON RS.fid = SS.fid AND RS.total_posts = SS.total_posts 
+	AND (RS.last_posted_date = SS.last_posted_date 
+		 OR RS.last_posted_date IS NULL AND SS.last_posted_date IS NULL)
+WHERE ranking <= 5
+ORDER BY fid, ranking, sid;

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<!-- Bootstrap CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+        <title>LumiRandom</title>
+	</head>
+	<style>
+		body, html {
+			width: 100%;
+			height: 100%;
+		}
+		.bg {
+			background: url("https://mdbootstrap.com/img/Photos/Horizontal/Nature/full page/img(11).jpg") no-repeat center center fixed;
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size : cover
+		}
+	</style>
+    <body class="bg" style="display: table; width: 100%;">
+        <div class="ui centered grid" style="display: table-cell; vertical-align: middle; color: white; width: 50rem">
+            <div class="ui eight wide column">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="ui floating {{ category }} message" style="text-align: center;">
+                                <i class="close icon"></i>
+                                <div class="header">
+                                    {{ message }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <br>
+            <div class="ui active dimmer center aligned column start-anim" style="background-color: rgba(0, 0, 0, 0.5); width: 40rem; height: 20rem; padding: 2em">
+                <div class="text-center">
+                    <div class="content" style= "text-transform: uppercase">
+                    <div class="ui huge header intro-anim2 hover-anim" style="text-transform: uppercase; color: white; letter-spacing: 3px; margin-bottom: 0">Oops!</div>
+                    <div class="ui huge header intro-anim2 hover-anim" style="text-transform: uppercase; font-size: 28pt; color: white; letter-spacing: 5px; margin: 0.2em 0">Page Not Found!</div>
+                    <p class="intro-anim2" style="text-align:center; letter-spacing: 2px; margin-top: 0">404</p>
+                    <hr class="intro-anim2" style="border-top: 3px solid white; width: 10rem; margin-top: 0">
+                    <p class="intro-anim3" style="text-align:center; letter-spacing: 1px; font-size: 9pt">Sorry to disappoint but this page does not exist<br>Please try another one</p>
+                    <a href="#" onclick="history.go(-1)"><button class="large ui inverted basic button intro-anim3" style="margin-left: 1em">BACK</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include 'scripts.html' %}
+        <script>
+            $('.start-anim').transition({
+                animation: 'scale in',
+                duration: '1s'
+            });
+        </script>
+        <script>
+            $('.intro-anim2').transition({
+                animation: 'scale in',
+                duration: '1s'
+            });
+        </script>
+        <script>
+            $('.intro-anim3').transition({
+                animation: 'slide down in',
+                duration: '1s'
+            });
+        </script>
+        <script>
+            $('.hover-anim').hover(function(){
+                $(this).transition({
+                    animation: 'shake',
+                    queue: false
+                });
+            }, function(){});
+        </script>
+	</body>
+</html>

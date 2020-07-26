@@ -1,0 +1,571 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section id="tabs">
+    <div class="container">
+        <h4 class="text-muted", style="text-align:center;">{{ cid }}</h4>
+        <h2 class="border-bottom mb-4", style="text-align:center;">{{ thread.thread.forum.title }}</h2>
+        <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0; margin-top: 3em;">Thread Topic</h6>
+        <div class="ui raised segment">
+            <div class="ui large comments" style="max-width: 75rem;">
+                <div class="comment">
+                    <a class="avatar" href="{{ url_for('profile', id=thread.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + thread.author.image_file) }}" style="height: 60px; width: 60px; border-radius: 8px;"></a>
+                    <div class="content" style="margin-left: 4.8em">
+                        <div class="author" style="overflow:hidden"><font size="+2">{{ thread.title }}</font></div>
+                        <a class="author" href="{{ url_for('profile', id=thread.author.id) }}"><small>{{ thread.author.name }}</small></a>
+                        <div class="metadata">
+                            <span class="date popup" data-content="{{ thread.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(thread.date_posted) }}</small></span>
+                            {% if thread.date_edited %}
+                                <span class="date popup" data-content="{{ thread.date_edited.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>Last modified {{ time_ago(thread.date_edited) }}</small></span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% set ratingno = find_rating(ratings.query.filter_by(fid=fid, tid=tid, post_num=thread.post_num).all()) %}
+                            {% set ratingcount = ratings.query.filter_by(fid=fid, tid=tid, post_num=thread.post_num).count() %}
+                            <small><div class="ui star rating" data-id="{{ thread.post_num }}" data-rating="{{ (ratingno|float)|round }}" data-max-rating="5"></div>
+                            {% if ratingcount %}
+                                <span class="date popup" data-content="{{ ratingno }}" data-variation="inverted mini" data-position="top center">({{ ratingcount }})</span>
+                             {% endif %}</small>
+                            <div id="rate-{{ thread.post_num }}"></div>
+                            <form id="rateform-{{ thread.post_num }}" method="POST">
+                                <input type="hidden" id="post_num" name="post_num" value="{{ thread.post_num }}">
+                                <input type="hidden" id="rating-{{ thread.post_num }}" name="rating" value="">
+                                <input type="hidden" name="btn" value="Rate">
+                            </form>
+                        </div>
+                        <div class="mt-1" style="border-bottom: 2px solid; border-color: #b0b9c0;"></div>
+                        <div class="text fluid" style="max-height: 20rem; overflow: auto">
+                            {% for para in thread.content.split('\n') %}
+                                <p style="margin: 0">{{ para }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="actions">
+                            <a class="reply" data-toggle="modal" data-target="#p{{ thread.post_num }}">Reply<i class="icon comment alternate outline ml-2"></i></a>
+                            <div class="modal fade" id="p{{ thread.post_num }}" tabindex="-1" role="dialog" aria-labelledby="{{ thread.post_num }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-center">
+                                            <h4 class="modal-title w-100 font-weight-bold">Post a Reply</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                            </button> 
+                                        </div>
+                                        <div class="modal-body mx-3">
+                                            <form class="ui form post" method='POST'>
+                                                <input type="hidden" id="post_num" name="post_num" value="{{ thread.post_num }}">
+                                                <div class="fields">
+                                                    <div class="disabled four wide field">
+                                                        <label>Reply To</label>
+                                                        <input id="reply" name="reply" type="text" placeholder="{{ thread.author.name }}"> 
+                                                    </div>
+                                                    <div class="required twelve wide field">
+                                                        <label>Post Title</label>
+                                                        <input id="title" name="title" placeholder="Enter a post title" value="re: {{ thread.title }}">
+                                                    </div>
+                                                </div>
+                                                <div class="ui accordion mb-2">
+                                                    <div class="title">
+                                                        <i class="dropdown icon"></i>
+                                                        Show Post Content
+                                                    </div>
+                                                    <div class="content">
+                                                        <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                            {% for para in thread.content.split('\n') %}
+                                                                <p style="margin: 0">{{ para }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Reply</label>
+                                                    <textarea rows="8" id="content" name="content" placeholder="Enter a reply"></textarea>
+                                                </div>
+                                                <div class="field text-center">
+                                                    <input class="ui teal submit button" type="submit" name="btn" value="Submit">
+                                                    <div class="ui reset button">Clear</div>
+                                                    <div class="ui error message"></div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if thread.id == current_user.id %}
+                                <a class="edit" data-toggle="modal" data-target="#e{{ thread.post_num }}">Edit<i class="icon edit outline ml-1"></i></a>
+                                <div class="modal fade" id="e{{ thread.post_num }}" tabindex="-1" role="dialog" aria-labelledby="e{{ thread.post_num }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header text-center">
+                                                <h4 class="modal-title w-100 font-weight-bold">Edit Post</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true" style="float: right">&times;</span>
+                                                </button> 
+                                            </div>
+                                            <div class="modal-body mx-3">
+                                                <form class="ui form post" method='POST'>
+                                                    <input type="hidden" id="post_num" name="post_num" value="{{ thread.post_num }}">
+                                                    <div class="fields">
+                                                        <div class="disabled four wide field">
+                                                            <label>Reply To</label>
+                                                            <input id="reply" name="reply" type="text" placeholder="{{ thread.author.name }}"> 
+                                                        </div>
+                                                        <div class="required twelve wide field">
+                                                            <label>Post Title</label>
+                                                            <input id="title" name="title" placeholder="Enter a post title" value="{{ thread.title }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="ui accordion mb-2">
+                                                        <div class="title">
+                                                            <i class="dropdown icon"></i>
+                                                            Show Post Content
+                                                        </div>
+                                                        <div class="content">
+                                                            <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                                {% for para in thread.content.split('\n') %}
+                                                                    <p style="margin: 0">{{ para }}</p>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="required field">
+                                                        <label>Reply</label>
+                                                        <textarea rows="8" id="content" name="content">{{ thread.content }}</textarea>
+                                                    </div>
+                                                    <div class="field text-center">
+                                                        <input class="ui teal submit button" type="submit" name="btn" value="Save">
+                                                        <div class="ui reset button">Clear</div>
+                                                        <div class="ui error message"></div>
+                                                    </div>
+                                                </form>       
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %} 
+                        </div>  
+                    </div>
+                </div>   
+            </div>
+        </div>
+        {% if posts %}
+        <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0; margin-top: 3em; color: white; text-shadow: -.5px -.5px 0 #000, .5px -.5px 0 #000, -.5px .5px 0 #000, .5px .5px 0 #000;">Replies</h6>   
+        <div class="ui large comments" style="max-width: 75rem;">                                        
+            {%- for key, value in posts.items() recursive %}
+                {% set post = p.query.get([fid, tid, key]) %}
+                {% if post.ppost_num == 1 %}
+                <div class="ui raised segment">
+                <div class="comment">
+                    <a class="avatar" href="{{ url_for('profile', id=post.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + post.author.image_file) }}" style="height: 60px; width: 60px; border-radius: 8px;"></a>
+                    <div class="content" style="margin-left: 5.2em">
+                        <div class="author" style="overflow:hidden"><font size="+2">{{ post.title }}</font></div>
+                        <a class="author" href="{{ url_for('profile', id=post.author.id) }}"><small>{{ post.author.name }}</small></a>
+                        <div class="metadata">
+                            <span class="date popup" data-content="{{ post.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(post.date_posted) }}</small></span>
+                            {% if post.date_edited %}
+                                <span class="date popup" data-content="{{ post.date_edited.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>Last modified {{ time_ago(post.date_edited) }}</small></span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% set ratingno = find_rating(ratings.query.filter_by(fid=fid, tid=tid, post_num=post.post_num).all()) %}
+                            {% set ratingcount = ratings.query.filter_by(fid=fid, tid=tid, post_num=post.post_num).count() %}
+                            <small><div class="ui star rating" data-id="{{ post.post_num }}" data-rating="{{ (ratingno|float)|round }}" data-max-rating="5"></div>
+                            {% if ratingcount %}
+                                <span class="date popup" data-content="{{ ratingno }}" data-variation="inverted mini" data-position="top center">({{ ratingcount }})</span>
+                             {% endif %}</small>
+                            <div id="rate-{{ post.post_num }}"></div>
+                            <form id="rateform-{{ post.post_num }}" method="POST">
+                                <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                <input type="hidden" id="rating-{{ post.post_num }}" name="rating" value="">
+                                <input type="hidden" name="btn" value="Rate">
+                            </form>
+                        </div>
+                        <div class="mt-1" style="border-bottom: 2px solid; border-color: #b0b9c0;"></div>
+                        <div class="text fluid" style="max-height: 20rem; overflow: auto">
+                            {% for para in post.content.split('\n') %}
+                                <p style="margin: 0">{{ para }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="actions">
+                            <a class="reply" data-toggle="modal" data-target="#p{{ post.post_num }}">Reply<i class="icon comment alternate outline ml-2"></i></a>
+                            <div class="modal fade" id="p{{ post.post_num }}" tabindex="-1" role="dialog" aria-labelledby="{{ post.post_num }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-center">
+                                            <h4 class="modal-title w-100 font-weight-bold">Post a Reply</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                            </button> 
+                                        </div>
+                                        <div class="modal-body mx-3">
+                                            <form class="ui form post" method='POST'>
+                                                <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                                <div class="field">
+                                                    <div class="disabled field">
+                                                        <label>Reply To</label>
+                                                        <input id="reply" name="reply" type="text" placeholder="{{ post.author.name }}"> 
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Post Title</label>
+                                                    <input id="title" name="title" placeholder="Enter a post title" value="re: {{ post.title }}">
+                                                </div>
+                                                <div class="ui accordion mb-2">
+                                                    <div class="title">
+                                                        <i class="dropdown icon"></i>
+                                                        Show Post Content
+                                                    </div>
+                                                    <div class="content">
+                                                        <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                            {% for para in post.content.split('\n') %}
+                                                                <p style="margin: 0">{{ para }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Reply</label>
+                                                    <textarea rows="8" id="content" name="content" placeholder="Enter a reply"></textarea>
+                                                </div>
+                                                <div class="field text-center">
+                                                    <input class="ui teal submit button" type="submit" name="btn" value="Submit">
+                                                    <div class="ui reset button">Clear</div>
+                                                    <div class="ui error message"></div>
+                                                </div>
+                                            </form>       
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if post.id == current_user.id %}
+                                <a class="edit" data-toggle="modal" data-target="#e{{ post.post_num }}">Edit<i class="icon edit outline ml-1"></i></a>
+                                <div class="modal fade" id="e{{ post.post_num }}" tabindex="-1" role="dialog" aria-labelledby="e{{ post.post_num }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header text-center">
+                                                <h4 class="modal-title w-100 font-weight-bold">Edit Post</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true" style="float: right">&times;</span>
+                                                </button> 
+                                            </div>
+                                            <div class="modal-body mx-3">
+                                                <form class="ui form post" method='POST'>
+                                                    <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                                    <div class="fields">
+                                                        <div class="disabled four wide field">
+                                                            <label>Reply To</label>
+                                                            <input id="reply" name="reply" type="text" placeholder="{{ post.author.name }}"> 
+                                                        </div>
+                                                        <div class="required twelve wide field">
+                                                            <label>Post Title</label>
+                                                            <input id="title" name="title" placeholder="Enter a post title" value="{{ post.title }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="ui accordion mb-2">
+                                                        <div class="title">
+                                                            <i class="dropdown icon"></i>
+                                                            Show Post Content
+                                                        </div>
+                                                        <div class="content">
+                                                            <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                                {% for para in post.content.split('\n') %}
+                                                                    <p style="margin: 0">{{ para }}</p>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="required field">
+                                                        <label>Reply</label>
+                                                        <textarea rows="8" id="content" name="content">{{ post.content }}</textarea>
+                                                    </div>
+                                                    <div class="field text-center">
+                                                        <input class="ui teal submit button" type="submit" name="btn" value="Save">
+                                                        <div class="ui reset button">Clear</div>
+                                                        <div class="ui error message"></div>
+                                                    </div>
+                                                </form>       
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %} 
+                            {% if is_prof or (is_ta and finfo.query.join(ginfo, finfo.gid==ginfo.gid).filter(ginfo.sid==post.id).all()) %}
+                                <a class="delete" data-toggle="modal" data-target="#d{{ post.post_num }}">Delete<i class="icon trash alternate outline ml-1"></i></a>
+                                <div class="modal fade" id="d{{ post.post_num }}" tabindex="-1" role="dialog" aria-labelledby="d{{ post.post_num }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header text-center">
+                                                <h4 class="modal-title w-100 font-weight-bold">Are you sure you want to delete this post?</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true" style="float: right">&times;</span>
+                                                </button> 
+                                            </div>
+                                            <div class="modal-body mx-3">
+                                                <form class="ui form" method='POST'>
+                                                    <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                                    <div class="field">
+                                                        <div class="disabled field">
+                                                            <label>Author</label>
+                                                            <input type="text" placeholder="{{ post.author.name }}"> 
+                                                        </div>
+                                                    </div>
+                                                    <div class="disabled field">
+                                                        <label>Post Title</label>
+                                                        <input placeholder="{{ post.title }}">
+                                                    </div>
+                                                    <div class="disabled field">
+                                                        <label>Post Content</label>
+                                                    </div>
+                                                    <div class="ui segment fluid" style="max-height: 20rem; overflow: auto; color: #b0b9c0;">
+                                                        {% for para in post.content.split('\n') %}
+                                                            <p style="margin: 0">{{ para }}</p>
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="field text-center">
+                                                        <input class="ui red submit button" type="submit" name="btn" value="Delete">
+                                                        <div class="ui button" data-dismiss="modal">Close</div>
+                                                    </div>
+                                                </form>       
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {%- if value %}
+                        {%- if key == 1 %}
+                            {{ loop(value.items())}}                                                                                   
+                        {%- else %}
+                            <div class="comments">{{ loop(value.items())}}</div>
+                        {%- endif %}                                
+                    {%- endif %}
+                </div>
+                </div>
+                {% else %}
+                <div class="comment">
+                    {% if post.post_num != 1 %}
+                    <a class="avatar" href="{{ url_for('profile', id=post.author.id) }}"><img src="{{ url_for('static', filename='profile_pictures/' + post.author.image_file) }}" style="height: 60px; width: 60px; border-radius: 8px"></a>
+                    <div class="content" style="margin-left: 5.2em">
+                        <div class="author" style="overflow:hidden"><font size="+2">{{ post.title }}</font></div>
+                        <a class="author" href="{{ url_for('profile', id=post.author.id) }}"><small>{{ post.author.name }}</small></a>
+                        <div class="metadata">
+                            <span class="date popup" data-content="{{ post.date_posted.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>{{ time_ago(post.date_posted) }}</small></span>
+                            {% if post.date_edited %}
+                                <span class="date popup" data-content="{{ post.date_edited.strftime('%d %B %Y %H:%M')}}" data-variation="inverted mini" data-position="top center"><small>Last modified {{ time_ago(post.date_edited) }}</small></span>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {% set ratingno = find_rating(ratings.query.filter_by(fid=fid, tid=tid, post_num=post.post_num).all()) %}
+                            {% set ratingcount = ratings.query.filter_by(fid=fid, tid=tid, post_num=post.post_num).count() %}
+                            <small><div class="ui star rating" data-id="{{ post.post_num }}" data-rating="{{ (ratingno|float)|round }}" data-max-rating="5"></div>
+                            {% if ratingcount %}
+                                <span class="date popup" data-content="{{ ratingno }}" data-variation="inverted mini" data-position="top center">({{ ratingcount }})</span>
+                             {% endif %}</small>
+                            <div id="rate-{{ post.post_num }}"></div>
+                            <form id="rateform-{{ post.post_num }}" method="POST">
+                                <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                <input type="hidden" id="rating-{{ post.post_num }}" name="rating" value="">
+                                <input type="hidden" name="btn" value="Rate">
+                            </form>
+                        </div>
+                        <div class="mt-1" style="border-bottom: 2px solid; border-color: #b0b9c0;"></div>
+                        <div class="text fluid" style="max-height: 20rem; overflow: auto">
+                            {% for para in post.content.split('\n') %}
+                                <p style="margin: 0">{{ para }}</p>
+                            {% endfor %}
+                        </div>
+                        <div class="actions">
+                            <a class="reply" data-toggle="modal" data-target="#p{{ post.post_num }}">Reply<i class="icon comment alternate outline ml-2"></i></a>
+                            <div class="modal fade" id="p{{ post.post_num }}" tabindex="-1" role="dialog" aria-labelledby="{{ post.post_num }}" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header text-center">
+                                            <h4 class="modal-title w-100 font-weight-bold">Post a Reply</h4>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true" style="float: right">&times;</span>
+                                            </button> 
+                                        </div>
+                                        <div class="modal-body mx-3">
+                                            <form class="ui form post" method='POST'>
+                                                <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                                <div class="field">
+                                                    <div class="disabled field">
+                                                        <label>Reply To</label>
+                                                        <input id="reply" name="reply" type="text" placeholder="{{ post.author.name }}"> 
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Post Title</label>
+                                                    <input id="title" name="title" placeholder="Enter a post title" value="re: {{ post.title }}">
+                                                </div>
+                                                <div class="ui accordion mb-2">
+                                                    <div class="title">
+                                                        <i class="dropdown icon"></i>
+                                                        Show Post Content
+                                                    </div>
+                                                    <div class="content">
+                                                        <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                            {% for para in post.content.split('\n') %}
+                                                                <p style="margin: 0">{{ para }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="required field">
+                                                    <label>Reply</label>
+                                                    <textarea rows="8" id="content" name="content" placeholder="Enter a reply"></textarea>
+                                                </div>
+                                                <div class="field text-center">
+                                                    <input class="ui teal submit button" type="submit" name="btn" value="Submit">
+                                                    <div class="ui reset button">Clear</div>
+                                                    <div class="ui error message"></div>
+                                                </div>
+                                            </form>       
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if post.id == current_user.id %}
+                                <a class="edit" data-toggle="modal" data-target="#e{{ post.post_num }}">Edit<i class="icon edit outline ml-1"></i></a>
+                                <div class="modal fade" id="e{{ post.post_num }}" tabindex="-1" role="dialog" aria-labelledby="e{{ post.post_num }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header text-center">
+                                                <h4 class="modal-title w-100 font-weight-bold">Edit Post</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true" style="float: right">&times;</span>
+                                                </button> 
+                                            </div>
+                                            <div class="modal-body mx-3">
+                                                <form class="ui form post" method='POST'>
+                                                    <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                                    <div class="fields">
+                                                        <div class="disabled four wide field">
+                                                            <label>Reply To</label>
+                                                            <input id="reply" name="reply" type="text" placeholder="{{ post.author.name }}"> 
+                                                        </div>
+                                                        <div class="required twelve wide field">
+                                                            <label>Post Title</label>
+                                                            <input id="title" name="title" placeholder="Enter a post title" value="{{ post.title }}">
+                                                        </div>
+                                                    </div>
+                                                    <div class="ui accordion mb-2">
+                                                        <div class="title">
+                                                            <i class="dropdown icon"></i>
+                                                            Show Post Content
+                                                        </div>
+                                                        <div class="content">
+                                                            <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                                {% for para in post.content.split('\n') %}
+                                                                    <p style="margin: 0">{{ para }}</p>
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="required field">
+                                                        <label>Reply</label>
+                                                        <textarea rows="8" id="content" name="content">{{ post.content }}</textarea>
+                                                    </div>
+                                                    <div class="field text-center">
+                                                        <input class="ui teal submit button" type="submit" name="btn" value="Save">
+                                                        <div class="ui reset button">Clear</div>
+                                                        <div class="ui error message"></div>
+                                                    </div>
+                                                </form>       
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %} 
+                            {% if is_prof or (is_ta and finfo.query.join(ginfo, finfo.gid==ginfo.gid).filter(ginfo.sid==post.id).all()) %}
+                                <a class="delete" data-toggle="modal" data-target="#d{{ post.post_num }}">Delete<i class="icon trash alternate outline ml-1"></i></a>
+                                <div class="modal fade" id="d{{ post.post_num }}" tabindex="-1" role="dialog" aria-labelledby="d{{ post.post_num }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header text-center">
+                                                <h4 class="modal-title w-100 font-weight-bold">Are you sure you want to delete this post?</h4>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true" style="float: right">&times;</span>
+                                                </button> 
+                                            </div>
+                                            <div class="modal-body mx-3">
+                                                <form class="ui form" method='POST'>
+                                                    <input type="hidden" id="post_num" name="post_num" value="{{ post.post_num }}">
+                                                    <div class="field">
+                                                        <div class="disabled field">
+                                                            <label>Author</label>
+                                                            <input type="text" placeholder="{{ post.author.name }}"> 
+                                                        </div>
+                                                    </div>
+                                                    <div class="disabled field">
+                                                        <label>Post Title</label>
+                                                        <input placeholder="{{ post.title }}">
+                                                    </div>
+                                                    <div class="disabled field">
+                                                        <label>Post Content</label>
+                                                        <div class="ui segment fluid" style="max-height: 20rem; overflow: auto;">
+                                                            {% for para in post.content.split('\n') %}
+                                                                <p style="margin: 0">{{ para }}</p>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="field text-center">
+                                                        <input class="ui red submit button" type="submit" name="btn" value="Delete">
+                                                        <div class="ui button" data-dismiss="modal">Close</div>
+                                                    </div>
+                                                </form>       
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {%- if value %}
+                        {%- if key == 1 %}
+                            {{ loop(value.items())}}                                                                                   
+                        {%- else %}
+                            <div class="comments">{{ loop(value.items())}}</div>
+                        {%- endif %}                                
+                    {%- endif %}
+                </div>
+                {% endif %}
+                {%- endfor %}
+            </div>
+        <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0; color: white; margin-bottom: 3em">End of Thread</h6>
+        {% else %}
+            <h6 class="mt-4 text-center" style="border-bottom: 2px solid; border-color: #b0b9c0; text-shadow: -.5px -.5px 0 white, .5px -.5px 0 white, -.5px .5px 0 white, .5px .5px 0 white;">There are no post in this forum thread yet!</h6>
+        {% endif %}
+    </div>
+</section>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu show-bread-bar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        {% if is_student %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i><br><br>
+        <a class="section unrefany" href="{{ url_for('modules') }}"><div class="menu-dropdown-item bread-header">My Modules</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        {% if is_student %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=cid) }}"><div class="menu-dropdown-item bread-header">{{ cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('mod_forums', cid=cid) }}"><div class="menu-dropdown-item bread-header">Forums</div></a>
+        {% elif is_prof %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take') }}"><div class="menu-dropdown-item bread-header">My Module: {{ cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('prof_forums') }}"><div class="menu-dropdown-item bread-header">Forums</div></a>
+        {% elif is_ta %}
+            <br><br><a class="section unrefany" href="{{ url_for('module_take', cid=cid) }}"><div class="menu-dropdown-item bread-header">TA Module: {{ cid }}</div></a>
+            <br><br><i class="down chevron icon divider" style="color: white"></i>
+            <br><br><a class="section unrefany" href="{{ url_for('ta_forums') }}"><div class="menu-dropdown-item bread-header">TA Forums</div></a>
+        {% endif %}
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+        <br><br><a class="section unrefany" href="{{ url_for('forum', cid=cid, fid=thread.fid) }}"><div class="menu-dropdown-item bread-header">{{ thread.thread.forum.title }}</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">{{ thread.title }}</div>
+	</div>
+</div>
+{% endblock bread %}

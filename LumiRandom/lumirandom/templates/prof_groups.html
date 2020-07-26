@@ -1,0 +1,209 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2 class="border-bottom mb-4", style="text-align:center;">My Groups</h2>
+    <div class="ui container">
+        <a class="ui fluid teal button mb-4" data-toggle="modal" data-target="#newgroup">New Group</a>
+        <div class="modal fade" id="newgroup" tabindex="-1" role="dialog" aria-labelledby="newgroup" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                <div class="modal-content">
+                    <div id="groupmodal">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">New Group</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" style="float: right">&times;</span>
+                            </button> 
+                        </div>
+                        <div class="modal-body mx-3">
+                            <form class="ui form group" method='POST'>
+                                <div class="fields">
+                                    <div class="disabled four wide field">
+                                        <label>Module Code</label>
+                                        <input type="text" placeholder="{{ cid }}"> 
+                                    </div>
+                                    <div class="twelve wide required field">
+                                        <label>Group Name</label>
+                                        <input id="gname" name="gname" placeholder="Enter a group name"> 
+                                    </div>
+                                </div>
+                                <div class="required inline field">
+                                    <label>Teaching Assistant</label>
+                                    <div class="ui floating dropdown">
+                                        <input type="hidden" id="ta" name="ta">
+                                        <i class="user plus icon"></i>
+                                        <span class="text ml-2">Select Teaching Assistant</span>
+                                        <div class="menu">
+                                            <div class="ui icon search input">
+                                                <i class="search icon"></i>
+                                                <input type="text" placeholder="Search name...">
+                                            </div>
+                                            <div class="divider"></div>
+                                            <div class="scrolling menu">
+                                                <div class="item" data-value="none">
+                                                    None
+                                                </div>
+                                                {% for ta in tas %}
+                                                    <div class="item" data-value="{{ ta.sid }}">
+                                                        {{ ta.courseinfo.student.info.name }}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="required inline field">
+                                    <label>Students</label>
+                                    <div class="ui multiple dropdown">
+                                        <input type="hidden" id="students" name="students">
+                                        <i class="user plus icon"></i>
+                                        <span class="text">Select Students</span>
+                                        <div class="menu">
+                                            <div class="ui icon search input">
+                                                <i class="search icon"></i>
+                                                <input type="text" placeholder="Search name...">
+                                            </div>
+                                            <div class="divider"></div>
+                                            <div class="scrolling menu">
+                                                <div class="header">
+                                                    <i class="user circle icon"></i>
+                                                    Year 1
+                                                </div>
+                                                {% for s in sall[0]%}
+                                                    <div class="item" data-value="{{ s.sid }}">
+                                                        <div class="ui red empty circular label"></div>
+                                                        {{ s.student.info.name }}
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="header">
+                                                    <i class="user circle icon"></i>
+                                                    Year 2
+                                                </div>
+                                                {% for s in sall[1] %}
+                                                    <div class="item" data-value="{{ s.sid }}">
+                                                        <div class="ui orange empty circular label"></div>
+                                                        {{ s.student.info.name }}
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="header">
+                                                    <i class="user circle icon"></i>
+                                                    Year 3
+                                                </div>
+                                                {% for s in sall[2] %}
+                                                    <div class="item" data-value="{{ s.sid }}">
+                                                        <div class="ui yellow empty circular label"></div>
+                                                        {{ s.student.info.name }}
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="header">
+                                                    <i class="user circle icon"></i>
+                                                    Year 4
+                                                </div>
+                                                {% for s in sall[3] %}
+                                                    <div class="item" data-value="{{ s.sid }}">
+                                                        <div class="ui green empty circular label"></div>
+                                                        {{ s.student.info.name }}
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="header">
+                                                    <i class="user circle icon"></i>
+                                                    Year 5
+                                                </div>
+                                                {% for s in sall[4] %}
+                                                <div class="item" data-value="{{ s.sid }}">
+                                                    <div class="ui blue empty circular label"></div>
+                                                    {{ s.student.info.name }}
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                             
+                                <div class="field text-center">
+                                    <div class="ui teal animated button mb-1" tabindex="0" id="showgroup">
+                                        <div class="visible content">Next</div>
+                                        <div class="hidden content">
+                                            <i class="right arrow icon" style="color: white"></i>
+                                        </div>
+                                    </div>   
+                                    <div class="ui reset button">Clear</div>
+                                    <div class="ui error message"></div>
+                                </div>
+                            </form>         
+                        </div>
+                    </div>
+                    <div style="display:none; " id="groupmodal2">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">Confirm?</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true" style="float: right">&times;</span>
+                            </button> 
+                        </div>
+                        <div class="modal-body mx-3">
+                            <div id="modresult"></div>
+                            <div id="gnameresult"></div>
+                            <div id="taresult"></div>
+                            <div class="ui raised segment">
+                                <div class="ui five column center aligned grid">
+                                    <div class="teal column" style="padding: 0.4em"><b>Year 1</b></div>
+                                    <div class="teal column" style="padding: 0.4em"><b>Year 2</b></div>
+                                    <div class="teal column" style="padding: 0.4em"><b>Year 3</b></div>
+                                    <div class="teal column" style="padding: 0.4em"><b>Year 4</b></div>
+                                    <div class="teal column" style="padding: 0.4em"><b>Year 5</b></div>
+                                </div>
+                                <div id="studentresult"></div>
+                            </div>
+                            <div class="field text-center">
+                                <div class="ui animated button mb-1" tabindex="0" id="showform">
+                                    <div class="visible content">Back</div>
+                                    <div class="hidden content">
+                                        <i class="left arrow icon" style="color: black"></i>
+                                    </div>
+                                </div> 
+                                <div class="ui teal button" id="submitgroupform">Create</div>
+                            </div>
+                        </div>      
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>{{gname}}</div>
+        {% if groups %}
+            <div class="ui fluid grid">
+                {% for group in groups|sort(attribute='gname') %}
+                    <div class="eight wide column">
+                        <div class="ui fluid card unref2" style="height: 9rem; justify-content: center;" >
+                            <a class="card-body unref2" href="{{ url_for('group', cid=cid, gid=group.gid) }}">
+                                <h6 class="card-subtitle mb-2 text-muted" style="float: right"><small>{{ groupinfo.query.filter_by(gid=group.gid).count() }}</small><i class="fa fa-user fa-xs ml-1"></i></h6>
+                                <h6 class="card-subtitle mb-2 text-muted"><small>{{ cid }}</small></h6>
+                                <h6 class="card-title">{{ group.gname }}</h6>
+                            </a>
+                            {% if group.sid %}
+                                <a class="card-footer unref2" style="background-color: #a1b4c2; color: #e8ebee;" href="{{ url_for('profile', id=group.sid) }}">
+                                    <small style="float: left">{{ group.ta.courseinfo.student.info.name }}</small>
+                                    <small style="float: right">Teaching Assistant</small>
+                                </a>
+                            {% else %}
+                                <span class="card-footer" style="background-color: #a1b4c2; color: #e8ebee">
+                                    <small>Unmanaged</small>
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <h6 class="text-center" style="border-bottom: 2px solid; border-color: #b0b9c0">You have no groups. Go make some!</h6>
+        {% endif %}
+    </div>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+    <div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+    <div class="ui breadcrumb" style="background-color: transparent;">
+        <a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><a class="section unrefany" href="{{ url_for('module_take') }}"><div class="menu-dropdown-item bread-header">My Module: {{ cid }}</div></a>
+        <br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">Groups</div>
+	</div>
+</div>
+{% endblock bread %}

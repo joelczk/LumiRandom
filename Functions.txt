@@ -1,0 +1,115 @@
+/* Functions to implement complex queries */
+
+CREATE OR REPLACE FUNCTION rank_posts(forum_id INTEGER, min_posts INTEGER, num INTEGER)
+RETURNS TABLE(fid INTEGER, ranking BIGINT, id VARCHAR, forum_rating NUMERIC, total_posts BIGINT)
+AS $content$
+	WITH FindTotalRatingAndPosts AS (
+		SELECT P.fid, P.id, ROUND(AVG(post_rating), 2) forum_rating, TP.total total_posts
+		FROM Forums F, Threads T, (
+				SELECT P.id, P.fid, P.tid, P.post_num, ROUND(AVG(rating), 2) post_rating
+				FROM Ratings R RIGHT JOIN Posts P
+				ON R.fid = P.fid AND R.tid = P.tid AND R.post_num = P.post_num
+				WHERE P.id IN (SELECT sid FROM Students)
+				GROUP BY P.id, P.fid, P.tid, P.post_num
+			) P, (
+				SELECT P.id, P.fid, COUNT(*) total
+				FROM Forums F, Threads T, Posts P
+				WHERE F.fid = T.fid AND T.fid = P.fid AND T.tid = P.tid
+					AND P.id IN (SELECT sid FROM Students)
+				GROUP BY P.id, P.fid
+			) TP
+		WHERE F.fid = T.fid and T.fid = P.fid AND T.tid = P.tid 
+			AND P.fid = TP.fid AND P.id = TP.id AND post_rating IS NOT NULL
+		GROUP BY P.fid, P.id, total_posts
+		HAVING TP.total >= min_posts
+	), RankPosts AS (
+		SELECT *, RANK() OVER (
+			PARTITION BY fid ORDER BY forum_rating DESC, total_posts DESC
+		) ranking
+		FROM (
+			SELECT DISTINCT fid, forum_rating, total_posts FROM FindTotalRatingAndPosts
+		) TopDistinct
+	)
+	SELECT fid, ranking, id, forum_rating, total_posts
+	FROM FindTotalRatingAndPosts NATURAL JOIN RankPosts
+	WHERE ranking <= num AND fid = forum_id
+	ORDER BY fid, ranking, id;
+$content$
+LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION expose_students(forum_id INTEGER, min_posts INTEGER, num INTEGER)
+RETURNS TABLE(fid INTEGER, ranking BIGINT, sid VARCHAR, total_posts BIGINT, last_posted_date TIMESTAMP)
+AS $content$
+	WITH SortedStudents AS (
+		SELECT BS.fid, BS.sid, CASE
+			WHEN total_posts IS NULL THEN 0
+			ELSE total_posts
+			END total_posts, last_posted_date
+		FROM (
+				SELECT P.fid, P.id, COUNT(*) total_posts, MAX(date_posted) last_posted_date
+				FROM Posts P
+				WHERE P.id IN (SELECT sid FROM Students)
+				GROUP BY P.fid, P.id
+			) TP RIGHT JOIN (
+				SELECT DISTINCT FI.fid, GI.sid
+				FROM GroupInfo GI NATURAL JOIN ForumInfo FI
+			) BS
+		ON BS.fid = TP.fid AND BS.sid = TP.id
+	), RankStudents AS (
+		SELECT *, RANK() OVER (
+			PARTITION BY fid ORDER BY total_posts, last_posted_date
+		) ranking
+		FROM (
+			SELECT DISTINCT fid, total_posts, last_posted_date 
+			FROM SortedStudents
+			WHERE total_posts < min_posts
+		) LastDistinct
+	)
+	SELECT RS.fid, RS.ranking, SS.sid, RS.total_posts, RS.last_posted_date
+	FROM SortedStudents SS INNER JOIN RankStudents RS
+	ON RS.fid = SS.fid AND RS.total_posts = SS.total_posts 
+		AND (RS.last_posted_date = SS.last_posted_date 
+			 OR RS.last_posted_date IS NULL AND SS.last_posted_date IS NULL)
+	WHERE ranking <= num AND RS.fid = forum_id
+	ORDER BY fid, ranking, sid;
+$content$
+LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION find_gpa(c_id VARCHAR)
+RETURNS TABLE(cid VARCHAR, year VARCHAR, sem INTEGER, gpa NUMERIC, avegpa NUMERIC)
+AS $content$
+	WITH AverageGPA AS (
+		SELECT cid, year, sem, ROUND(AVG(grade), 4) GPA
+			FROM (
+				SELECT sid, cid, year, sem, CASE 
+					WHEN grade = 'A+' THEN 5.0
+					WHEN grade = 'A'  THEN 5.0
+					WHEN grade = 'A-' THEN 4.5
+					WHEN grade = 'B+' THEN 4.0
+					WHEN grade = 'B'  THEN 3.5
+					WHEN grade = 'B-' THEN 3.0
+					WHEN grade = 'C+' THEN 2.5
+					WHEN grade = 'D+' THEN 1.5
+					WHEN grade = 'D'  THEN 1.0
+					WHEN grade = 'F'  THEN 0   
+				END grade
+				FROM TakenCourses
+				WHERE grade IS NOT NULL
+			) studentGrades
+		GROUP BY cid, year, sem
+	), adjustedGPA AS (
+		SELECT cid, year, sem, COALESCE(GPA, 0.0) GPA 
+		FROM AverageGPA
+	)
+	SELECT *, (
+			SELECT ROUND(AVG(GPA), 4)
+			FROM adjustedGPA
+			WHERE cid = A.cid
+		) average_GPA
+	FROM adjustedGPA A
+	WHERE cid = c_id
+	ORDER BY cid, year, sem;
+$content$
+LANGUAGE sql;

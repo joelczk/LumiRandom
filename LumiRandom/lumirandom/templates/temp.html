@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h4>{{ gname }} </h4>
+    {% for student in students %}
+        <h3>{{ student }}</h3><br>
+    {% endfor %}
+    <h3>Teaching assistant: {{ ta }}</h3>
+    <h3>GID: {{ gid }}</h3>
+
+{% endblock content %}

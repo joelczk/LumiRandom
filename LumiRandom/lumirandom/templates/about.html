@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block content %}
+	<h4>LumiRandom Beta v1.0.1.1</h4>
+	<p>LumiRandom was created from the collaboration of four individuals.<br>
+	The intended purpose of LumiRandom is to simulate a Course Management System.<br>
+	However it is only in its beta stage, so don't expect too much.</p>
+{% endblock content %}
+{% block bread %}
+<div class="ui right fixed secondary vertical inverted menu hidden-sidebar" id="bread-bar" style="text-align: center; min-width: 20rem; padding-top: 5rem; background-color: black; background:rgba(0, 0, 0, 0.5); overflow: auto">
+	<div class="bread-header" style="color: white; font-size: 14pt"><i class="icon compass outline mr-2"; style="color: white"></i>Navigation</div>
+	<div class="ui breadcrumb" style="background-color: transparent;">
+		<a class="section unrefany" href="{{ url_for('home') }}"><div class="menu-dropdown-item bread-header">Home</div></a>
+		<br><br><i class="down chevron icon divider" style="color: white"></i>
+		<br><br><div class="active section bread-header" style="color: white">About</div>
+	</div>
+</div>
+{% endblock bread %}

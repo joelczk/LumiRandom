@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<!-- Bootstrap CSS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+        <title>LumiRandom</title>
+	</head>
+	<style>
+		body, html {
+			width: 100%;
+			height: 100%;
+		}
+		.bg {
+			background: url("https://mdbootstrap.com/img/Photos/Horizontal/Nature/full page/img(11).jpg") no-repeat center center fixed;
+			-webkit-background-size: cover;
+			-moz-background-size: cover;
+			-o-background-size: cover;
+			background-size : cover
+		}
+	</style>
+    <body class="bg" style="display: table; width: 100%;">
+        <div class="ui centered grid" style="display: table-cell; vertical-align: middle; color: white; width: 50rem">
+            <div class="ui eight wide column">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="ui floating {{ category }} message" style="text-align: center;">
+                                <i class="close icon"></i>
+                                <div class="header">
+                                    {{ message }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <br>
+            <div class="ui active dimmer center aligned column start-anim" style="background-color: rgba(0, 0, 0, 0.5); width: 40rem; height: 20rem; padding: 2em">
+                <div id="logincarousel" class="carousel slide" data-ride="carousel">    
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                        <div class="text-center">
+                                <div class="content">
+                                <div class="ui header intro-anim" style="text-transform: uppercase; color: white; letter-spacing: 3px;">Welcome to</div>
+                                <div class="ui huge header white-text intro-anim hover-anim" style="text-transform: uppercase; font-size: 28pt; color: white; letter-spacing: 5px; margin-top: 0.2em"><font size="36pt">L</font>umi<font size="36pt">R</font>andom</div>
+                                <hr class="intro-anim2" style="border-top: 3px solid white; width: 10rem; margin-top: 0">
+                                <p class="intro-anim2" style="text-align:center; letter-spacing: 2px">LET'S BE RANDOM!</p>
+                                <button class="large ui inverted basic button button-anim1 carousel-control-left">LOG IN</button>
+                                <button class="large ui inverted basic button button-anim2 carousel-control-right" style="margin-left: 1em">ABOUT</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item" style="text-transform: uppercase">
+                            <div class="ui header" style="text-transform: uppercase; color: white; letter-spacing: 2px;">LumiRandom beta V2.0.1.1</div>
+                            <p style="letter-spacing: 1px;">LumiRandom was created from the collaboration of <br>four individuals and many hours of intensive revisions.<br>
+                            The intended purpose of LumiRandom is to simulate a Course Management System that is simple and user-friendly.<br>
+                            However it is only in its beta stage, <br>so don't expect too much.</p>
+                            <button class="large ui inverted basic button carousel-control-left">BACK</button>
+                        </div>
+                        <div class="carousel-item">
+                            <div style="margin: 2.5em 0"></div>
+                            <form class="inverted ui form login" style="color: white" method='POST'>
+                                <div class="inline field" style="text-align: left;">
+                                    <label>ACCOUNT ID</label>
+                                    <input id="accountid" name="accountid" placeholder="Enter Account ID" style="color: white; background-color: transparent; border: none; border-bottom: 1px solid white; width: 15.2rem">
+                                </div>
+                                <div class="inline field" style="text-align: left;">
+                                    <label style="margin-left: 7px">PASSWORD</label>
+                                    <input type="password" id="password" name="password" placeholder="Enter password" style="color: white; background-color: transparent; border: none; border-bottom: 1px solid white; width: 15.2rem">
+                                </div>
+                                <div style="margin: 2.5em 0"></div>
+                                <div class="field text-center">
+                                    <div class="large ui inverted basic submit button">LOGIN</div>
+                                    <div class="large ui inverted basic reset button" style="margin-left: 1em">CLEAR</div>
+                                    <button class="large ui inverted basic button carousel-control-right" style="margin-left: 1em">BACK</button>
+                                    <div class="ui error message"></div>
+                                </div>
+                            </form>      
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include 'scripts.html' %}
+        <script>
+            $('.start-anim').transition({
+                animation: 'scale in',
+                duration: '1s'
+            });
+        </script>
+        <script>
+            $('.intro-anim').transition({
+                animation: 'swing down in',
+                duration: '3s'
+            });
+        </script>
+        <script>
+            $('.hover-anim').hover(function(){
+                $(this).transition({
+                    animation: 'jiggle',
+                    queue: false
+                });
+            });
+        </script>
+        <script>
+            $('.intro-anim2').transition({
+                animation: 'fade down in',
+                duration: '3s'
+            });
+        </script>
+        <script>
+            $('.button-anim1').transition({
+                animation: 'slide right in',
+                duration: '1s'
+            });
+        </script>
+        <script>
+            $('.button-anim2').transition({
+                animation: 'slide left in',
+                duration: '1s'
+            });
+        </script>
+        <script>$('.carousel').carousel({ interval: false })</script>
+        <script>
+            $('.carousel-control-left').on('click', function() {
+                $('#logincarousel').carousel('prev');
+            });
+        </script>
+        <script>
+            $('.carousel-control-right').on('click', function() {
+                $('#logincarousel').carousel('next');
+            });
+        </script>
+	</body>
+</html>
