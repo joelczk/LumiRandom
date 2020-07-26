@@ -17,7 +17,8 @@ constraints and must be enforced using triggers
 2. PSQL (Please refer to [here](https://www.guru99.com/download-install-postgresql.html) on installation process for PSQL)
 
 ## Setting Up
-1. Setting up the database
-```psql
-Test
+```bash
+$ git clone https://www.github.com/joelczk/CS2102-Project
+$ cd CS2102-Project
+$ pip3 install -R requirements.txt
 ```
