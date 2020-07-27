@@ -42,11 +42,15 @@ $ python3 start.py
 
 ## User Accounts
 1. Students:
+
 username: Any value from `S00001` to `S01000`
+
 password : `password`
 
 2. Professors:
+
 username: Any value from `P00001` to `P00100`
+
 password : `password`
 
 
